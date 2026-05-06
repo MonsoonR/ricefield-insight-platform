@@ -1,13 +1,14 @@
 from datetime import date, datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 ValueType = Literal["float", "int"]
 SourceType = Literal["excel", "geojson", "manual"]
 QualityFlag = Literal["normal", "missing", "outlier", "error"]
-ImportStatus = Literal["pending", "processing", "success", "failed", "partial_success"]
+ImportStatus = Literal["pending", "processing", "success", "failed", "partial_success", "partial"]
+QualityReportStatus = Literal["success", "partial", "failed"]
 IssueSeverity = Literal["info", "warning", "error"]
 
 
@@ -74,3 +75,17 @@ class ImportIssue(BaseModel):
     raw_cell: str | None = None
     plot_code: str | None = None
     metric_code: str | None = None
+
+
+class ImportQualityReport(BaseModel):
+    import_batch_id: str
+    source_file: str
+    successful_record_count: int
+    missing_value_count: int
+    outlier_count: int
+    unmatched_plots: list[str]
+    error_cells: list[str]
+    skipped_record_count: int
+    parse_duration_ms: int
+    status: QualityReportStatus
+    parse_errors: list[str] = Field(default_factory=list)

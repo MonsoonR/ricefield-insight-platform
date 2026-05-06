@@ -45,13 +45,15 @@
 | `plot_code` | str | 地块编号 |
 | `metric_code` | str | 指标编码 |
 | `value` | float / int / null | 指标值，缺失或错误时可为空 |
-| `unit` | str | 单位 |
+| `unit` | str | 单位，来自指标字典 |
 | `observed_at` | date | 观测日期 |
 | `import_batch_id` | str | 导入批次 ID |
 | `source_file` | str | 来源文件 |
 | `raw_sheet` | str / null | 来源工作表 |
-| `raw_cell` | str / null | 来源单元格 |
+| `raw_cell` | str / null | 来源单元格，如 `C2` |
 | `quality_flag` | `normal` / `missing` / `outlier` / `error` | 数据质量标记 |
+
+第一版 Excel 解析服务会为每个可定位到地块和日期的指标单元格生成一条记录。标准宽表直接按指标编码列展开；研究数据导出格式按 `type` 映射指标编码，并把每个 `地块编号:"数值"` 单元格拆成一条记录。缺失值、异常值和无法解析的指标值不会被静默丢弃，而是通过 `quality_flag` 标记，并进入导入质量报告。
 
 ### ImportBatch 导入批次
 
@@ -60,7 +62,7 @@
 | `import_batch_id` | str | 导入批次 ID |
 | `source_file` | str | 来源文件名 |
 | `imported_at` | datetime | 导入时间 |
-| `status` | `pending` / `processing` / `success` / `failed` / `partial_success` | 导入状态 |
+| `status` | `pending` / `processing` / `success` / `failed` / `partial_success` / `partial` | 导入状态 |
 | `record_count` | int | 成功记录数 |
 | `warning_count` | int | 警告数量 |
 | `error_count` | int | 错误数量 |
@@ -80,9 +82,27 @@
 | `plot_code` | str / null | 关联地块编号 |
 | `metric_code` | str / null | 关联指标编码 |
 
+### ImportQualityReport 导入质量报告
+
+每次 Excel 导入都必须生成质量报告，供导入中心展示和后续 API 返回。
+
+| 字段 | 类型 | 含义 |
+|---|---|---|
+| `import_batch_id` | str | 导入批次 ID |
+| `source_file` | str | 文件名称 |
+| `successful_record_count` | int | 成功记录数，即 `quality_flag=normal` 的记录数 |
+| `missing_value_count` | int | 缺失值数量 |
+| `outlier_count` | int | 异常值数量 |
+| `unmatched_plots` | list[str] | 未匹配地块编号列表 |
+| `error_cells` | list[str] | 错误单元格列表 |
+| `skipped_record_count` | int | 跳过的指标单元格数量 |
+| `parse_duration_ms` | int | 解析耗时，单位毫秒 |
+| `status` | `success` / `partial` / `failed` | 导入状态 |
+| `parse_errors` | list[str] | 工作表级或文件级解析错误说明 |
+
 ## 追溯规则
 
-每条 `MetricObservation` 必须保留 `plot_code`、`metric_code`、`observed_at`、`import_batch_id`、`source_file`、`raw_sheet`、`raw_cell` 和 `quality_flag`。导入服务不得隐藏缺失值、异常值、无法解析的单元格或未匹配地块，应转化为观测记录或 `ImportIssue`。
+每条 `MetricObservation` 必须保留 `plot_code`、`metric_code`、`observed_at`、`import_batch_id`、`source_file`、`raw_sheet`、`raw_cell` 和 `quality_flag`。导入服务不得隐藏缺失值、异常值、无法解析的单元格或未匹配地块，应转化为观测记录、质量报告字段或后续可落库的 `ImportIssue`。
 
 ## 后续补充
 
