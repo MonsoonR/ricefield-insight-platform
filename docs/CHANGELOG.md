@@ -15,6 +15,9 @@
 - 支持 `data/imports/` 示例 Excel 的研究数据导出格式，按 `type` 映射指标并拆解 `地块编号:"数值"` 单元格。
 - 添加 Excel 解析测试夹具和单元测试，覆盖正常值、缺失值、异常值、错误单元格、未匹配地块、无效日期、目录批量读取和研究数据导出格式。
 - 新增 `data/imports/` 目录占位，用于后续放置待导入 Excel 文件。
+- 新增 `data/geojson/` 目录占位，用于后续放置待导入地块 GeoJSON 文件。
+- 实现第一版地块 GeoJSON 解析服务 `backend/app/services/importer/geojson.py`，支持目录读取、地块编号标准化、区域识别、别名展开、地块状态标记和匹配报告。
+- 添加 GeoJSON 解析测试夹具和单元测试，覆盖 `21A-1` 归一、东区/西区同号区分、复合别名、重复编号、乱码编号和 Excel/GeoJSON 双向未匹配报告。
 
 ### 修改
 
@@ -22,6 +25,8 @@
 - 将“每次更新必须写入 `docs/CHANGELOG.md`、每次完成更新并验证后必须 Git 提交”写入 `AGENTS.md` 和 `docs/CODEX_WORKFLOW.md`。
 - 全面更新 `docs/CODEX_WORKFLOW.md`，对齐 `docs/PROJECT_PLAN.md` 和 `AGENTS.md` 的数据治理、MVP 边界、文档同步、Git 提交和代码审查约束。
 - 更新后端依赖清单，加入 `pandas` 和 `openpyxl` 作为 Excel 解析依赖。
+- 更新 `Plot` 数据结构，新增 `aliases` 字段；新增 `PlotGeoJsonReport` 用于承载地块空间数据解析报告。
+- 补充 `.gitignore`，忽略 pytest 临时目录，避免本地测试产物进入提交范围。
 
 ### 文档更新
 
@@ -30,10 +35,12 @@
 - 更新 `docs/DATA_MODEL.md`，补齐 `Metric`、`Plot`、`MetricObservation`、`ImportBatch`、`ImportIssue` 字段说明和来源追溯规则。
 - 更新 `docs/IMPORT_GUIDE.md`，明确第一版 Excel 输入格式、解析流程、质量标记规则、质量报告结构和测试夹具处理方式。
 - 更新 `docs/DATA_MODEL.md`，补齐 `ImportQualityReport` 字段和 Excel 解析后的追溯规则。
+- 更新 `docs/DATA_MODEL.md` 和 `docs/IMPORT_GUIDE.md`，补齐 GeoJSON 解析流程、地块编号标准化规则、别名表和 GeoJSON 报告结构。
 
 ### 验证
 
 - 已通过 `backend\.venv\Scripts\python.exe -m pytest backend\tests\test_metric_dictionary.py`。
 - 已通过 `backend\.venv\Scripts\python.exe -m pytest backend\tests`。
 - 已通过 `backend\.venv\Scripts\python.exe -m pytest backend\tests\test_excel_importer.py`。
+- 已通过 `backend\.venv\Scripts\python.exe -m pytest backend\tests\test_geojson_importer.py`。
 - 已对 `data/imports/` 下 22 个未跟踪示例 Excel 执行只读解析验证，生成 24526 条观测记录，失败文件数为 0。

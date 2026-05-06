@@ -4,7 +4,7 @@
 
 数据导入的目标不是简单读取文件，而是把来源不统一的 Excel 和 GeoJSON 转换为稳定、可追溯、可检查的标准化数据。
 
-第一版先实现 Excel 解析：读取 `.xlsx` 文件，把每个指标单元格转换为统一长表记录，并同步生成导入质量报告。GeoJSON 解析仍按 MVP 后续任务推进。
+第一版已实现 Excel 和地块 GeoJSON 的基础解析：Excel 读取 `.xlsx` 文件，把每个指标单元格转换为统一长表记录，并同步生成导入质量报告；GeoJSON 读取 `data/geojson/` 下的地块边界文件，输出标准化 `Plot` 列表、别名表和地块匹配报告。
 
 ## 第一版 Excel 导入流程
 
@@ -39,6 +39,32 @@
 | P002 | 2026-05-01 | 0.74 | 95 |
 
 一个文件可以包含多个工作表，一个工作表可以包含一个或多个指标列。非指标字典列第一版不参与解析。
+
+## 第一版 GeoJSON 导入流程
+
+1. 默认读取 `data/geojson/` 目录下的 `.geojson` 文件。
+2. 每个 Feature 从 `properties.plot_code`、`properties.id`、`properties.name`、`properties.编号` 或 `properties.地块编号` 中识别地块编号。
+3. 从文件名、FeatureCollection `name` 或 Feature `properties.region` 推断区域；`east` / `东区` 归为东区，`west` / `西区` 归为西区。
+4. 读取 Feature `geometry` 原样写入 `Plot.geometry`，供后续地图接口和 Cesium 展示使用。
+5. 生成标准 `plot_code`、`plot_id`、`aliases`、`region`、`geometry`、`status`。
+6. 生成 `plot_aliases` 别名表，支持一个别名映射到多个地块 ID，用于处理东区、西区同号地块或重复数据。
+7. 可选传入 Excel 中出现过的地块编号，输出 Excel/GeoJSON 双向不匹配报告。
+
+## 地块编号标准化规则
+
+第一版标准化函数为 `normalize_plot_code(...)`，规则保持可解释、可回溯，不对无法确认的编号做强行猜测：
+
+- 去除首尾空白、引号和花括号；
+- 使用 Unicode NFKC 规范化，统一全角/半角字符；
+- 删除编号内部空白，统一大小写；
+- 将中文破折号、长短横线和下划线统一为 `-`；
+- `21A-1` 这类“字母地块 + 分株后缀”归一为 `21A`，但 `E1-16`、`1-16` 这类基础编号保持不变；
+- `64A/64C`、`21A/C`、`24-1C/1A` 这类复合写法会展开为多个别名；
+- 东区、西区不靠 `plot_code` 合并，`plot_id` 使用区域前缀区分，例如 `east-21A` 与 `west-21A`；
+- 疑似乱码编号，如包含替换字符 `�` 或常见 mojibake 片段的编号，进入 `garbled_plot_codes` 报告，不生成可定位地块；
+- 同一区域内重复的标准编号进入 `duplicate_plot_codes`，对应地块状态标记为 `duplicate`；
+- Excel 中存在但 GeoJSON 中无法定位的编号进入 `unmatched_excel_plots`；
+- GeoJSON 中存在但当前 Excel 暂无数据的地块进入 `geojson_plots_without_excel_data`，对应地块状态标记为 `no_data`。
 
 ### 研究数据导出格式
 
@@ -116,11 +142,25 @@
 - `partial`：生成了部分记录，但存在质量问题；
 - `failed`：文件无法读取，或没有生成任何观测记录。
 
+## GeoJSON 报告结构
+
+`PlotGeoJsonReport` 至少包含：
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `source_files` | list[str] | 已读取的 GeoJSON 文件 |
+| `total_feature_count` | int | Feature 总数 |
+| `parsed_plot_count` | int | 成功解析出的地块数量 |
+| `duplicate_plot_codes` | list[str] | 同一区域内重复编号 |
+| `garbled_plot_codes` | list[str] | 疑似乱码编号 |
+| `unmatched_excel_plots` | list[str] | Excel 中存在但 GeoJSON 中无法定位的地块 |
+| `geojson_plots_without_excel_data` | list[str] | GeoJSON 中存在但当前 Excel 暂无数据的地块 |
+
 ## 临时样例数据处理
 
 开发早期可以使用临时样例数据理解真实文件结构，但临时目录不作为长期工程内容。样例数据后续可删除，因此业务代码、测试和正式文档不能硬编码临时样例目录路径。
 
-如果当前没有真实 Excel 文件，使用 `backend/tests/fixtures/excel_fixtures.py` 生成最小 `.xlsx` 测试夹具来验证解析流程。测试夹具只表达稳定的导入契约，不依赖临时样例目录。
+如果当前没有真实 Excel 文件，使用 `backend/tests/fixtures/excel_fixtures.py` 生成最小 `.xlsx` 测试夹具来验证解析流程。GeoJSON 测试使用 `backend/tests/fixtures/geojson/` 下的最小静态夹具。测试夹具只表达稳定的导入契约，不依赖临时样例目录。
 
 ## 当前状态
 
@@ -130,3 +170,11 @@
 - 单文件解析：`parse_excel_file(...)`；
 - 目录批量解析：`parse_excel_directory(...)`，可读取传入的 `data/imports/` 目录；
 - 测试：`backend/tests/test_excel_importer.py`，覆盖标准宽表和研究数据导出格式。
+
+已实现第一版 GeoJSON 解析服务：
+
+- 代码入口：`backend/app/services/importer/geojson.py`；
+- 目录批量解析：`parse_geojson_directory(...)`，可读取传入的 `data/geojson/` 目录；
+- 标准化函数：`normalize_plot_code(...)`；
+- 别名映射：`build_plot_lookup(...)` 可把多个别名映射到同一 `plot_id`；
+- 测试：`backend/tests/test_geojson_importer.py`，覆盖标准化、别名展开、区域区分、重复编号、乱码编号和 Excel/GeoJSON 双向未匹配报告。

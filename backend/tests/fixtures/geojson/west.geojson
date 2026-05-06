@@ -1,0 +1,16 @@
+{
+  "type": "FeatureCollection",
+  "name": "west",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "21A"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[123.0, 45.0], [123.1, 45.0], [123.1, 45.1], [123.0, 45.0]]]
+      }
+    }
+  ]
+}

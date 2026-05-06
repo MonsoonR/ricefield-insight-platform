@@ -29,10 +29,27 @@
 |---|---|---|
 | `plot_id` | str | 地块唯一 ID |
 | `plot_code` | str | 地块编号 |
+| `aliases` | list[str] | 地块别名列表，用于把 Excel、GeoJSON 中的不同写法映射到同一地块 |
 | `plot_name` | str / null | 地块名称或别名 |
 | `region` | str / null | 所属区域，如东区、西区 |
 | `geometry` | object / null | 地块空间边界，来源于 GeoJSON |
-| `status` | str | 地块状态，第一版默认 `normal` |
+| `status` | str | 地块状态，第一版包括 `normal`、`no_data`、`duplicate` |
+
+GeoJSON 解析后，`plot_id` 使用“区域 + 标准地块编号”生成，例如 `east-21A`、`west-21A`。东区和西区存在相同地块编号时，不合并为同一地块；别名表允许同一个别名映射到多个 `plot_id`，由后续 Excel 区域信息或人工校验进一步消歧。
+
+### PlotGeoJsonReport 地块空间数据报告
+
+每次 GeoJSON 解析都必须输出报告，不能隐藏重复编号、乱码编号或 Excel/GeoJSON 双向不匹配问题。
+
+| 字段 | 类型 | 含义 |
+|---|---|---|
+| `source_files` | list[str] | 本次读取的 GeoJSON 文件名 |
+| `total_feature_count` | int | GeoJSON Feature 总数 |
+| `parsed_plot_count` | int | 成功解析出的地块数量 |
+| `duplicate_plot_codes` | list[str] | 同一区域内重复的标准地块编号，如 `东区:S15` |
+| `garbled_plot_codes` | list[str] | 疑似乱码或不可可靠标准化的原始编号 |
+| `unmatched_excel_plots` | list[str] | Excel 中存在但 GeoJSON 中无法定位的地块编号 |
+| `geojson_plots_without_excel_data` | list[str] | GeoJSON 中存在但当前 Excel 数据中暂无观测值的地块 |
 
 ### MetricObservation 指标观测值
 

@@ -33,10 +33,21 @@ class Metric(BaseModel):
 class Plot(BaseModel):
     plot_id: str
     plot_code: str
+    aliases: list[str] = Field(default_factory=list)
     plot_name: str | None = None
     region: str | None = None
     geometry: dict[str, Any] | None = None
     status: str = "normal"
+
+
+class PlotGeoJsonReport(BaseModel):
+    source_files: list[str]
+    total_feature_count: int
+    parsed_plot_count: int
+    duplicate_plot_codes: list[str] = Field(default_factory=list)
+    garbled_plot_codes: list[str] = Field(default_factory=list)
+    unmatched_excel_plots: list[str] = Field(default_factory=list)
+    geojson_plots_without_excel_data: list[str] = Field(default_factory=list)
 
 
 class MetricObservation(BaseModel):
