@@ -13,3 +13,4 @@
 - 初始化本地 Git 仓库，使用 `main` 作为默认分支。
 - 为当前阶段的空目录添加 `.gitkeep`，确保后续推送到 GitHub 后仍保留 `.github/workflows`、`data`、`deploy`、`frontend`、`scripts` 和 `tests` 目录。
 - 更新 `.gitignore`，忽略 pytest 在 Windows 环境下可能生成的 `pytest-cache-files-*` 临时目录。
+- 将“每次更新必须写入 `docs/CHANGELOG.md`、每次完成更新并验证后必须 Git 提交”写入 `AGENTS.md` 和 `docs/CODEX_WORKFLOW.md`。
