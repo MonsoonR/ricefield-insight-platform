@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+pytest-cache-files-*/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Build outputs
+dist/
+build/
+coverage/
+htmlcov/
+*.egg-info/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Local temporary data
+tempdata/
+tmp/
+*.tmp
+*.log
+
+# Local project data
+data/raw/
+data/processed/
+data/reports/
+data/local/
+*.sqlite
+*.sqlite3
+*.db
+
+# Database volumes
+postgres-data/
+pgdata/
+db-data/
+volumes/
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
