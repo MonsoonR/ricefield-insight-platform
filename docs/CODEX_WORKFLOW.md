@@ -31,14 +31,16 @@
 推荐顺序：
 
 ```text
-1. 阅读 docs/PROJECT_PLAN.md
-2. 阅读当前阶段相关文档
-3. 说明本次改动计划
-4. 修改代码
-5. 添加测试
-6. 运行检查
-7. 更新文档
-8. 总结改动和下一步
+1. 阅读 AGENTS.md（了解协作规则和技术边界）
+2. 阅读 docs/PROJECT_PLAN.md
+3. 阅读当前阶段相关文档
+4. 说明本次改动计划
+5. 修改代码
+6. 添加测试
+7. 运行检查
+8. 更新文档（包括 CHANGELOG.md）
+9. Git 提交
+10. 总结改动和下一步
 ```
 
 ### 1.3 每次任务都要求 Codex 给出变更摘要
@@ -126,7 +128,7 @@ M13 Docker 部署与交付文档
 每次开启新的 Codex 任务时，可以先贴下面这段作为通用约束。
 
 ```text
-你正在开发“稻田智研平台”（RiceField Insight Platform）。这是一个面向研究所研究人员的智慧农田数据可视化与分析平台。
+你正在开发”稻田智研平台”（RiceField Insight Platform）。这是一个面向研究所研究人员的智慧农田数据可视化与分析平台。
 
 项目目标：
 - 定期导入研究人员提供的 Excel 数据；
@@ -154,7 +156,24 @@ M13 Docker 部署与交付文档
 9. 修改代码后给出运行命令、测试命令和变更摘要。
 10. 优先保证 MVP 可运行，再考虑复杂扩展。
 
-请先阅读已有 README.md 和 docs/PROJECT_PLAN.md，再执行本次任务。
+数据治理原则：
+11. 所有指标进入系统前必须先进入指标字典。
+12. Excel 解析后统一转换为长表结构，前端不得直接依赖 Excel 原始结构。
+13. 每条数据记录必须支持来源追溯，至少保留：地块编号、指标编码、指标值、观测时间、导入批次ID、来源文件、来源工作表、来源单元格、数据质量标记。
+14. 每次导入都必须生成质量报告，至少包括：成功记录数、缺失值数量、异常值数量、未匹配地块、错误单元格、跳过记录、解析耗时、导入状态。
+15. 临时样例数据只用于理解数据结构，不得在业务代码、测试或文档中硬编码临时样例目录路径。
+
+文档同步原则：
+16. 新增或修改数据字段、指标编码、导入规则、API 响应结构、页面结构、设计规范或部署方式时，必须同步更新对应文档。
+17. 每次有实际更新时，必须同步更新 docs/CHANGELOG.md，按日期归档，使用中文说明新增、修改、修复、文档更新和验证情况。
+18. 优先更新：DATA_MODEL.md、METRIC_DICTIONARY.md、API.md、DESIGN_SYSTEM.md、IMPORT_GUIDE.md、CHANGELOG.md。
+
+Git 提交原则：
+19. 每次任务完成并通过验证后，必须执行 Git 提交。
+20. 提交前检查 git status 和暂存范围，避免提交虚拟环境、缓存、临时样例数据或无关文件。
+21. 不要引入未讨论的新技术栈或依赖。
+
+请先阅读已有 README.md、docs/PROJECT_PLAN.md 和 AGENTS.md，再执行本次任务。
 ```
 
 ---
@@ -254,12 +273,35 @@ M13 Docker 部署与交付文档
 
 要求：
 1. 在 backend/app/core/ 或 backend/app/services/ 中创建指标字典定义。
-2. 每个指标至少包含：metric_code、metric_name、category、unit、value_type、precision、description。
-3. 建立 Pydantic schema：Metric、Plot、MetricObservation、ImportBatch、ImportIssue。
-4. 数据结构优先服务 MVP，可以暂时不接数据库。
-5. 增加测试，验证指标字典中包含上述所有指标。
-6. 更新 docs/METRIC_DICTIONARY.md。
-7. 更新 docs/DATA_MODEL.md。
+2. 每个指标至少包含以下字段（参考 docs/PROJECT_PLAN.md 第 7.1 节）：
+   - metric_code：指标编码（英文短码，如 crop_growth、chlorophyll）
+   - metric_name：中文名称
+   - category：指标类别（如 作物指标、土壤指标）
+   - unit：单位
+   - value_type：数值类型（float / int）
+   - precision：小数位数
+   - normal_range：正常范围（min, max）
+   - color_scale：地图色阶（如 green-yellow-red）
+   - description：指标说明
+   - source_type：数据来源类型（如 excel、geojson、manual）
+3. 建立统一长表结构（参考 PROJECT_PLAN 第 7.2 节），字段包括：
+   - id：记录 ID
+   - plot_id：地块 ID
+   - plot_code：地块编号
+   - metric_code：指标编码
+   - value：指标值
+   - unit：单位
+   - observed_at：观测日期
+   - import_batch_id：导入批次 ID
+   - source_file：来源文件
+   - raw_sheet：来源工作表
+   - raw_cell：来源单元格
+   - quality_flag：数据质量标记（normal / missing / outlier / error）
+4. 建立 Pydantic schema：Metric、Plot、MetricObservation、ImportBatch、ImportIssue。
+5. 数据结构优先服务 MVP，可以暂时不接数据库。
+6. 增加测试，验证指标字典中包含上述所有指标。
+7. 更新 docs/METRIC_DICTIONARY.md。
+8. 更新 docs/DATA_MODEL.md。
 
 完成后输出：指标编码列表、数据模型说明、测试命令、下一步建议。
 ```
@@ -277,29 +319,36 @@ M13 Docker 部署与交付文档
 要求：
 1. 在 backend/app/services/importer/ 下实现 Excel 解析服务。
 2. 使用 pandas + openpyxl。
-3. 输出统一长表结构字段：
-   - plot_code
-   - metric_code
-   - value
-   - unit
-   - observed_at
-   - source_file
-   - raw_sheet
-   - raw_cell
-   - quality_flag
-4. 建立质量报告结构，至少包括：
+3. 输出统一长表结构（参考 docs/PROJECT_PLAN.md 第 7.2 节），每条记录必须包含：
+   - id：记录 ID
+   - plot_id：地块 ID
+   - plot_code：地块编号
+   - metric_code：指标编码
+   - value：指标值
+   - unit：单位
+   - observed_at：观测日期
+   - import_batch_id：导入批次 ID
+   - source_file：来源文件
+   - raw_sheet：来源工作表
+   - raw_cell：来源单元格
+   - quality_flag：数据质量标记（normal / missing / outlier / error）
+4. 建立质量报告结构（参考 PROJECT_PLAN 第 7.4 节），至少包括：
+   - 导入批次 ID
+   - 文件名称
    - 成功记录数
    - 缺失值数量
    - 异常值数量
-   - 未识别地块
-   - 未识别指标
-   - 错误单元格
-5. 不要静默丢弃异常数据。
+   - 未匹配地块列表
+   - 错误单元格列表
+   - 跳过记录数
+   - 解析耗时（毫秒）
+   - 导入状态（success / partial / failed）
+5. 不要静默丢弃异常数据，所有异常必须进入质量报告。
 6. 支持读取 data/imports/ 下的示例 Excel。
 7. 添加单元测试。
 8. 更新 docs/IMPORT_GUIDE.md 和 docs/DATA_MODEL.md。
 
-如果当前没有真实 Excel 文件，请创建一个最小示例文件或测试 fixture，用于验证解析流程。
+如果当前没有真实 Excel 文件，请创建一个最小示例文件或测试 fixture，用于验证解析流程。测试 fixture 应放在 tests/ 目录下，不要硬编码临时样例目录路径。
 
 完成后输出：解析流程、质量报告结构、测试结果、下一步建议。
 ```
@@ -313,10 +362,16 @@ M13 Docker 部署与交付文档
 
 要求：
 1. 支持读取 data/geojson/ 下的地块 GeoJSON 文件。
-2. 解析地块编号、区域、geometry。
-3. 建立地块编号标准化函数。
-4. 支持地块别名机制，例如 21A/21C、21A-21C、S14、S15 等情况。
-5. 输出 Plot 数据结构。
+2. 解析地块编号（plot_code）、地块别名（alias）、所属区域（东区/西区）、geometry。
+3. 建立地块编号标准化函数，参考 docs/PROJECT_PLAN.md 第 7.3 节，处理以下情况：
+   - 不同写法的同一地块（如 21A 和 21A-1）
+   - 东区、西区编号差异
+   - 重复编号
+   - 中文乱码编号
+   - Excel 中存在但 GeoJSON 中无法定位的地块
+   - GeoJSON 中存在但 Excel 中暂无数据的地块
+4. 建立地块别名表（plot_aliases），支持一对多别名映射。
+5. 输出 Plot 数据结构，包含：plot_id、plot_code、aliases、region、geometry、status。
 6. 生成未匹配或重复地块报告。
 7. 添加测试。
 8. 更新 docs/DATA_MODEL.md 和 docs/IMPORT_GUIDE.md。
@@ -331,23 +386,29 @@ M13 Docker 部署与交付文档
 ```text
 请实现稻田智研平台 MVP 所需的后端 API。
 
-接口包括：
-1. GET /api/health
-2. GET /api/metrics
-3. GET /api/plots
-4. GET /api/dates
-5. GET /api/imports
-6. GET /api/imports/{id}/report
-7. GET /api/map/layers
-8. GET /api/plots/{plotId}/series
+接口包括（参考 docs/PROJECT_PLAN.md 第 11 节）：
+1. GET /api/health — 健康检查
+2. GET /api/metrics — 获取指标字典
+3. GET /api/plots — 获取地块列表
+4. GET /api/dates — 获取可用观测日期
+5. GET /api/imports — 获取导入批次列表
+6. GET /api/imports/{id}/report — 获取导入质量报告
+7. GET /api/map/layers — 获取地图图层数据
+8. GET /api/plots/{plotId}/summary — 获取地块摘要
+9. GET /api/plots/{plotId}/series — 获取地块趋势
+10. GET /api/analysis/correlation — 获取相关性分析结果（MVP 阶段可先返回占位结构）
+11. GET /api/analysis/outliers — 获取异常识别结果（MVP 阶段可先返回占位结构）
+12. GET /api/export/report — 导出分析结果（MVP 阶段可先返回占位结构）
 
 要求：
 1. API 可以先读取本地标准化 JSON/CSV 或内存数据。
 2. 不要直接在路由函数里写复杂业务逻辑，业务逻辑放到 service 层。
-3. 返回字段命名稳定。
-4. 错误信息中文可读。
-5. 添加 API 测试。
-6. 更新 docs/API.md。
+3. 路由函数只处理 HTTP 输入输出。
+4. 所有接口请求和响应使用 Pydantic schema 约束。
+5. 返回字段命名稳定，不随 Excel 原始结构变化。
+6. 错误信息中文可读。
+7. 添加 API 测试。
+8. 更新 docs/API.md。
 
 完成后输出：接口列表、请求示例、返回示例、测试结果、下一步建议。
 ```
@@ -392,7 +453,20 @@ M13 Docker 部署与交付文档
    - 数据导入
    - 指标对比
    - 系统文档
-6. 创建基础组件：PageContainer、FilterBar、ChartCard、StatusTag、EmptyState。
+6. 创建基础组件（参考 docs/PROJECT_PLAN.md 第 12 节）：
+   - PageContainer：页面容器，统一标题、间距、布局
+   - FilterBar：通用筛选栏
+   - MetricSelector：指标选择器
+   - DateSelector：日期选择器
+   - RegionSelector：区域选择器（全部/东区/西区）
+   - ChartCard：图表卡片容器
+   - CesiumMapPanel：地图面板容器
+   - DataTable：统一数据表格
+   - StatusTag：状态标签（正常/异常/缺失/无数据）
+   - EmptyState：空状态占位
+   - ErrorState：错误状态占位
+   - ImportStatusTag：导入状态标签
+   - MetricValueTag：指标值标签
 7. 更新 docs/DESIGN_SYSTEM.md 和 docs/FRONTEND_GUIDE.md。
 8. 确保 npm run build 可以通过。
 
@@ -416,9 +490,11 @@ M13 Docker 部署与交付文档
 7. 地块根据当前指标值着色。
 8. 点击地块后显示右侧信息面板。
 9. 信息面板显示：地块编号、区域、指标值、日期、数据来源。
-10. 暂时不要实现复杂三维地形、3D Tiles、遥感时序动画。
-11. 地图相关逻辑拆分为 composable 或 service，避免全部堆在页面组件中。
-12. 更新 docs/FRONTEND_GUIDE.md 和 docs/USER_MANUAL.md。
+10. 无数据地块使用统一样式（灰色或虚线边框），与有数据地块明确区分。
+11. 异常地块使用明显提示样式（如红色边框或高亮闪烁）。
+12. 暂时不要实现复杂三维地形、3D Tiles、遥感时序动画。
+13. 地图相关逻辑拆分为 composable 或 service，避免全部堆在页面组件中。
+14. 更新 docs/FRONTEND_GUIDE.md 和 docs/USER_MANUAL.md。
 
 完成后输出：地图实现说明、数据依赖、运行命令、下一步建议。
 ```
@@ -452,9 +528,9 @@ M13 Docker 部署与交付文档
 要求：
 1. 展示导入批次列表。
 2. 显示每个批次的导入时间、文件数量、成功记录数、问题数量、状态。
-3. 支持点击批次查看质量报告。
-4. 质量报告显示：缺失值、异常值、未匹配地块、未识别指标、错误单元格。
-5. 问题列表可以按类型筛选。
+3. 支持点击批次查看质量报告（参考 PROJECT_PLAN 第 7.4 节）。
+4. 质量报告显示：导入批次 ID、文件名称、成功记录数、缺失值数量、异常值数量、未匹配地块列表、错误单元格列表、跳过记录数、解析耗时、导入状态（success / partial / failed）。
+5. 问题列表可以按类型筛选（缺失值、异常值、未匹配地块、错误单元格）。
 6. 所有状态标签使用统一组件。
 7. 暂时可以只展示后端返回的数据，不需要做前端上传。
 8. 更新 docs/USER_MANUAL.md。
@@ -516,7 +592,7 @@ M13 Docker 部署与交付文档
 
 要求：
 1. 相关性分析支持选择两个指标，返回样本量、相关系数、散点图数据。
-2. 异常识别支持：缺失值、极端值、同区域偏离。
+2. 异常识别支持以下类型（参考 PROJECT_PLAN 第 8.7 节）：缺失值、极端值、同区域偏离、趋势突变、连续多期异常、数据格式异常、地块编号无法匹配、指标单位异常。
 3. 后端提供：
    - GET /api/analysis/correlation
    - GET /api/analysis/outliers
@@ -566,7 +642,7 @@ M13 Docker 部署与交付文档
 请在当前仓库中执行一个小任务。
 
 项目背景：
-这是“稻田智研平台”，技术栈为 Vue 3 + TypeScript + Vite + Ant Design Vue + ECharts + CesiumJS + FastAPI。项目面向研究所研究人员，用于 Excel 数据导入、地块地图展示、指标趋势分析和数据质量报告。
+这是”稻田智研平台”，技术栈为 Vue 3 + TypeScript + Vite + Ant Design Vue + ECharts + CesiumJS + FastAPI。项目面向研究所研究人员，用于 Excel 数据导入、地块地图展示、指标趋势分析和数据质量报告。
 
 本次任务：
 【在这里写清楚一个小任务】
@@ -578,10 +654,22 @@ M13 Docker 部署与交付文档
 4. 页面中文优先。
 5. 代码结构要适合个人开发者维护。
 
+数据与架构约束：
+6. Excel 解析后统一为长表结构，前端不直接依赖 Excel 原始结构。
+7. 每次导入必须生成质量报告，不能隐藏缺失值、异常值、未匹配地块或解析错误。
+8. 后端路由只处理 HTTP 输入输出，业务逻辑放在 service 层。
+9. 请求、响应和数据结构使用 Pydantic schema 约束。
+10. 不要在业务代码、测试或文档中硬编码临时样例目录路径。
+
+文档与 Git 约束：
+11. 新增或修改数据字段、指标编码、导入规则、API 响应结构、页面结构时，必须同步更新对应文档。
+12. 每次有实际更新时，必须同步更新 docs/CHANGELOG.md。
+13. 任务完成并通过验证后，必须执行 Git 提交。
+
 交付要求：
 1. 修改必要代码。
 2. 添加或更新测试。
-3. 更新相关文档。
+3. 更新相关文档（包括 CHANGELOG.md）。
 4. 给出运行命令和测试命令。
 5. 最后输出变更摘要、风险点、下一步建议。
 
@@ -597,16 +685,18 @@ M13 Docker 部署与交付文档
 请审查当前代码，不要直接大规模重写。
 
 重点检查：
-1. 是否符合 docs/PROJECT_PLAN.md 的技术栈和阶段目标；
+1. 是否符合 docs/PROJECT_PLAN.md 和 AGENTS.md 的技术栈和阶段目标；
 2. 前端组件是否职责清晰；
-3. 后端路由是否把业务逻辑放在 service 层；
+3. 后端路由是否把业务逻辑放在 service 层，路由函数只处理 HTTP 输入输出；
 4. Excel 解析是否会静默丢弃异常数据；
-5. API 字段命名是否稳定；
-6. 中文错误提示是否清楚；
-7. 是否缺少测试；
-8. 是否缺少文档更新；
-9. 是否引入了不必要的复杂依赖；
-10. 是否存在安全或部署风险。
+5. 数据是否转换为统一长表结构，是否支持来源追溯；
+6. API 字段命名是否稳定，请求和响应是否使用 Pydantic schema；
+7. 中文错误提示是否清楚；
+8. 是否缺少测试；
+9. 是否缺少文档更新（特别是 CHANGELOG.md）；
+10. 是否引入了不必要的复杂依赖或新技术栈；
+11. 是否存在安全或部署风险；
+12. 是否在业务代码或测试中硬编码了临时样例目录路径。
 
 请输出：
 - 问题清单；
@@ -792,7 +882,11 @@ Excel 导入 → 数据质量报告 → API → Cesium 地图 → 地块着色 �
 
 这个闭环完成后，再做数据库、相关性分析、异常识别、部署。
 
-### 控制点 5：你负责验收，Codex 负责实现
+### 控制点 5：临时数据不进业务代码
+
+临时样例数据只用于理解数据结构和验证导入规则。业务代码、测试夹具、文档规范中不得硬编码临时样例目录路径（如 `data/raw/sample_2025.xlsx`）。样例数据的结论应沉淀为指标字典、数据模型、导入契约、质量规则或测试夹具设计。
+
+### 控制点 6：你负责验收，Codex 负责实现
 
 Codex 可以写代码、补测试、改文档。你需要负责判断：
 
