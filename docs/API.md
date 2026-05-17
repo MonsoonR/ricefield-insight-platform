@@ -2,49 +2,94 @@
 
 ## 设计原则
 
-API 返回字段命名应稳定，错误信息中文可读。路由函数只处理 HTTP 输入输出，业务逻辑放在服务层。所有接口响应应使用 Pydantic schema 约束结构。
+API 主线是“数字孪生场景查询”，不再提供 Excel 导入、导入报告或文件导出接口。所有接口默认使用当前演示场景 `demo-ricefield-2025`，支持可选 `scenario_id` 校验。
 
-## 已实现接口
+## 接口总览
 
-### GET /api/health
+| 接口 | 用途 |
+|---|---|
+| `GET /api/health` | 健康检查 |
+| `GET /api/scenarios` | 场景列表 |
+| `GET /api/scenarios/current` | 当前场景 |
+| `GET /api/scenarios/{scenario_id}` | 场景详情 |
+| `GET /api/scenarios/{scenario_id}/overview` | 场景驾驶舱数据 |
+| `GET /api/metrics` | 指标字典 |
+| `GET /api/plots` | 地块列表 |
+| `GET /api/dates` | 可用观测日期 |
+| `GET /api/map/layers` | Cesium 地块图层和指标着色 |
+| `GET /api/plots/{plot_id}/summary` | 地块摘要 |
+| `GET /api/plots/{plot_id}/series` | 地块趋势 |
+| `GET /api/analysis/correlation` | 第一阶段占位相关性接口 |
+| `GET /api/analysis/metric-compare` | 指标地块对比 |
+| `GET /api/analysis/warnings` | 预警分析 |
 
-用途：后端服务健康检查。
+已移除：
 
-请求参数：无。
+- `/api/imports`
+- `/api/imports/{id}/report`
+- `/api/export/report`
 
-响应示例：
+## 场景概览
+
+`GET /api/scenarios/demo-ricefield-2025/overview`
+
+返回：
 
 ```json
 {
-  "status": "ok",
-  "message": "稻田智研平台后端服务运行正常"
+  "scenario": {
+    "scenario_id": "demo-ricefield-2025",
+    "scenario_name": "稻田数字孪生演示场景 2025",
+    "data_mode": "demo"
+  },
+  "stat_cards": [
+    {"label": "地块数量", "value": "8", "note": "程序生成示例地块"}
+  ],
+  "health_score": 92,
+  "default_metric_code": "crop_growth",
+  "default_observed_at": "2025-07-15",
+  "quality_counts": {"normal": 3954, "missing": 2, "outlier": 4, "error": 0},
+  "region_status": [
+    {"region": "试验一区", "plot_count": 4, "warning_count": 3}
+  ]
 }
 ```
 
-字段说明：
+## 地图图层
 
-| 字段 | 类型 | 说明 |
-|---|---|---|
-| `status` | string | 服务状态，当前正常时返回 `ok` |
-| `message` | string | 中文状态说明 |
+`GET /api/map/layers?metric_code=crop_growth&observed_at=2025-07-15`
 
-## 初步接口规划
+返回 GeoJSON FeatureCollection。每个 feature 的 `properties` 包含：
 
-| 接口 | 用途 | 状态 |
-|---|---|---|
-| `GET /api/health` | 健康检查 | 已实现 |
-| `GET /api/metrics` | 获取指标字典 | 规划中 |
-| `GET /api/plots` | 获取地块列表 | 规划中 |
-| `GET /api/dates` | 获取可用观测日期 | 规划中 |
-| `GET /api/imports` | 获取导入批次列表 | 规划中 |
-| `GET /api/imports/{id}/report` | 获取导入质量报告 | 规划中 |
-| `GET /api/map/layers` | 获取地图图层数据 | 规划中 |
-| `GET /api/plots/{plotId}/summary` | 获取地块摘要 | 规划中 |
-| `GET /api/plots/{plotId}/series` | 获取地块趋势 | 规划中 |
-| `GET /api/analysis/correlation` | 获取相关性分析结果 | 规划中 |
-| `GET /api/analysis/outliers` | 获取异常识别结果 | 规划中 |
-| `GET /api/export/report` | 导出分析结果 | 规划中 |
+- `plot_id`
+- `plot_code`
+- `plot_name`
+- `region`
+- `metric_code`
+- `value`
+- `unit`
+- `observed_at`
+- `quality_flag`
+- `fill_color`
+- `batch_id`
+- `data_source_id`
 
-## 当前状态
+## 指标对比
 
-当前仅完成 FastAPI 工程初始化和健康检查接口。后续开发业务 API 前，应先补充请求参数、响应示例、错误码和分页规则，并同步更新数据模型、指标字典和导入规则文档。
+`GET /api/analysis/metric-compare?metric_code=crop_growth&observed_at=2025-07-15`
+
+返回按指标值排序的地块列表，字段包含 `rank`、`plot_id`、`plot_code`、`region`、`value`、`unit`、`quality_flag`。
+
+## 预警分析
+
+`GET /api/analysis/warnings`
+
+返回缺失、异常和错误预警列表。每条预警包含地块、指标、日期、严重级别和值。
+
+## 错误
+
+不存在的场景、地块或指标返回 404，并使用中文错误：
+
+```json
+{"detail": "未找到场景：not-found"}
+```

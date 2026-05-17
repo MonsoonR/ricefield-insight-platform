@@ -1,60 +1,58 @@
 # 稻田智研平台
 
-稻田智研平台（RiceField Insight Platform）是面向研究所研究人员的农田数据可视化与分析平台，重点服务水稻试验田、农田地块和环境指标研究。
+稻田智研平台（RiceField Insight Platform）是面向大创答辩与科研展示的稻田数字孪生可视化平台。新版第一阶段聚焦一个可直接演示的数字孪生闭环：场景驾驶舱、Cesium 地图孪生、地块画像、指标对比、预警分析和系统说明。
 
-第一版目标是把定期提供的 Excel 数据和地块 GeoJSON 数据统一整理为可复用的数据结构，并通过地图、图表、表格和质量报告帮助研究人员查看地块状态、指标趋势和数据问题。
+项目不接入、不保存、不展示真实客户数据文件。默认演示数据由后端程序生成，包括示例稻田场景、8 个地块边界、11 个指标、45 天时序观测和 6 条预警事件。
 
 ## 技术栈
-
-本仓库遵循 `docs/PROJECT_PLAN.md` 中已经讨论过的技术方案，本次初始化不引入新技术，也不实现业务代码。
 
 | 层级 | 技术 |
 |---|---|
 | 前端 | Vue 3、TypeScript、Vite、Vue Router、Pinia、Ant Design Vue、ECharts、CesiumJS、Axios |
-| 后端 | FastAPI、Pydantic、pandas、openpyxl、SQLAlchemy、Alembic、Pytest |
-| 数据 | MVP 阶段优先使用标准化 JSON / CSV / 可选 SQLite，正式阶段再接入 PostgreSQL + PostGIS |
+| 后端 | FastAPI、Pydantic、SQLAlchemy、Alembic、Pytest |
+| 默认数据层 | 程序生成模拟场景 |
+| 可选正式层 | PostgreSQL + PostGIS |
 | 部署 | Nginx、Docker Compose |
-| 协作 | GitHub、GitHub Actions |
 
-## 目录结构
+第一阶段已移除 Excel、GeoJSON 文件导入、导入中心和导入质量报告主线。
 
-```text
-ricefield-insight-platform/
-├── backend/              后端服务目录，后续放置 FastAPI 应用、数据解析、服务层和测试
-├── frontend/             前端应用目录，后续放置 Vue 3 页面、组件、路由、状态和样式
-├── data/                 本地数据目录，存放原始数据、标准化结果和质量报告；不提交真实数据
-├── docs/                 项目规划、架构、接口、数据模型、设计规范和使用文档
-├── deploy/               部署配置目录，后续放置 Docker Compose、Nginx 和内网部署说明
-├── scripts/              工程脚本目录，后续放置数据处理、检查、导入等辅助脚本
-├── tests/                跨模块或端到端测试目录；后端单元测试可按后续工程结构放置
-└── .github/workflows/    GitHub Actions 工作流目录
+## 页面闭环
+
+- 场景驾驶舱：展示当前数字孪生场景、健康度、观测天数、预警数量和区域状态。
+- Cesium 地图孪生：在卫星底图上展示地块边界、指标着色、点击详情和趋势联动。
+- 地块画像：查看单个地块基础信息、多指标快照、趋势和数据来源。
+- 指标对比：按指标、日期和区域对比各地块状态。
+- 预警分析：展示缺失、异常和错误预警，并在地图上定位地块。
+- 系统说明：集中展示项目文档索引。
+
+## 本地启动
+
+```powershell
+backend\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --reload
+npm --prefix frontend run dev
 ```
 
-## 本地开发方式
+默认不需要数据库或本地数据文件。
 
-当前阶段仅完成仓库初始化，尚未生成前端和后端工程文件，因此没有可启动的本地服务。
+如需使用 PostGIS 可选正式层：
 
-后续初始化工程后，建议按以下顺序开发：
-
-1. 阅读 `docs/PROJECT_PLAN.md`，确认当前阶段目标。
-2. 阅读 `docs/DATA_MODEL.md` 和 `docs/METRIC_DICTIONARY.md`，先固定数据结构和指标字典。
-3. 初始化后端 FastAPI 工程，优先完成 Excel / GeoJSON 解析和质量报告。
-4. 初始化前端 Vue 3 工程，优先搭建统一布局和设计规范。
-5. 再接入地图、图表和导入中心等业务页面。
+```powershell
+$env:APP_DATA_BACKEND="postgres"
+$env:DATABASE_URL="postgresql+psycopg://ricefield:ricefield@127.0.0.1:5432/ricefield"
+backend\.venv\Scripts\python.exe -m alembic -c backend\alembic.ini upgrade head
+backend\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --reload
+```
 
 ## 文档入口
 
 | 文档 | 用途 |
 |---|---|
-| `docs/PROJECT_PLAN.md` | 项目总体规划和阶段目标 |
-| `docs/ARCHITECTURE.md` | 系统架构与模块边界 |
-| `docs/DATA_MODEL.md` | 核心数据模型和字段约定 |
-| `docs/METRIC_DICTIONARY.md` | 指标字典和指标治理规则 |
-| `docs/API.md` | API 草案与接口设计原则 |
-| `docs/DESIGN_SYSTEM.md` | 中文优先的数据分析界面设计规范 |
-| `docs/FRONTEND_GUIDE.md` | 前端开发约定 |
-| `docs/BACKEND_GUIDE.md` | 后端开发约定 |
-| `docs/IMPORT_GUIDE.md` | 数据导入与质量报告说明 |
-| `docs/USER_MANUAL.md` | 用户使用手册入口 |
-| `docs/DEPLOYMENT.md` | 部署与运维说明 |
-| `docs/CHANGELOG.md` | 版本变更记录 |
+| `docs/PROJECT_PLAN.md` | 项目定位、MVP 范围和阶段目标 |
+| `docs/ARCHITECTURE.md` | 前后端、数据层和地图可视化架构 |
+| `docs/DATA_MODEL.md` | 数字孪生场景、地块、指标、观测和预警模型 |
+| `docs/METRIC_DICTIONARY.md` | 第一阶段演示指标字典 |
+| `docs/API.md` | 后端 API 契约 |
+| `docs/DESIGN_SYSTEM.md` | 界面布局、视觉和交互规范 |
+| `docs/IMPORT_GUIDE.md` | 模拟场景与数据生成指南 |
+| `docs/USER_MANUAL.md` | 页面使用说明 |
+| `docs/CHANGELOG.md` | 变更记录 |

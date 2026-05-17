@@ -1,0 +1,116 @@
+:root {
+  --rf-primary: #07883f;
+  --rf-primary-dark: #01462f;
+  --rf-primary-darker: #003823;
+  --rf-primary-soft: #e7f7ee;
+  --rf-success: #169b62;
+  --rf-warning: #f59e0b;
+  --rf-error: #ef4444;
+  --rf-info: #2563eb;
+  --rf-purple: #8b5cf6;
+  --rf-cyan: #06b6d4;
+  --rf-text: #102033;
+  --rf-text-muted: #667789;
+  --rf-text-soft: #8b9aaa;
+  --rf-bg: #f5f8f7;
+  --rf-surface: #ffffff;
+  --rf-border: #dfe8e4;
+  --rf-border-soft: #edf2f0;
+  --rf-shadow: 0 14px 36px rgba(15, 56, 37, 0.08);
+  --rf-shadow-soft: 0 8px 22px rgba(15, 56, 37, 0.06);
+  --rf-radius: 8px;
+  --rf-radius-lg: 10px;
+  color: var(--rf-text);
+  background: var(--rf-bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 32% 0%, rgba(7, 136, 63, 0.06), transparent 28rem),
+    var(--rf-bg);
+  color: var(--rf-text);
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.page-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.page-grid--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.page-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.page-grid--four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.page-grid--asymmetric {
+  grid-template-columns: minmax(0, 1.45fr) minmax(340px, 0.55fr);
+}
+
+.muted-text {
+  color: var(--rf-text-muted);
+}
+
+.panel {
+  border: 1px solid var(--rf-border-soft);
+  border-radius: var(--rf-radius-lg);
+  background: var(--rf-surface);
+  box-shadow: var(--rf-shadow-soft);
+}
+
+.section-title {
+  margin: 0;
+  color: var(--rf-text);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.section-subtitle {
+  margin: 4px 0 0;
+  color: var(--rf-text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.placeholder-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--rf-radius);
+  background: #eff6ff;
+  color: #1e3a8a;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+@media (max-width: 920px) {
+  .page-grid--two,
+  .page-grid--three,
+  .page-grid--four,
+  .page-grid--asymmetric {
+    grid-template-columns: 1fr;
+  }
+}

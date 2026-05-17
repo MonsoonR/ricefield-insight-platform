@@ -1,30 +1,47 @@
 # 前端开发指南
 
-## 技术范围
+## 技术栈
 
-前端按项目计划使用 Vue 3、TypeScript、Vite、Vue Router、Pinia、Ant Design Vue、ECharts、CesiumJS 和 Axios。本次初始化不创建前端工程，也不编写页面或组件代码。
+Vue 3、TypeScript、Vite、Vue Router、Pinia、Ant Design Vue、ECharts、CesiumJS、Axios。
 
-## 目录建议
+## 目录约定
 
-后续初始化前端后，建议在 `frontend/src/` 下按职责组织：
-
-| 目录 | 用途 |
+| 目录 | 说明 |
 |---|---|
-| `api/` | 后端接口封装 |
-| `assets/` | 静态资源 |
-| `components/` | 通用组件 |
-| `composables/` | 组合式逻辑 |
-| `constants/` | 常量与枚举 |
-| `layouts/` | 页面布局 |
-| `router/` | 路由配置 |
-| `stores/` | Pinia 状态 |
-| `styles/` | 全局样式和主题 |
-| `types/` | TypeScript 类型 |
-| `utils/` | 通用工具函数 |
-| `views/` | 页面视图 |
+| `src/api` | 后端 API 请求 |
+| `src/pages` | 六页数字孪生演示页面 |
+| `src/components/base` | 通用布局、地图、图表、表格、筛选器和状态组件 |
+| `src/services` | 页面无关的转换、排序、状态计算 |
+| `src/types` | API 和通用类型 |
 
-## 开发约定
+## 页面路由
 
-前端不直接解析 Excel，不直接依赖原始数据结构。页面应消费后端提供的标准化 API，并通过统一组件展示筛选器、地图、图表、表格和质量状态。
+- `/overview`
+- `/map-twin`
+- `/plot-detail/:plotId?`
+- `/metric-compare`
+- `/warnings`
+- `/system-docs`
 
-新增页面前，应先确认对应数据模型、接口草案和设计规范已经写入文档。
+不再提供 `/data-import`、`/outliers`、`/correlation`。
+
+## API 使用
+
+前端只请求标准化 API，不解析本地文件。新增页面应优先复用 `src/api/index.ts` 中的函数。
+
+## 测试
+
+当前服务层测试：
+
+```powershell
+npm --prefix frontend run test:overview
+npm --prefix frontend run test:page-linkage
+npm --prefix frontend run test:twin-analysis
+npm --prefix frontend run test:map
+```
+
+构建：
+
+```powershell
+npm --prefix frontend run build
+```

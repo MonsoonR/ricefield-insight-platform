@@ -11,8 +11,8 @@ METRIC_DICTIONARY: tuple[Metric, ...] = (
         precision=2,
         normal_range=NormalRange(min=0.6, max=1.0),
         color_scale="red-yellow-green",
-        description="用于描述水稻当前长势状态，第一版按标准化长势评分进入系统。",
-        source_type="excel",
+        description="用于描述水稻当前生长状态，演示阶段由模拟规则生成标准化长势评分。",
+        source_type="simulated",
     ),
     Metric(
         metric_code="maturity_prediction",
@@ -23,8 +23,8 @@ METRIC_DICTIONARY: tuple[Metric, ...] = (
         precision=0,
         normal_range=NormalRange(min=70, max=140),
         color_scale="green-yellow-red",
-        description="用于记录预测成熟所需天数，支持后续比较不同地块成熟期差异。",
-        source_type="excel",
+        description="用于记录预测成熟所需天数，支持比较不同地块的生育进程差异。",
+        source_type="simulated",
     ),
     Metric(
         metric_code="chlorophyll",
@@ -36,7 +36,7 @@ METRIC_DICTIONARY: tuple[Metric, ...] = (
         normal_range=NormalRange(min=30, max=50),
         color_scale="red-yellow-green",
         description="用于观察作物叶片叶绿素水平和生理状态。",
-        source_type="excel",
+        source_type="simulated",
     ),
     Metric(
         metric_code="nitrogen",
@@ -47,8 +47,8 @@ METRIC_DICTIONARY: tuple[Metric, ...] = (
         precision=2,
         normal_range=NormalRange(min=80, max=200),
         color_scale="red-yellow-green",
-        description="用于分析土壤氮素水平，后续导入规则可补充不同形态氮的映射。",
-        source_type="excel",
+        description="用于分析土壤氮素水平，后续真实接入可映射不同形态氮。",
+        source_type="simulated",
     ),
     Metric(
         metric_code="phosphorus",
@@ -60,7 +60,7 @@ METRIC_DICTIONARY: tuple[Metric, ...] = (
         normal_range=NormalRange(min=10, max=40),
         color_scale="red-yellow-green",
         description="用于分析土壤有效磷水平。",
-        source_type="excel",
+        source_type="simulated",
     ),
     Metric(
         metric_code="potassium",
@@ -72,7 +72,7 @@ METRIC_DICTIONARY: tuple[Metric, ...] = (
         normal_range=NormalRange(min=80, max=200),
         color_scale="red-yellow-green",
         description="用于分析土壤速效钾水平。",
-        source_type="excel",
+        source_type="simulated",
     ),
     Metric(
         metric_code="ph",
@@ -83,8 +83,8 @@ METRIC_DICTIONARY: tuple[Metric, ...] = (
         precision=2,
         normal_range=NormalRange(min=5.5, max=7.5),
         color_scale="red-yellow-green",
-        description="用于描述土壤酸碱度，过低或过高都应进入质量检查关注范围。",
-        source_type="excel",
+        description="用于描述土壤酸碱度，过低或过高均进入质量关注范围。",
+        source_type="simulated",
     ),
     Metric(
         metric_code="organic_matter",
@@ -96,7 +96,7 @@ METRIC_DICTIONARY: tuple[Metric, ...] = (
         normal_range=NormalRange(min=20, max=40),
         color_scale="red-yellow-green",
         description="用于描述土壤肥力基础状况。",
-        source_type="excel",
+        source_type="simulated",
     ),
     Metric(
         metric_code="soluble_total_salt",
@@ -108,7 +108,7 @@ METRIC_DICTIONARY: tuple[Metric, ...] = (
         normal_range=NormalRange(min=0, max=2),
         color_scale="green-yellow-red",
         description="用于识别土壤盐分异常，数值越高越需要关注。",
-        source_type="excel",
+        source_type="simulated",
     ),
     Metric(
         metric_code="leaf_area_index",
@@ -120,7 +120,7 @@ METRIC_DICTIONARY: tuple[Metric, ...] = (
         normal_range=NormalRange(min=3, max=7),
         color_scale="red-yellow-green",
         description="用于观察水稻冠层生长和群体结构。",
-        source_type="excel",
+        source_type="simulated",
     ),
     Metric(
         metric_code="plant_height",
@@ -132,7 +132,7 @@ METRIC_DICTIONARY: tuple[Metric, ...] = (
         normal_range=NormalRange(min=60, max=120),
         color_scale="red-yellow-green",
         description="用于记录植株高度并分析不同地块生长趋势。",
-        source_type="excel",
+        source_type="simulated",
     ),
 )
 

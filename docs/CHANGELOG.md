@@ -1,46 +1,33 @@
 # 变更记录
 
-## 2026-05-06
+## 2026-05-17
 
 ### 新增
 
-- 初始化项目仓库目录结构，创建中文优先的 README 和基础文档入口。
-- 初始化 `backend/` FastAPI 后端工程，建立 `app/api`、`app/core`、`app/models`、`app/schemas`、`app/services`、`app/repositories` 和 `tests` 目录。
-- 实现 `GET /api/health` 健康检查接口，返回中文状态信息。
-- 添加后端依赖清单、pytest 配置和健康检查测试。
-- 建立第一版指标字典 `backend/app/core/metric_dictionary.py`，包含作物长势、成熟期预测、叶绿素、氮、磷、钾、pH、有机质、可溶性总盐分、叶面积指数、株高 11 个指标。
-- 建立 Pydantic 数据模型 `backend/app/schemas/data_model.py`，包含 `Metric`、`Plot`、`MetricObservation`、`ImportBatch`、`ImportIssue`，并定义统一长表追溯字段和质量标记。
-- 添加指标字典测试，验证第一版指标编码、字典必备字段和长表追溯字段。
-- 实现第一版 Excel 解析服务 `backend/app/services/importer/excel.py`，支持按指标字典识别宽表指标列并输出统一长表记录。
-- 支持 `data/imports/` 示例 Excel 的研究数据导出格式，按 `type` 映射指标并拆解 `地块编号:"数值"` 单元格。
-- 添加 Excel 解析测试夹具和单元测试，覆盖正常值、缺失值、异常值、错误单元格、未匹配地块、无效日期、目录批量读取和研究数据导出格式。
-- 新增 `data/imports/` 目录占位，用于后续放置待导入 Excel 文件。
-- 新增 `data/geojson/` 目录占位，用于后续放置待导入地块 GeoJSON 文件。
-- 实现第一版地块 GeoJSON 解析服务 `backend/app/services/importer/geojson.py`，支持目录读取、地块编号标准化、区域识别、别名展开、地块状态标记和匹配报告。
-- 添加 GeoJSON 解析测试夹具和单元测试，覆盖 `21A-1` 归一、东区/西区同号区分、复合别名、重复编号、乱码编号和 Excel/GeoJSON 双向未匹配报告。
+- 新增数字孪生场景概览接口 `GET /api/scenarios/{scenario_id}/overview`。
+- 新增指标对比接口 `GET /api/analysis/metric-compare`。
+- 新增预警分析接口 `GET /api/analysis/warnings`。
+- 新增前端“预警分析”页面和 `twinAnalysis` 服务测试。
 
 ### 修改
 
-- 更新 `.gitignore`，忽略依赖、缓存、构建产物、环境变量、本地临时数据、数据库卷和 Windows 环境下可能生成的 `pytest-cache-files-*` 临时目录。
-- 将“每次更新必须写入 `docs/CHANGELOG.md`、每次完成更新并验证后必须 Git 提交”写入 `AGENTS.md` 和 `docs/CODEX_WORKFLOW.md`。
-- 全面更新 `docs/CODEX_WORKFLOW.md`，对齐 `docs/PROJECT_PLAN.md` 和 `AGENTS.md` 的数据治理、MVP 边界、文档同步、Git 提交和代码审查约束。
-- 更新后端依赖清单，加入 `pandas` 和 `openpyxl` 作为 Excel 解析依赖。
-- 更新 `Plot` 数据结构，新增 `aliases` 字段；新增 `PlotGeoJsonReport` 用于承载地块空间数据解析报告。
-- 补充 `.gitignore`，忽略 pytest 临时目录，避免本地测试产物进入提交范围。
+- 将项目主线从数据导入/质量报告平台重构为大创答辩用稻田数字孪生可视化平台。
+- 前端导航调整为六页闭环：场景驾驶舱、Cesium 地图孪生、地块画像、指标对比、预警分析、系统说明。
+- 后端数据模型从 `ImportBatch` / `ImportQualityReport` 语义迁移为 `ObservationBatch` / `DataQualityIssue`。
+- 地图、趋势、地块摘要响应不再暴露 Excel 来源文件、工作表或单元格字段。
+- `README.md` 和 docs 文档全部更新为新版执行基准。
+- 同步更新 `docs/dachuang-pitch/` 与 `docs/superpowers/specs/` 历史材料，避免继续引用旧版导入型 MVP。
 
-### 文档更新
+### 删除
 
-- 更新后端开发指南和 API 文档，记录后端启动、测试方式和 `/api/health` 响应结构。
-- 更新 `docs/METRIC_DICTIONARY.md`，补齐第一版指标编码、单位、类型、精度、正常范围、色阶和来源类型。
-- 更新 `docs/DATA_MODEL.md`，补齐 `Metric`、`Plot`、`MetricObservation`、`ImportBatch`、`ImportIssue` 字段说明和来源追溯规则。
-- 更新 `docs/IMPORT_GUIDE.md`，明确第一版 Excel 输入格式、解析流程、质量标记规则、质量报告结构和测试夹具处理方式。
-- 更新 `docs/DATA_MODEL.md`，补齐 `ImportQualityReport` 字段和 Excel 解析后的追溯规则。
-- 更新 `docs/DATA_MODEL.md` 和 `docs/IMPORT_GUIDE.md`，补齐 GeoJSON 解析流程、地块编号标准化规则、别名表和 GeoJSON 报告结构。
+- 删除 Excel importer、GeoJSON importer、数据库导入服务和相关测试夹具。
+- 删除前端数据导入中心、导入状态组件、导入 API、导入服务和导入测试。
+- 删除前端相关性页面和异常识别占位页面，改为预警分析页。
+- 移除 `/api/imports`、`/api/imports/{id}/report`、`/api/export/report` 第一阶段接口。
+- 后端依赖移除 `pandas` 和 `openpyxl`。
 
 ### 验证
 
-- 已通过 `backend\.venv\Scripts\python.exe -m pytest backend\tests\test_metric_dictionary.py`。
-- 已通过 `backend\.venv\Scripts\python.exe -m pytest backend\tests`。
-- 已通过 `backend\.venv\Scripts\python.exe -m pytest backend\tests\test_excel_importer.py`。
-- 已通过 `backend\.venv\Scripts\python.exe -m pytest backend\tests\test_geojson_importer.py`。
-- 已对 `data/imports/` 下 22 个未跟踪示例 Excel 执行只读解析验证，生成 24526 条观测记录，失败文件数为 0。
+- 已通过后端测试：`backend\.venv\Scripts\python.exe -m pytest backend\tests -q`。
+- 已通过前端服务测试：`test:overview`、`test:page-linkage`、`test:twin-analysis`、`test:map`。
+- 已通过前端构建：`npm --prefix frontend run build`。
