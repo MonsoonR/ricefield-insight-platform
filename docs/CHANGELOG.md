@@ -8,6 +8,7 @@
 - 新增指标对比接口 `GET /api/analysis/metric-compare`。
 - 新增预警分析接口 `GET /api/analysis/warnings`。
 - 新增前端“预警分析”页面和 `twinAnalysis` 服务测试。
+- 新增大创立项答辩可编辑 PowerPoint：`docs/dachuang-pitch/稻田智研平台立项答辩-张焱哲.pptx`，包含 9 页答辩内容和演讲者备注。
 
 ### 修改
 
@@ -17,6 +18,7 @@
 - 地图、趋势、地块摘要响应不再暴露 Excel 来源文件、工作表或单元格字段。
 - `README.md` 和 docs 文档全部更新为新版执行基准。
 - 同步更新 `docs/dachuang-pitch/` 与 `docs/superpowers/specs/` 历史材料，避免继续引用旧版导入型 MVP。
+- 更新 `docs/dachuang-pitch/README.md`，补充可编辑 PowerPoint 版本说明。
 
 ### 删除
 
@@ -31,3 +33,4 @@
 - 已通过后端测试：`backend\.venv\Scripts\python.exe -m pytest backend\tests -q`。
 - 已通过前端服务测试：`test:overview`、`test:page-linkage`、`test:twin-analysis`、`test:map`。
 - 已通过前端构建：`npm --prefix frontend run build`。
+- 已通过答辩 PPT 导出与校验：9 页幻灯片、9 组演讲者备注、无空媒体文件，布局检查 0 error / 0 warning。
