@@ -38,14 +38,14 @@ withDefaults(
   display: flex;
   align-items: center;
   gap: 16px;
-  min-height: 106px;
+  min-height: 112px;
   border: 1px solid var(--rf-border-soft);
   border-radius: var(--rf-radius-lg);
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.84)),
     var(--rf-surface);
   box-shadow: var(--rf-shadow-soft);
-  padding: 18px 20px;
+  padding: 20px 22px;
 }
 
 .stat-card__icon {
@@ -56,7 +56,7 @@ withDefaults(
   place-items: center;
   border-radius: 50%;
   color: var(--tone);
-  background: color-mix(in srgb, var(--tone) 14%, white);
+  background: color-mix(in srgb, var(--tone) 13%, white);
   font-size: 24px;
 }
 
@@ -74,7 +74,7 @@ withDefaults(
 
 .stat-card__body strong {
   display: block;
-  margin: 4px 0 2px;
+  margin: 5px 0 4px;
   color: var(--rf-text);
   font-size: 28px;
   font-weight: 850;

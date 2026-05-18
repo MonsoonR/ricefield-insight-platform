@@ -19,22 +19,23 @@
         :feature-collection="filteredFeatureCollection"
         :loading="loading"
         :selected-plot-id="selectedPlotId"
-        :height="560"
+        :height="620"
         @plot-click="handlePlotClick"
         @imagery-error="imageryError = $event"
       >
         <template #toolbar>
           <a-space>
-            <a-button @click="selectFirstPlot">定位首个地块</a-button>
-            <a-button @click="clearSelection">清除选择</a-button>
+            <a-button @click="selectFirstPlot">定位地块</a-button>
+            <a-button @click="clearSelection">清除</a-button>
           </a-space>
         </template>
         <template #legend>
           <div class="map-legend">
             <strong>{{ currentMetricName }}</strong>
-            <span><i class="legend-good" />有效数据</span>
-            <span><i class="legend-warning" />临界/缺失</span>
-            <span><i class="legend-error" />异常/错误</span>
+            <span><i class="legend-good" />正常</span>
+            <span><i class="legend-attention" />关注</span>
+            <span><i class="legend-warning" />预警</span>
+            <span><i class="legend-error" />严重</span>
             <span><i class="legend-empty" />无数据</span>
           </div>
         </template>
@@ -94,7 +95,7 @@
       <ChartCard title="当前筛选摘要" :loading="loading">
         <div class="map-summary">
           <div><span>地块数量</span><strong>{{ filteredFeatureCollection.features.length }}</strong></div>
-          <div><span>有效数据占比</span><strong>{{ validRate }}%</strong></div>
+          <div><span>正常状态占比</span><strong>{{ validRate }}%</strong></div>
           <div><span>区域</span><strong>{{ regionLabel }}</strong></div>
           <div><span>日期</span><strong>{{ filters.observedAt || '最新' }}</strong></div>
         </div>
@@ -246,8 +247,8 @@ const plotTrendOption = computed<EChartsOption>(() => ({
     smooth: true,
     symbolSize: 7,
     data: selectedSeriesPoints.value.map((point) => point.value),
-    lineStyle: { width: 3, color: '#07883f' },
-    itemStyle: { color: '#07883f' },
+    lineStyle: { width: 3, color: '#15905d' },
+    itemStyle: { color: '#15905d' },
     areaStyle: { color: 'rgba(7, 136, 63, 0.10)' },
   }],
 }));
@@ -366,12 +367,12 @@ function clearSelection() {
 <style scoped>
 .map-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 330px;
-  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 16px;
 }
 
 .map-detail {
-  padding: 16px;
+  padding: 20px;
 }
 
 .map-detail__title,
@@ -403,7 +404,8 @@ function clearSelection() {
 }
 
 .map-detail__plot strong {
-  font-size: 28px;
+  color: var(--rf-text);
+  font-size: 32px;
   font-weight: 900;
 }
 
@@ -418,6 +420,13 @@ function clearSelection() {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  border-bottom: 1px solid var(--rf-border-soft);
+  padding-bottom: 10px;
+}
+
+.map-detail__list div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
 }
 
 .map-detail__list dt {
@@ -434,11 +443,6 @@ function clearSelection() {
   display: grid;
   gap: 8px;
   min-width: 160px;
-  border: 1px solid var(--rf-border-soft);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: var(--rf-shadow-soft);
-  padding: 12px;
 }
 
 .map-legend strong,
@@ -446,7 +450,7 @@ function clearSelection() {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--rf-text);
+  color: #fff;
   font-size: 12px;
 }
 
@@ -461,11 +465,15 @@ function clearSelection() {
 }
 
 .legend-warning {
-  background: #f59e0b;
+  background: #f97316;
+}
+
+.legend-attention {
+  background: #f6c343;
 }
 
 .legend-error {
-  background: #ef4444;
+  background: #ef3b2d;
 }
 
 .legend-empty {

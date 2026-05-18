@@ -1,5 +1,32 @@
 # 变更记录
 
+## 2026-05-19
+
+### 修改
+
+- 重构前端整体视觉风格，统一为浅色科研工作台与绿色稻田数字孪生平台风格。
+- 左侧导航改为浅色固定侧栏，当前页面使用绿色高亮；顶部栏改为全局状态、预警入口、文档入口和演示用户信息。
+- 优化基础组件样式，统一 `PageContainer`、`FilterBar`、`StatCard`、`ChartCard`、`DataTable`、`StatusTag`、`MetricValueTag` 和 `CesiumMapPanel` 的间距、圆角、阴影、标题和预警色阶。
+- 优化场景驾驶舱，新增更强的平台场景横幅与健康度展示，并统一区域预警、质量分布、指标排行和近期预警视觉。
+- 优化 Cesium 地图孪生页，提升地图高度和视觉权重，统一地图图例、详情面板、趋势图和筛选摘要。
+- 优化地块画像页，新增地块概要区，强化地块编号、区域、最近观测、数据来源、观测批次和完整率展示。
+- 优化指标对比页，新增区域对比和状态分布，排行图按质量状态使用统一色阶。
+- 优化预警分析页，统一图例与状态分级颜色，强化预警地块分布和地块状态信息。
+- 优化系统说明页，聚焦平台定位、当前模拟数据、数字孪生构建流程、系统边界、后续演进和文档索引。
+
+### 文档更新
+
+- 更新 `docs/DESIGN_SYSTEM.md`，沉淀参考图提炼出的平台色彩、布局、组件、地图和预警规范。
+- 更新 `docs/FRONTEND_GUIDE.md`，补充六页页面结构和视觉实现规则。
+- 更新 `docs/USER_MANUAL.md`，同步新版页面功能说明和状态分级说明。
+
+### 验证
+
+- 已通过后端测试：`backend\.venv\Scripts\python.exe -m pytest backend\tests -q`。
+- 已通过前端服务测试：`npm --prefix frontend run test:overview`、`npm --prefix frontend run test:page-linkage`、`npm --prefix frontend run test:twin-analysis`、`npm --prefix frontend run test:map`。
+- 已通过前端构建：`npm --prefix frontend run build`。
+- 本地服务检查：已有后端 `http://127.0.0.1:8000/api/health` 返回 200；前端开发服务可通过 `http://127.0.0.1:5174/overview` 访问。
+
 ## 2026-05-18
 
 ### 新增

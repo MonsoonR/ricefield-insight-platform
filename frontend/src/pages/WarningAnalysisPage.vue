@@ -20,7 +20,7 @@
         :value="card.value"
         :note="card.note"
         :icon="card.label.includes('缺失') ? QuestionCircleOutlined : AlertOutlined"
-        tone="orange"
+        :tone="card.label.includes('严重') ? 'red' : 'orange'"
       />
       <StatCard label="地图地块" :value="featureCollection.features.length" tone="green" :icon="EnvironmentOutlined" />
     </div>
@@ -37,9 +37,11 @@
         <template #legend>
           <div class="warning-legend">
             <strong>图例</strong>
-            <span><i class="legend-high" />异常/错误</span>
-            <span><i class="legend-mid" />缺失/临界</span>
+            <span><i class="legend-severe" />严重</span>
+            <span><i class="legend-warning" />预警</span>
+            <span><i class="legend-attention" />关注</span>
             <span><i class="legend-good" />正常</span>
+            <span><i class="legend-empty" />无数据</span>
           </div>
         </template>
       </CesiumMapPanel>
@@ -165,7 +167,7 @@ const distributionOption = computed<EChartsOption>(() => ({
     radius: ['48%', '72%'],
     center: ['36%', '50%'],
     data: distributionData.value,
-    color: ['#f59e0b', '#ef4444', '#9ca3af'],
+    color: ['#f6c343', '#f97316', '#ef3b2d', '#9ca3af'],
   }],
 }));
 
@@ -232,11 +234,11 @@ function warningLabel(flag: string) {
 .warning-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
-  gap: 14px;
+  gap: 16px;
 }
 
 .warning-detail {
-  padding: 16px;
+  padding: 20px;
 }
 
 .warning-detail__hero {
@@ -273,6 +275,7 @@ function warningLabel(flag: string) {
 .warning-legend {
   display: grid;
   gap: 7px;
+  min-width: 120px;
 }
 
 .warning-legend span {
@@ -288,16 +291,24 @@ function warningLabel(flag: string) {
   border-radius: 3px;
 }
 
-.legend-high {
-  background: #ef4444;
+.legend-severe {
+  background: #ef3b2d;
 }
 
-.legend-mid {
-  background: #f59e0b;
+.legend-warning {
+  background: #f97316;
+}
+
+.legend-attention {
+  background: #f6c343;
 }
 
 .legend-good {
-  background: #169b62;
+  background: #16a36a;
+}
+
+.legend-empty {
+  background: #d1d5db;
 }
 
 @media (max-width: 1080px) {

@@ -13,7 +13,7 @@
 
     <section v-if="overview" class="panel scene-hero">
       <div>
-        <span class="scene-hero__eyebrow">当前数字孪生场景</span>
+        <span class="scene-hero__eyebrow">当前场景</span>
         <h2>{{ overview.scenario.scenario_name }}</h2>
         <p>{{ overview.scenario.description }}</p>
       </div>
@@ -122,7 +122,7 @@ const regionOption = computed<EChartsOption>(() => ({
       name: '预警数量',
       type: 'bar',
       data: regionStatus.value.map((item) => item.warning_count),
-      itemStyle: { color: '#d97706' },
+      itemStyle: { color: '#f97316', borderRadius: [7, 7, 0, 0] },
     },
   ],
 }));
@@ -136,7 +136,7 @@ const qualityOption = computed<EChartsOption>(() => ({
     radius: ['48%', '72%'],
     center: ['36%', '50%'],
     data: qualityRows.value,
-    color: ['#169b62', '#f59e0b', '#ef4444', '#9ca3af'],
+    color: ['#16a36a', '#f6c343', '#f97316', '#ef3b2d', '#9ca3af'],
   }],
 }));
 
@@ -149,7 +149,7 @@ const compareOption = computed<EChartsOption>(() => ({
     name: '指标值',
     type: 'bar',
     data: compareRows.value.map((item) => item.value),
-    itemStyle: { color: '#07883f' },
+    itemStyle: { color: '#15905d', borderRadius: [7, 7, 0, 0] },
   }],
 }));
 
@@ -206,29 +206,63 @@ function qualityLabel(flag: string) {
 
 <style scoped>
 .scene-hero {
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 22px 24px;
+  min-height: 220px;
+  border: 0;
+  background:
+    linear-gradient(90deg, rgba(6, 39, 29, 0.82), rgba(6, 74, 51, 0.52) 58%, rgba(6, 74, 51, 0.26)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(6, 74, 51, 0.18)),
+    repeating-linear-gradient(92deg, rgba(186, 218, 134, 0.54) 0 42px, rgba(96, 163, 72, 0.56) 42px 86px),
+    linear-gradient(160deg, #6fa35d, #d6e6a6 55%, #477a49);
+  color: #fff;
+  padding: 34px 36px;
+}
+
+.scene-hero::after {
+  position: absolute;
+  inset: auto 0 0;
+  height: 42%;
+  background:
+    linear-gradient(12deg, rgba(255, 255, 255, 0.22) 0 1px, transparent 1px 42px),
+    linear-gradient(168deg, rgba(255, 255, 255, 0.18) 0 1px, transparent 1px 48px);
+  content: "";
+  pointer-events: none;
+}
+
+.scene-hero > * {
+  position: relative;
+  z-index: 1;
 }
 
 .scene-hero__eyebrow {
-  color: #64748b;
+  display: inline-flex;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.13);
+  color: rgba(255, 255, 255, 0.92);
   font-size: 13px;
   font-weight: 800;
+  padding: 6px 10px;
 }
 
 .scene-hero h2 {
-  margin: 8px 0;
-  color: #13281d;
-  font-size: 26px;
+  margin: 12px 0 8px;
+  color: #fff;
+  font-size: 42px;
+  line-height: 1.08;
 }
 
 .scene-hero p {
   margin: 0;
   max-width: 760px;
-  color: #52635a;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 16px;
+  line-height: 1.75;
 }
 
 .scene-hero__score {
@@ -237,7 +271,7 @@ function qualityLabel(flag: string) {
 
 .scene-hero__score strong {
   display: block;
-  color: #07883f;
+  color: #fff;
   font-size: 42px;
   line-height: 1;
 }
@@ -245,7 +279,7 @@ function qualityLabel(flag: string) {
 .scene-hero__score span {
   display: block;
   margin-top: 8px;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.78);
   font-weight: 800;
 }
 
@@ -263,9 +297,16 @@ function qualityLabel(flag: string) {
 
 .warning-list li {
   display: grid;
-  grid-template-columns: auto 150px minmax(0, 1fr);
+  grid-template-columns: auto 160px minmax(0, 1fr);
   align-items: center;
   gap: 10px;
+  border-bottom: 1px solid var(--rf-border-soft);
+  padding-bottom: 10px;
+}
+
+.warning-list li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
 }
 
 .warning-list span:last-child {

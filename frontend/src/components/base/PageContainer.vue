@@ -32,7 +32,7 @@ withDefaults(
 .page-container {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 .page-container__heading {
@@ -40,7 +40,7 @@ withDefaults(
   align-items: flex-start;
   justify-content: space-between;
   gap: 18px;
-  padding: 6px 4px 4px;
+  padding: 0 8px 2px;
 }
 
 .page-container__breadcrumb {
@@ -52,7 +52,7 @@ withDefaults(
 .page-container h1 {
   margin: 0;
   color: #0d1b2a;
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 900;
   letter-spacing: 0;
   line-height: 1.2;

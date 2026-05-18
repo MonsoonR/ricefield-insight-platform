@@ -56,8 +56,8 @@ withDefaults(
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
-  border-bottom: 1px solid var(--rf-border-soft);
-  padding: 16px 18px 12px;
+  border-bottom: 1px solid rgba(237, 242, 239, 0.86);
+  padding: 18px 20px 13px;
 }
 
 .chart-card__header h2 {
@@ -77,6 +77,6 @@ withDefaults(
 
 .chart-card__body {
   min-width: 0;
-  padding: 16px 18px;
+  padding: 18px 20px;
 }
 </style>

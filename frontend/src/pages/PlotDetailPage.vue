@@ -27,6 +27,21 @@
 
     <ErrorState v-if="error" :message="error" compact />
 
+    <section v-if="summary" class="panel plot-hero">
+      <div class="plot-hero__identity">
+        <strong>{{ summary.plot.plot_code }}</strong>
+        <StatusTag :status="summary.plot.status" />
+        <span>{{ summary.plot.plot_name }} · {{ summary.plot.region }}</span>
+      </div>
+      <div class="plot-hero__facts">
+        <div><span>最近观测</span><b>{{ latestObservation?.observed_at || '--' }}</b></div>
+        <div><span>数据来源</span><b>模拟数据</b></div>
+        <div><span>观测批次</span><b>{{ summary.batch_ids[0] || '--' }}</b></div>
+        <div><span>数据完整率</span><b>{{ completeness }}%</b></div>
+      </div>
+      <a-button @click="$router.push('/map-twin')">定位到地图</a-button>
+    </section>
+
     <div class="page-grid page-grid--four">
       <StatCard label="所属区域" :value="summary?.plot.region || '--'" :icon="EnvironmentOutlined" />
       <StatCard label="地块状态" :value="summary?.plot.status || '--'" tone="green" :icon="SafetyCertificateOutlined" />
@@ -423,7 +438,58 @@ function toNumber(value: number | string | null) {
 .plot-layout {
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr) 360px;
-  gap: 14px;
+  gap: 16px;
+}
+
+.plot-hero {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1.4fr) auto;
+  align-items: center;
+  gap: 22px;
+  padding: 24px 26px;
+}
+
+.plot-hero__identity {
+  display: grid;
+  gap: 7px;
+}
+
+.plot-hero__identity strong {
+  color: var(--rf-text);
+  font-size: 36px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.plot-hero__identity span {
+  color: var(--rf-text-muted);
+}
+
+.plot-hero__facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+}
+
+.plot-hero__facts div {
+  border-left: 1px solid var(--rf-border-soft);
+  padding: 0 18px;
+}
+
+.plot-hero__facts span,
+.plot-hero__facts b {
+  display: block;
+}
+
+.plot-hero__facts span {
+  color: var(--rf-text-muted);
+  font-size: 12px;
+}
+
+.plot-hero__facts b {
+  margin-top: 8px;
+  color: var(--rf-text);
+  font-size: 18px;
 }
 
 .plot-info,
@@ -496,6 +562,17 @@ function toNumber(value: number | string | null) {
 @media (max-width: 1260px) {
   .plot-layout {
     grid-template-columns: 1fr;
+  }
+
+  .plot-hero,
+  .plot-hero__facts {
+    grid-template-columns: 1fr;
+  }
+
+  .plot-hero__facts div {
+    border-left: 0;
+    border-top: 1px solid var(--rf-border-soft);
+    padding: 12px 0;
   }
 }
 </style>

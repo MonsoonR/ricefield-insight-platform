@@ -9,12 +9,12 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   border: 1px solid var(--rf-border-soft);
   border-radius: var(--rf-radius-lg);
-  background: rgb(255 255 255 / 94%);
+  background: rgba(255, 255, 255, 0.96);
   box-shadow: var(--rf-shadow-soft);
-  padding: 14px 16px;
+  padding: 16px 18px;
 }
 
 .filter-bar :deep(.ant-form-item) {
@@ -24,6 +24,6 @@
 .filter-bar :deep(.ant-select),
 .filter-bar :deep(.ant-picker),
 .filter-bar :deep(.ant-input-affix-wrapper) {
-  min-width: 164px;
+  min-width: 176px;
 }
 </style>

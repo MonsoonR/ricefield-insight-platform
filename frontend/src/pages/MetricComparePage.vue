@@ -19,15 +19,31 @@
       <StatCard label="预警地块" :value="warningCount" tone="orange" :icon="AlertOutlined" />
     </div>
 
-    <ChartCard
-      title="地块指标排行"
-      :description="comparison ? `${comparison.metric_name}（${currentUnit}）` : '请选择指标后刷新。'"
-      :loading="loading"
-      :empty="rows.length === 0"
-      :height="360"
-    >
-      <EChartView :option="rankOption" :height="360" />
-    </ChartCard>
+    <div class="metric-dashboard">
+      <ChartCard
+        title="地块指标排行"
+        :description="comparison ? `${comparison.metric_name}（${currentUnit}）` : '请选择指标后刷新。'"
+        :loading="loading"
+        :empty="rows.length === 0"
+        :height="360"
+      >
+        <EChartView :option="rankOption" :height="360" />
+      </ChartCard>
+
+      <section class="panel region-compare">
+        <h2 class="section-title">区域对比</h2>
+        <div v-for="item in regionGroups" :key="item.region" class="region-compare__item">
+          <strong>{{ item.region }}</strong>
+          <span>平均值</span>
+          <b>{{ item.average }} {{ currentUnit }}</b>
+          <small>{{ item.count }} 个地块参与对比</small>
+        </div>
+      </section>
+
+      <ChartCard title="状态分布" :loading="loading" :empty="statusDistribution.length === 0">
+        <EChartView :option="statusOption" :height="360" />
+      </ChartCard>
+    </div>
 
     <DataTable
       title="指标对比明细"
@@ -111,6 +127,32 @@ const currentUnit = computed(() => rows.value[0]?.unit ?? '');
 const warningCount = computed(() =>
   rows.value.filter((item) => item.quality_flag && item.quality_flag !== 'normal').length,
 );
+const regionGroups = computed(() => {
+  const grouped = new Map<string, { total: number; count: number }>();
+  rows.value.forEach((item) => {
+    const region = item.region || '未分区';
+    const current = grouped.get(region) ?? { total: 0, count: 0 };
+    current.total += Number(item.value) || 0;
+    current.count += 1;
+    grouped.set(region, current);
+  });
+  return [...grouped.entries()].map(([region, value]) => ({
+    region,
+    count: value.count,
+    average: value.count ? Math.round((value.total / value.count) * 10) / 10 : 0,
+  }));
+});
+const statusDistribution = computed(() => {
+  const grouped = new Map<string, number>();
+  rows.value.forEach((item) => {
+    const status = item.quality_flag || 'normal';
+    grouped.set(status, (grouped.get(status) ?? 0) + 1);
+  });
+  return [...grouped.entries()].map(([status, value]) => ({
+    name: qualityLabel(status),
+    value,
+  }));
+});
 
 const rankOption = computed<EChartsOption>(() => ({
   tooltip: { trigger: 'axis' },
@@ -120,8 +162,23 @@ const rankOption = computed<EChartsOption>(() => ({
   series: [{
     name: comparison.value?.metric_name ?? '指标值',
     type: 'bar',
-    data: rows.value.map((item) => item.value),
-    itemStyle: { color: '#07883f' },
+    data: rows.value.map((item) => ({
+      value: item.value,
+      itemStyle: { color: qualityColor(item.quality_flag) },
+    })),
+    itemStyle: { borderRadius: [7, 7, 0, 0] },
+  }],
+}));
+const statusOption = computed<EChartsOption>(() => ({
+  tooltip: { trigger: 'item' },
+  legend: { right: 8, top: 'middle', orient: 'vertical' },
+  series: [{
+    name: '质量状态',
+    type: 'pie',
+    radius: ['48%', '72%'],
+    center: ['34%', '50%'],
+    data: statusDistribution.value,
+    color: ['#16a36a', '#f6c343', '#f97316', '#ef3b2d', '#9ca3af'],
   }],
 }));
 
@@ -176,4 +233,79 @@ async function loadComparison() {
     loading.value = false;
   }
 }
+
+function qualityLabel(flag?: string | null) {
+  const labels: Record<string, string> = {
+    normal: '正常',
+    missing: '关注',
+    outlier: '预警',
+    error: '严重',
+  };
+  return labels[flag || 'normal'] ?? (flag || '正常');
+}
+
+function qualityColor(flag?: string | null) {
+  if (flag === 'missing') {
+    return '#f6c343';
+  }
+  if (flag === 'outlier') {
+    return '#f97316';
+  }
+  if (flag === 'error') {
+    return '#ef3b2d';
+  }
+  return '#15905d';
+}
 </script>
+
+<style scoped>
+.metric-dashboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) 300px minmax(300px, 0.7fr);
+  gap: 16px;
+}
+
+.region-compare {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: 18px 20px;
+}
+
+.region-compare__item {
+  border: 1px solid var(--rf-border-soft);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f4faf7, #ffffff);
+  padding: 16px;
+}
+
+.region-compare__item strong,
+.region-compare__item span,
+.region-compare__item b,
+.region-compare__item small {
+  display: block;
+}
+
+.region-compare__item strong {
+  color: var(--rf-primary-dark);
+  font-size: 17px;
+}
+
+.region-compare__item span,
+.region-compare__item small {
+  color: var(--rf-text-muted);
+  font-size: 12px;
+}
+
+.region-compare__item b {
+  margin: 8px 0 10px;
+  color: var(--rf-text);
+  font-size: 26px;
+}
+
+@media (max-width: 1280px) {
+  .metric-dashboard {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

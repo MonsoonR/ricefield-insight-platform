@@ -29,11 +29,14 @@ const displayValue = computed(() => {
 });
 
 const tone = computed(() => {
-  if (props.qualityFlag === 'outlier' || props.qualityFlag === 'error') {
+  if (props.qualityFlag === 'error') {
     return 'red';
   }
-  if (props.qualityFlag === 'missing') {
+  if (props.qualityFlag === 'outlier') {
     return 'orange';
+  }
+  if (props.qualityFlag === 'missing') {
+    return 'yellow';
   }
   return 'green';
 });
@@ -60,12 +63,17 @@ const tone = computed(() => {
 }
 
 .metric-value-tag--orange {
-  background: #fff7ed;
+  background: #ffead5;
   color: #c2410c;
 }
 
+.metric-value-tag--yellow {
+  background: #fff4cf;
+  color: #9a6700;
+}
+
 .metric-value-tag--red {
-  background: #fef2f2;
-  color: #dc2626;
+  background: #fee2dc;
+  color: #c7281d;
 }
 </style>

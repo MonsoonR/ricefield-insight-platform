@@ -75,8 +75,8 @@ withDefaults(
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
-  border-bottom: 1px solid var(--rf-border-soft);
-  padding: 16px 18px 12px;
+  border-bottom: 1px solid rgba(237, 242, 239, 0.86);
+  padding: 18px 20px 13px;
 }
 
 .data-table__header h2 {
@@ -97,6 +97,15 @@ withDefaults(
 }
 
 .data-table :deep(.ant-table-thead > tr > th) {
+  background: #f6f8f7;
   font-weight: 800;
+}
+
+.data-table :deep(.ant-table-tbody > tr > td) {
+  border-color: var(--rf-border-soft);
+}
+
+.data-table :deep(.ant-pagination) {
+  margin-right: 16px;
 }
 </style>

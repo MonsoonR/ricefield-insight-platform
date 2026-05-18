@@ -1,25 +1,28 @@
 :root {
-  --rf-primary: #07883f;
-  --rf-primary-dark: #01462f;
-  --rf-primary-darker: #003823;
-  --rf-primary-soft: #e7f7ee;
-  --rf-success: #169b62;
-  --rf-warning: #f59e0b;
-  --rf-error: #ef4444;
-  --rf-info: #2563eb;
-  --rf-purple: #8b5cf6;
-  --rf-cyan: #06b6d4;
+  --rf-primary: #15905d;
+  --rf-primary-dark: #0b6b45;
+  --rf-primary-darker: #064a33;
+  --rf-primary-soft: #e8f6ef;
+  --rf-success: #16a36a;
+  --rf-attention: #f6c343;
+  --rf-warning: #f97316;
+  --rf-error: #ef3b2d;
+  --rf-info: #2878d7;
+  --rf-purple: #7c5ce6;
+  --rf-cyan: #0e9fb3;
   --rf-text: #102033;
   --rf-text-muted: #667789;
   --rf-text-soft: #8b9aaa;
-  --rf-bg: #f5f8f7;
+  --rf-bg: #f6f8f7;
   --rf-surface: #ffffff;
-  --rf-border: #dfe8e4;
-  --rf-border-soft: #edf2f0;
-  --rf-shadow: 0 14px 36px rgba(15, 56, 37, 0.08);
-  --rf-shadow-soft: 0 8px 22px rgba(15, 56, 37, 0.06);
+  --rf-surface-soft: #f9fbfa;
+  --rf-border: #dde7e2;
+  --rf-border-soft: #edf2ef;
+  --rf-shadow: 0 18px 42px rgba(15, 56, 37, 0.09);
+  --rf-shadow-soft: 0 10px 26px rgba(15, 56, 37, 0.065);
   --rf-radius: 8px;
-  --rf-radius-lg: 10px;
+  --rf-radius-lg: 8px;
+  --rf-sidebar-width: 252px;
   color: var(--rf-text);
   background: var(--rf-bg);
   font-synthesis: none;
@@ -36,9 +39,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 32% 0%, rgba(7, 136, 63, 0.06), transparent 28rem),
-    var(--rf-bg);
+  background: var(--rf-bg);
   color: var(--rf-text);
 }
 
@@ -48,7 +49,7 @@ body {
 
 .page-grid {
   display: grid;
-  gap: 14px;
+  gap: 16px;
 }
 
 .page-grid--two {
@@ -81,7 +82,7 @@ body {
 .section-title {
   margin: 0;
   color: var(--rf-text);
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 800;
   line-height: 1.35;
 }
@@ -104,6 +105,40 @@ body {
   padding: 12px 14px;
   font-size: 13px;
   line-height: 1.6;
+}
+
+.rf-card-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.rf-muted-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--rf-text-muted);
+  font-size: 13px;
+}
+
+.rf-action-link {
+  color: var(--rf-primary);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.rf-action-link:hover {
+  color: var(--rf-primary-dark);
+}
+
+.ant-btn-primary {
+  box-shadow: 0 10px 22px rgba(21, 144, 93, 0.18);
+}
+
+.ant-select-selector,
+.ant-picker,
+.ant-input-affix-wrapper,
+.ant-input {
+  border-color: var(--rf-border) !important;
 }
 
 @media (max-width: 920px) {

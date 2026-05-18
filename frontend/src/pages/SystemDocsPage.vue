@@ -1,11 +1,73 @@
 <template>
   <PageContainer
-    title="系统文档"
-    description="集中管理项目文档、规范与开发指引，帮助团队高效协作与知识沉淀。"
+    title="系统说明"
+    description="了解平台定位、数据来源、功能边界与后续演进方向。"
   >
     <div class="docs-hero">
-      <div class="docs-search panel">
-        <a-input v-model:value="keyword" size="large" allow-clear placeholder="搜索文档名称、关键词或路径..." />
+      <section class="panel docs-position">
+        <div>
+          <h2>稻田智研平台</h2>
+          <strong>稻田数字孪生演示平台</strong>
+          <p>面向科研展示、项目汇报和教学演示，使用后端程序生成的模拟稻田场景，展示地块空间可视化、指标分析和预警识别能力。</p>
+        </div>
+      </section>
+      <section class="panel docs-data">
+        <h2>当前数据说明</h2>
+        <a-tag color="success">模拟数据</a-tag>
+        <ul>
+          <li>场景 ID：demo-ricefield-2025</li>
+          <li>地块数量：8 个</li>
+          <li>指标数量：11 个</li>
+          <li>观测周期：2025-04-03 至 2025-05-17</li>
+          <li>预警数量：12 条</li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="panel docs-flow">
+      <h2 class="section-title">数字孪生构建流程</h2>
+      <div class="docs-flow__steps">
+        <div v-for="step in flowSteps" :key="step.title">
+          <strong>{{ step.title }}</strong>
+          <span>{{ step.description }}</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="page-grid page-grid--four">
+      <section class="panel docs-recommend">
+        <h2 class="section-title">当前系统功能</h2>
+        <ul>
+          <li>场景驾驶舱：汇总场景、健康度和关键指标。</li>
+          <li>Cesium 地图孪生：地块边界、指标着色和点击联动。</li>
+          <li>地块画像：单地块指标快照、趋势和来源追溯。</li>
+          <li>指标对比：多地块指标排行与状态分布。</li>
+          <li>预警分析：缺失、异常和错误预警识别。</li>
+        </ul>
+      </section>
+      <section class="panel docs-recommend docs-boundary">
+        <h2 class="section-title">当前系统边界</h2>
+        <ul>
+          <li>不做 Excel、GeoJSON、PDF、图片等文件导入。</li>
+          <li>不提供原始文件处理主线与文件处理报告。</li>
+          <li>不保存真实客户数据或可识别来源数据。</li>
+          <li>不提供文件上传、自动报告和权限系统。</li>
+          <li>不实现复杂三维资产与复杂空间分析。</li>
+        </ul>
+      </section>
+      <section class="panel docs-recommend">
+        <h2 class="section-title">后续演进方向</h2>
+        <ul>
+          <li>接入 PostgreSQL + PostGIS 正式数据层。</li>
+          <li>对接合规遥感、传感器或人工观测数据。</li>
+          <li>扩展更多作物生长、土壤和环境指标。</li>
+          <li>完善预警规则与风险评估模型。</li>
+          <li>部署到生产环境 Docker + Nginx。</li>
+        </ul>
+      </section>
+      <section class="panel docs-recommend">
+        <h2 class="section-title">文档搜索</h2>
+        <a-input v-model:value="keyword" allow-clear placeholder="搜索文档名称、关键词或路径..." />
         <div class="docs-tabs">
           <button
             v-for="category in categories"
@@ -17,18 +79,6 @@
             {{ category }}
           </button>
         </div>
-      </div>
-      <section class="panel docs-flow">
-        <h2>给 Codex 的开发流程</h2>
-        <p>面向 AI 开发助手的标准开发流程与协作规范，帮助理解项目结构、编码规范与提交流程。</p>
-        <a-button block type="primary" @click="showDoc(codexDoc)">查看流程</a-button>
-      </section>
-      <section class="panel docs-common">
-        <h2>常用文档</h2>
-        <button v-for="item in commonDocs" :key="item.path" type="button" @click="showDoc(item)">
-          <span>{{ item.name }}</span>
-          <strong>›</strong>
-        </button>
       </section>
     </div>
 
@@ -48,33 +98,6 @@
         </template>
       </template>
     </DataTable>
-
-    <div class="page-grid page-grid--three">
-      <section class="panel docs-recommend">
-        <h2 class="section-title">推荐文档</h2>
-        <button v-for="doc in recommendedDocs" :key="doc.path" type="button" @click="showDoc(doc)">
-          {{ doc.name }}
-        </button>
-      </section>
-      <section class="panel docs-recommend">
-        <h2 class="section-title">维护提示</h2>
-        <ul>
-          <li>新增 API 后更新 API.md。</li>
-          <li>新增指标后更新 METRIC_DICTIONARY.md。</li>
-          <li>修改页面结构后更新 FRONTEND_GUIDE.md。</li>
-          <li>修改模拟场景生成规则后更新 IMPORT_GUIDE.md。</li>
-          <li>每轮任务更新 CHANGELOG.md。</li>
-        </ul>
-      </section>
-      <section class="panel docs-recommend">
-        <h2 class="section-title">当前页面结构</h2>
-        <ul>
-          <li>场景驾驶舱、Cesium 地图孪生、地块画像。</li>
-          <li>指标对比、预警分析、系统说明。</li>
-          <li>第一阶段不提供 Excel 导入中心。</li>
-        </ul>
-      </section>
-    </div>
 
     <a-drawer
       v-model:open="docDrawerOpen"
@@ -149,7 +172,6 @@ const docs: DocRow[] = [
   { name: 'CODEX_WORKFLOW.md', category: 'Codex 协作', path: 'docs/CODEX_WORKFLOW.md', purpose: '给 Codex 的开发流程与协作规范', status: '已维护' },
 ];
 
-const codexDoc = computed(() => docs.find((doc) => doc.name === 'CODEX_WORKFLOW.md') ?? docs[0]);
 const categories = computed(() => ['全部', ...new Set(docs.map((item) => item.category))]);
 const filteredDocs = computed(() =>
   docs.filter((doc) => {
@@ -158,8 +180,14 @@ const filteredDocs = computed(() =>
     return categoryMatch && (!keyword.value || search.includes(keyword.value.toLowerCase()));
   }),
 );
-const commonDocs = docs.filter((doc) => ['API.md', 'DATA_MODEL.md', 'DEPLOYMENT.md', 'FRONTEND_GUIDE.md'].includes(doc.name));
-const recommendedDocs = docs;
+const flowSteps = [
+  { title: '1. 稻田地块实体', description: '生成可演示的稻田地块与管理单元。' },
+  { title: '2. 程序生成边界', description: '使用程序生成示例地块空间边界。' },
+  { title: '3. 构建孪生对象', description: '绑定场景、地块、指标和观测时间。' },
+  { title: '4. 绑定多源指标', description: '用指标字典组织作物、土壤和环境指标。' },
+  { title: '5. 可视化与分析', description: '地图、图表和表格形成分析闭环。' },
+  { title: '6. 预警与辅助决策', description: '识别状态异常并给出巡田参考。' },
+];
 
 const columns: TableColumnsType = [
   { title: '文档名称', dataIndex: 'name', key: 'name' },
@@ -195,26 +223,62 @@ watch(() => route.query.doc, openDocFromQuery);
 <style scoped>
 .docs-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px 360px;
-  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 16px;
 }
 
-.docs-search,
+.docs-position,
+.docs-data,
 .docs-flow,
-.docs-common,
 .docs-recommend {
-  padding: 18px;
+  padding: 20px;
+}
+
+.docs-position {
+  min-height: 220px;
+  background:
+    linear-gradient(90deg, rgba(232, 246, 239, 0.95), rgba(255, 255, 255, 0.76)),
+    repeating-linear-gradient(120deg, rgba(21, 144, 93, 0.10) 0 1px, transparent 1px 34px);
+}
+
+.docs-position h2,
+.docs-position strong {
+  display: block;
+}
+
+.docs-position h2 {
+  margin: 16px 0 8px;
+  color: var(--rf-text);
+  font-size: 34px;
+}
+
+.docs-position strong {
+  color: var(--rf-primary);
+  font-size: 22px;
+}
+
+.docs-position p {
+  max-width: 720px;
+  color: var(--rf-text-muted);
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.docs-data ul {
+  margin: 16px 0 0;
+  padding-left: 18px;
+  color: var(--rf-text-muted);
+  line-height: 1.9;
 }
 
 .docs-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 18px;
+  gap: 8px;
+  margin-top: 14px;
 }
 
 .docs-tabs button,
-.docs-common button,
 .docs-recommend button {
   cursor: pointer;
   font-family: inherit;
@@ -234,35 +298,35 @@ watch(() => route.query.doc, openDocFromQuery);
   color: #fff;
 }
 
-.docs-flow {
-  background: linear-gradient(135deg, #f0fdf4, #ffffff);
-}
-
-.docs-flow h2,
-.docs-common h2 {
-  margin: 0;
-  font-size: 18px;
-}
-
-.docs-flow p {
-  color: var(--rf-text-muted);
-  line-height: 1.7;
-}
-
-.docs-common {
+.docs-flow__steps {
   display: grid;
-  gap: 12px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
 }
 
-.docs-common button {
-  display: flex;
-  justify-content: space-between;
-  border: 0;
-  border-bottom: 1px solid var(--rf-border-soft);
-  background: transparent;
+.docs-flow__steps div {
+  min-height: 126px;
+  border: 1px solid var(--rf-border-soft);
+  border-radius: 8px;
+  background: #fbfdfc;
+  padding: 16px;
+}
+
+.docs-flow__steps strong,
+.docs-flow__steps span {
+  display: block;
+}
+
+.docs-flow__steps strong {
   color: var(--rf-text);
-  text-align: left;
-  padding: 0 0 10px;
+}
+
+.docs-flow__steps span {
+  margin-top: 10px;
+  color: var(--rf-text-muted);
+  font-size: 13px;
+  line-height: 1.7;
 }
 
 .docs-recommend div {
@@ -287,6 +351,10 @@ watch(() => route.query.doc, openDocFromQuery);
   padding-left: 18px;
   color: var(--rf-text-muted);
   line-height: 1.8;
+}
+
+.docs-boundary {
+  background: linear-gradient(135deg, #fff8f5, #ffffff);
 }
 
 .doc-detail {
@@ -314,7 +382,8 @@ watch(() => route.query.doc, openDocFromQuery);
 }
 
 @media (max-width: 1280px) {
-  .docs-hero {
+  .docs-hero,
+  .docs-flow__steps {
     grid-template-columns: 1fr;
   }
 }

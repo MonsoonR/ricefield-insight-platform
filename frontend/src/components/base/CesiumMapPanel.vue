@@ -394,10 +394,10 @@ function toggleAlpha() {
 <style scoped>
 .map-panel {
   overflow: hidden;
-  border: 1px solid var(--rf-border-soft);
+  border: 1px solid rgba(12, 45, 33, 0.12);
   border-radius: var(--rf-radius-lg);
-  background: var(--rf-surface);
-  box-shadow: var(--rf-shadow-soft);
+  background: #0f2b22;
+  box-shadow: 0 18px 42px rgba(6, 74, 51, 0.16);
 }
 
 .map-panel__header {
@@ -405,8 +405,9 @@ function toggleAlpha() {
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
-  border-bottom: 1px solid var(--rf-border-soft);
-  padding: 14px 16px;
+  border-bottom: 1px solid rgba(237, 242, 239, 0.86);
+  background: #fff;
+  padding: 16px 18px;
 }
 
 .map-panel__header h2 {
@@ -425,7 +426,7 @@ function toggleAlpha() {
   position: relative;
   overflow: hidden;
   min-width: 0;
-  background: #173326;
+  background: #10291f;
 }
 
 .map-panel__cesium {
@@ -473,18 +474,24 @@ function toggleAlpha() {
 .map-panel__legend {
   bottom: 16px;
   left: 16px;
+  border-radius: 8px;
+  background: rgba(10, 28, 22, 0.84);
+  color: #fff;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+  padding: 12px;
 }
 
 .map-panel__tools {
   top: 14px;
   right: 14px;
-  display: flex;
+  display: grid;
   gap: 8px;
 }
 
 .map-panel__tools button {
-  border: 1px solid var(--rf-border-soft);
-  border-radius: 7px;
+  min-width: 54px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.94);
   color: var(--rf-text);
   cursor: pointer;
