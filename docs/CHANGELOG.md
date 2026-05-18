@@ -1,5 +1,24 @@
 # 变更记录
 
+## 2026-05-18
+
+### 新增
+
+- 新增 `docs/CLAUDE_WORKFLOW.md`，明确当前阶段全程优先使用 Claude 开发，统一在 `claude/digital-twin-dev` 分支上工作，并规定任务前后检查清单、验证命令、文档同步规则、Git commit 规则、push 规则与最终回复格式。
+
+### 修改
+
+- `docs/CODEX_WORKFLOW.md` 顶部加入"当前阶段说明"，说明当前阶段 Codex 暂停使用、日常开发改用 Claude；同时去除将"大创答辩 PPT"作为核心开发任务的措辞，明确当前主线是把系统功能和工程结构做扎实，大创答辩保留为后续展示场景。
+- `README.md` 文档入口表加入 `docs/CLAUDE_WORKFLOW.md` 与 `docs/CODEX_WORKFLOW.md`，新增"开发协作"段落，指引使用 Claude 工作流和 `claude/digital-twin-dev` 分支。
+
+### 删除
+
+- 删除 `docs/dachuang-pitch/` 下答辩材料（README.md、index.html、立项答辩 PPT），不再作为仓库内长期产出。
+
+### 验证
+
+- 本次为纯文档修改，不涉及后端代码、前端代码、依赖、配置或数据契约，跳过完整前后端测试与构建。
+
 ## 2026-05-17
 
 ### 新增

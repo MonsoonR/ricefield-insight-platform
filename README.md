@@ -55,4 +55,11 @@ backend\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --rel
 | `docs/DESIGN_SYSTEM.md` | 界面布局、视觉和交互规范 |
 | `docs/IMPORT_GUIDE.md` | 模拟场景与数据生成指南 |
 | `docs/USER_MANUAL.md` | 页面使用说明 |
+| `docs/CLAUDE_WORKFLOW.md` | Claude 专用协作流程（当前主流程）|
+| `docs/CODEX_WORKFLOW.md` | Codex 协作流程（当前暂停使用）|
 | `docs/CHANGELOG.md` | 变更记录 |
+
+## 开发协作
+
+当前阶段全程优先使用 Claude，开发主线是把系统功能和工程结构做扎实，不以大创答辩 PPT 作为当前核心任务。所有 Claude 开发统一在 `claude/digital-twin-dev` 分支上进行，从基准分支 `codex/digital-twin-clean` 创建。完整工作流见 [`docs/CLAUDE_WORKFLOW.md`](docs/CLAUDE_WORKFLOW.md)。
+
