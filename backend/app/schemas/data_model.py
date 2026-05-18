@@ -5,11 +5,19 @@ from pydantic import BaseModel, Field
 
 
 ValueType = Literal["float", "int"]
-SourceType = Literal["excel", "geojson", "manual"]
+SourceType = Literal[
+    "simulated",
+    "generated_boundary",
+    "manual",
+    "weather",
+    "remote_sensing",
+    "postgis",
+]
+DataMode = Literal["demo", "manual", "sensor", "remote_sensing", "postgis"]
 QualityFlag = Literal["normal", "missing", "outlier", "error"]
-ImportStatus = Literal["pending", "processing", "success", "failed", "partial_success", "partial"]
-QualityReportStatus = Literal["success", "partial", "failed"]
+BatchStatus = Literal["pending", "processing", "success", "failed", "partial"]
 IssueSeverity = Literal["info", "warning", "error"]
+BatchType = Literal["simulated", "manual", "adapter"]
 
 
 class NormalRange(BaseModel):
@@ -30,6 +38,22 @@ class Metric(BaseModel):
     source_type: SourceType
 
 
+class ScenarioDateRange(BaseModel):
+    start_date: date | None = None
+    end_date: date | None = None
+
+
+class TwinScenario(BaseModel):
+    scenario_id: str
+    scenario_name: str
+    description: str
+    data_mode: DataMode
+    plot_count: int
+    metric_count: int
+    date_range: ScenarioDateRange
+    created_at: datetime
+
+
 class Plot(BaseModel):
     plot_id: str
     plot_code: str
@@ -40,16 +64,6 @@ class Plot(BaseModel):
     status: str = "normal"
 
 
-class PlotGeoJsonReport(BaseModel):
-    source_files: list[str]
-    total_feature_count: int
-    parsed_plot_count: int
-    duplicate_plot_codes: list[str] = Field(default_factory=list)
-    garbled_plot_codes: list[str] = Field(default_factory=list)
-    unmatched_excel_plots: list[str] = Field(default_factory=list)
-    geojson_plots_without_excel_data: list[str] = Field(default_factory=list)
-
-
 class MetricObservation(BaseModel):
     id: str
     plot_id: str
@@ -58,45 +72,44 @@ class MetricObservation(BaseModel):
     value: float | int | None
     unit: str
     observed_at: date
-    import_batch_id: str
-    source_file: str
-    raw_sheet: str | None = None
-    raw_cell: str | None = None
+    batch_id: str
+    data_source_id: str
     quality_flag: QualityFlag = "normal"
 
 
-class ImportBatch(BaseModel):
-    import_batch_id: str
-    source_file: str
-    imported_at: datetime
-    status: ImportStatus
+class ObservationBatch(BaseModel):
+    batch_id: str
+    scenario_id: str
+    data_source_id: str
+    batch_name: str
+    batch_type: BatchType
+    generated_at: datetime
+    status: BatchStatus
     record_count: int = 0
     warning_count: int = 0
     error_count: int = 0
+    description: str | None = None
 
 
-class ImportIssue(BaseModel):
+class DataSource(BaseModel):
+    data_source_id: str
+    source_name: str
+    source_type: SourceType
+    description: str | None = None
+    generation_rule: str | None = None
+    created_at: datetime
+
+
+class DataQualityIssue(BaseModel):
     issue_id: str
-    import_batch_id: str
-    issue_type: str
+    scenario_id: str
+    batch_id: str | None = None
+    data_source_id: str | None = None
+    issue_type: QualityFlag
     severity: IssueSeverity
     message: str
-    source_file: str
-    raw_sheet: str | None = None
-    raw_cell: str | None = None
+    plot_id: str | None = None
     plot_code: str | None = None
     metric_code: str | None = None
-
-
-class ImportQualityReport(BaseModel):
-    import_batch_id: str
-    source_file: str
-    successful_record_count: int
-    missing_value_count: int
-    outlier_count: int
-    unmatched_plots: list[str]
-    error_cells: list[str]
-    skipped_record_count: int
-    parse_duration_ms: int
-    status: QualityReportStatus
-    parse_errors: list[str] = Field(default_factory=list)
+    observed_at: date | None = None
+    value: float | int | None = None

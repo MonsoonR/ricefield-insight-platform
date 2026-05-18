@@ -1,17 +1,33 @@
-# 部署文档
+# 部署说明
 
-## 目标
+## 本地演示
 
-正式交付目标是在研究所内网稳定运行，支持前端访问、后端 API、数据目录挂载、数据库持久化和备份。
+```powershell
+backend\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --reload
+npm --prefix frontend run dev
+```
 
-## 计划技术
+默认模式不需要数据库和数据文件。
 
-| 项目 | 说明 |
-|---|---|
-| Nginx | 提供前端静态资源和 API 反向代理 |
-| Docker Compose | 组织前端、后端、数据库和相关服务 |
-| PostgreSQL + PostGIS | 正式阶段用于持久化指标数据、地块数据和空间数据 |
+## 构建
 
-## 当前状态
+```powershell
+npm --prefix frontend run build
+```
 
-本次仅创建 `deploy/` 目录和部署文档，不编写 Docker Compose、Nginx 或数据库配置。后续进入部署阶段前，需要先确认运行环境、数据目录、端口、备份策略和内网访问方式。
+## 可选 PostGIS
+
+PostGIS 仅作为正式数据层保留。启用方式：
+
+```powershell
+$env:APP_DATA_BACKEND="postgres"
+$env:DATABASE_URL="postgresql+psycopg://ricefield:ricefield@127.0.0.1:5432/ricefield"
+backend\.venv\Scripts\python.exe -m alembic -c backend\alembic.ini upgrade head
+```
+
+## 部署建议
+
+- Nginx 托管前端静态资源。
+- FastAPI 作为后端 API 服务。
+- 生产环境通过 Docker Compose 管理前端、后端和数据库。
+- 第一阶段演示优先使用默认模拟数据，减少环境依赖。

@@ -11,6 +11,8 @@ pytest-cache-files-*/
 pytest_tmp*/
 backend/.pytest_tmp*/
 backend/pytest_tmp*/
+backend/pytest-tmp*/
+backend/tests/fixtures/*_generated/
 .mypy_cache/
 .ruff_cache/
 
@@ -42,6 +44,11 @@ data/raw/
 data/processed/
 data/reports/
 data/local/
+*.xlsx
+*.xls
+*.xlsm
+*.xlsb
+*.geojson
 *.sqlite
 *.sqlite3
 *.db

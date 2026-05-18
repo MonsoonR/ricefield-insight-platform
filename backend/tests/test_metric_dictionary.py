@@ -1,5 +1,5 @@
 from app.core.metric_dictionary import METRIC_DICTIONARY, get_metric_codes
-from app.schemas.data_model import MetricObservation
+from app.schemas.data_model import MetricObservation, TwinScenario
 
 
 EXPECTED_METRIC_CODES = {
@@ -37,11 +37,20 @@ REQUIRED_OBSERVATION_FIELDS = {
     "value",
     "unit",
     "observed_at",
-    "import_batch_id",
-    "source_file",
-    "raw_sheet",
-    "raw_cell",
+    "batch_id",
+    "data_source_id",
     "quality_flag",
+}
+
+REQUIRED_SCENARIO_FIELDS = {
+    "scenario_id",
+    "scenario_name",
+    "description",
+    "data_mode",
+    "plot_count",
+    "metric_count",
+    "date_range",
+    "created_at",
 }
 
 
@@ -59,3 +68,7 @@ def test_each_metric_has_required_dictionary_fields():
 
 def test_metric_observation_schema_keeps_long_table_traceability_fields():
     assert REQUIRED_OBSERVATION_FIELDS <= MetricObservation.model_fields.keys()
+
+
+def test_twin_scenario_schema_matches_demo_entry_contract():
+    assert REQUIRED_SCENARIO_FIELDS <= TwinScenario.model_fields.keys()
