@@ -3,115 +3,188 @@
     <ErrorState v-if="error" :message="error" compact />
 
     <section v-if="overview" class="scene-hero">
-      <div class="scene-hero__media" aria-hidden="true">
-        <div class="scene-hero__pattern" />
-        <div class="scene-hero__badge">
-          <DashboardOutlined />
-          <span>数字孪生场景</span>
-        </div>
+      <div class="scene-hero__field" aria-hidden="true">
+        <span v-for="row in 9" :key="row" />
       </div>
       <div class="scene-hero__content">
-        <span class="scene-hero__tag">当前演示场景</span>
-        <h2>{{ overview.scenario.scenario_name }}</h2>
-        <p>{{ overview.scenario.description }}</p>
+        <span class="scene-hero__tag">当前场景</span>
+        <h1>{{ overview.scenario.scenario_id }}</h1>
+        <h2>{{ scenarioDisplayName }}</h2>
+        <p>基于程序生成的稻田地块、指标和时序观测数据，呈现地块状态、指标趋势、预警风险和地图孪生联动。</p>
         <div class="scene-hero__meta">
+          <span><CalendarOutlined />最近观测日期：{{ overview.default_observed_at }}</span>
           <span><EnvironmentOutlined />{{ regionSummary }}</span>
-          <span><CalendarOutlined />{{ observationRange }}</span>
-          <span><DatabaseOutlined />演示数据 · 后端程序生成</span>
+          <span><DatabaseOutlined />模拟观测 · 可追溯批次</span>
         </div>
       </div>
-      <div class="scene-hero__score">
-        <div class="scene-hero__score-ring">
-          <strong>{{ overview.health_score }}</strong>
-          <small>%</small>
-        </div>
-        <span>孪生健康度</span>
+      <div class="scene-hero__actions">
         <RouterLink to="/map-twin">
-          <a-button type="primary" size="small">进入地图</a-button>
+          <a-button type="primary" size="large">
+            <EnvironmentOutlined />
+            进入 Cesium 地图孪生
+          </a-button>
+        </RouterLink>
+        <RouterLink to="/warnings" class="scene-hero__link">
+          查看预警分析
         </RouterLink>
       </div>
     </section>
 
-    <div class="page-grid page-grid--four">
-      <StatCard
+    <div class="overview-kpis">
+      <RouterLink
         v-for="card in overviewCards"
         :key="card.label"
-        :label="card.label"
-        :value="card.value"
-        :note="card.note"
-        :tone="cardTone(card.label)"
-        :icon="cardIcon(card.label)"
-      />
+        :to="cardRoute(card.label)"
+        class="kpi-card"
+        :class="`kpi-card--${cardTone(card.label)}`"
+      >
+        <span class="kpi-card__icon">
+          <component :is="cardIcon(card.label)" />
+        </span>
+        <span class="kpi-card__label">{{ card.label }}</span>
+        <strong>{{ card.value }}</strong>
+        <small>{{ card.note }}</small>
+      </RouterLink>
     </div>
+
+    <section class="key-metrics panel">
+      <header class="panel-header">
+        <div>
+          <h2 class="section-title">关键指标概览</h2>
+          <p class="section-subtitle">展示核心稻田指标的最新场景均值、代表地块趋势和质量状态。</p>
+        </div>
+        <RouterLink to="/metric-compare" class="rf-action-link">进入指标对比</RouterLink>
+      </header>
+      <EmptyState v-if="!loading && keyMetricCards.length === 0" compact description="暂无关键指标数据" />
+      <div v-else class="key-metrics__grid">
+        <article
+          v-for="metric in keyMetricCards"
+          :key="metric.metricCode"
+          class="key-metric"
+          :class="`key-metric--${metric.statusLevel}`"
+        >
+          <header>
+            <span>{{ metric.name }}</span>
+            <StatusTag :status="metric.statusLevel" />
+          </header>
+          <div class="key-metric__value">
+            <strong>{{ metric.value }}</strong>
+            <small>{{ metric.unit }}</small>
+          </div>
+          <div class="key-metric__trend" :class="`key-metric__trend--${metric.direction}`">
+            <RiseOutlined v-if="metric.direction === 'up'" />
+            <FallOutlined v-else-if="metric.direction === 'down'" />
+            <LineChartOutlined v-else />
+            <span>{{ metric.trendText }}</span>
+          </div>
+          <svg class="key-metric__sparkline" viewBox="0 0 96 30" role="img" :aria-label="`${metric.name}近7次趋势`">
+            <polyline :points="metric.sparklinePoints" />
+          </svg>
+        </article>
+      </div>
+    </section>
 
     <div class="overview-grid">
       <ChartCard
-        title="区域状态对比"
-        description="按试验区分布的地块数量与预警数量"
+        title="风险状态分布"
+        description="按正常、关注、预警、严重四级状态汇总观测质量。"
+        :loading="loading"
+        :empty="riskDistribution.every((item) => item.value === 0)"
+      >
+        <template #extra>
+          <RouterLink to="/warnings" class="rf-action-link">预警详情</RouterLink>
+        </template>
+        <div class="risk-layout">
+          <EChartView :option="riskOption" :height="260" />
+          <div class="risk-list">
+            <RouterLink
+              v-for="item in riskDistribution"
+              :key="item.key"
+              to="/warnings"
+              class="risk-list__item"
+              :class="`risk-list__item--${item.key}`"
+            >
+              <span>{{ item.label }}</span>
+              <strong>{{ item.value }}</strong>
+            </RouterLink>
+          </div>
+        </div>
+      </ChartCard>
+
+      <ChartCard
+        title="区域状态"
+        description="试验一区、试验二区的地块数量和预警数量。"
         :loading="loading"
         :empty="!regionStatus.length"
       >
-        <EChartView :option="regionOption" :height="300" />
-      </ChartCard>
-
-      <section class="warning-panel panel">
-        <header class="warning-panel__header">
-          <div>
-            <h2 class="section-title">近期预警</h2>
-            <p class="section-subtitle">最近 6 条状态变化</p>
+        <template #extra>
+          <RouterLink to="/map-twin" class="rf-action-link">地图定位</RouterLink>
+        </template>
+        <div class="region-layout">
+          <EChartView :option="regionOption" :height="240" />
+          <div class="region-cards">
+            <RouterLink
+              v-for="item in regionStatus"
+              :key="item.region"
+              to="/map-twin"
+              class="region-card"
+            >
+              <span>{{ item.region }}</span>
+              <strong>{{ item.plot_count }} 块</strong>
+              <small>{{ item.warning_count }} 条预警</small>
+            </RouterLink>
           </div>
-          <RouterLink to="/warnings" class="warning-panel__more">查看全部</RouterLink>
-        </header>
-        <EmptyState v-if="warnings.length === 0" compact description="当前场景暂无预警" />
-        <ul v-else class="warning-list">
-          <li v-for="item in warnings.slice(0, 6)" :key="item.warning_id">
-            <StatusTag :status="item.warning_type" />
-            <div class="warning-list__body">
-              <strong>{{ item.plot_code }} · {{ item.metric_name }}</strong>
-              <span>{{ item.message }}</span>
-            </div>
-            <small>{{ item.observed_at }}</small>
-          </li>
-        </ul>
-      </section>
-    </div>
-
-    <div class="page-grid page-grid--two">
-      <ChartCard
-        :title="`${rankMetricName}地块排行`"
-        description="默认指标在各试验地块上的最新观测值"
-        :loading="loading"
-        :empty="compareRows.length === 0"
-      >
-        <EChartView :option="compareOption" :height="300" />
-      </ChartCard>
-
-      <ChartCard
-        title="数据质量状态分布"
-        description="所有观测记录按质量标记的统计"
-        :loading="loading"
-        :empty="qualityRows.length === 0"
-      >
-        <EChartView :option="qualityOption" :height="300" />
+        </div>
       </ChartCard>
     </div>
+
+    <section class="focus-panel panel">
+      <header class="panel-header">
+        <div>
+          <h2 class="section-title">重点关注地块</h2>
+          <p class="section-subtitle">根据近期质量问题聚合，点击地块进入地块画像。</p>
+        </div>
+        <RouterLink to="/warnings" class="rf-action-link">查看全部预警</RouterLink>
+      </header>
+      <EmptyState v-if="focusPlots.length === 0" compact description="当前场景暂无重点关注地块" />
+      <div v-else class="focus-grid">
+        <RouterLink
+          v-for="item in focusPlots"
+          :key="item.plotId"
+          :to="{ name: 'plot-detail', params: { plotId: item.plotId } }"
+          class="focus-plot"
+        >
+          <span class="focus-plot__code">{{ item.plotCode }}</span>
+          <span class="focus-plot__name">{{ item.plotName }}</span>
+          <span class="focus-plot__meta">{{ item.region }} · {{ item.latestDate }}</span>
+          <strong>{{ item.warningCount }} 条预警</strong>
+        </RouterLink>
+      </div>
+    </section>
   </PageContainer>
 </template>
 
 <script setup lang="ts">
 import {
   AlertOutlined,
+  AppstoreOutlined,
   BarChartOutlined,
   CalendarOutlined,
   DashboardOutlined,
   DatabaseOutlined,
   EnvironmentOutlined,
+  FallOutlined,
+  FundOutlined,
+  LineChartOutlined,
+  RiseOutlined,
 } from '@ant-design/icons-vue';
 import type { EChartsOption } from 'echarts';
 import { computed, onMounted, ref } from 'vue';
 
 import {
   fetchMetricCompare,
+  fetchMetrics,
+  fetchPlotSeries,
   fetchScenarioOverview,
   fetchWarnings,
   getApiErrorMessage,
@@ -122,47 +195,69 @@ import {
   EmptyState,
   ErrorState,
   PageContainer,
-  StatCard,
   StatusTag,
 } from '@/components/base';
-import { buildOverviewCards, getOverviewApiErrorMessage } from '@/services/overview';
-import { sortMetricCompareRows } from '@/services/twinAnalysis';
-import { mapQualityToStatus, statusLevelMeta, type StatusLevel } from '@/utils/status';
+import {
+  buildOverviewCards,
+  buildRiskDistribution,
+  getOverviewApiErrorMessage,
+} from '@/services/overview';
+import { mapQualityToStatus, type StatusLevel } from '@/utils/status';
 import type {
+  Metric,
   MetricCompareItem,
+  MetricCompareResponse,
+  PlotSeriesResponse,
   ScenarioOverviewResponse,
   WarningItem,
 } from '@/types/api';
 
+interface KeyMetricCard {
+  metricCode: string;
+  name: string;
+  value: string;
+  unit: string;
+  statusLevel: StatusLevel;
+  direction: 'up' | 'down' | 'flat';
+  trendText: string;
+  sparklinePoints: string;
+}
+
+interface FocusPlot {
+  plotId: string;
+  plotCode: string;
+  plotName: string;
+  region: string;
+  latestDate: string;
+  warningCount: number;
+}
+
+const CORE_METRIC_CODES = ['crop_growth', 'chlorophyll', 'nitrogen', 'ph', 'leaf_area_index'];
+const STATUS_HEX: Record<StatusLevel, string> = {
+  normal: '#16a36a',
+  watch: '#c58b04',
+  warning: '#ea580c',
+  critical: '#dc2626',
+  empty: '#9ca3af',
+};
+
 const loading = ref(false);
 const error = ref('');
 const overview = ref<ScenarioOverviewResponse>();
-const compareRows = ref<MetricCompareItem[]>([]);
+const keyMetricCards = ref<KeyMetricCard[]>([]);
 const warnings = ref<WarningItem[]>([]);
 
 const overviewCards = computed(() =>
   overview.value ? buildOverviewCards(overview.value) : [],
 );
 const regionStatus = computed(() => overview.value?.region_status ?? []);
-const qualityRows = computed(() =>
-  Object.entries(overview.value?.quality_counts ?? {})
-    .filter(([, value]) => value > 0)
-    .map(([flag, value]) => {
-      const level = mapQualityToStatus(flag);
-      return {
-        name: statusLevelMeta[level].label,
-        value,
-        itemStyle: { color: getStatusHex(level) },
-      };
-    }),
+const riskDistribution = computed(() =>
+  buildRiskDistribution(overview.value?.quality_counts ?? {}),
 );
 
-const rankMetricName = computed(() => {
-  const code = overview.value?.default_metric_code;
-  if (!code) {
-    return '默认指标';
-  }
-  return code === 'crop_growth' ? '作物长势' : code;
+const scenarioDisplayName = computed(() => {
+  const name = overview.value?.scenario.scenario_name ?? '稻田数字孪生演示场景';
+  return name.replace(/\s*2025$/, '');
 });
 
 const regionSummary = computed(() => {
@@ -173,10 +268,56 @@ const regionSummary = computed(() => {
   return `${regionStatus.value.length} 个试验区 · ${total} 块地块`;
 });
 
-const observationRange = computed(() => {
-  const date = overview.value?.default_observed_at;
-  return date ? `最新观测 ${date}` : '暂无观测日期';
+const focusPlots = computed<FocusPlot[]>(() => {
+  const grouped = new Map<string, FocusPlot>();
+  warnings.value.forEach((item) => {
+    const current = grouped.get(item.plot_id);
+    if (!current) {
+      grouped.set(item.plot_id, {
+        plotId: item.plot_id,
+        plotCode: item.plot_code,
+        plotName: item.plot_name ?? item.plot_code,
+        region: item.region ?? '未分区',
+        latestDate: item.observed_at,
+        warningCount: 1,
+      });
+      return;
+    }
+    current.warningCount += 1;
+    if (item.observed_at > current.latestDate) {
+      current.latestDate = item.observed_at;
+    }
+  });
+
+  return Array.from(grouped.values())
+    .sort((left, right) => right.warningCount - left.warningCount || right.latestDate.localeCompare(left.latestDate))
+    .slice(0, 4);
 });
+
+const riskOption = computed<EChartsOption>(() => ({
+  color: riskDistribution.value.map((item) => getStatusHex(item.key)),
+  tooltip: {
+    trigger: 'item',
+    backgroundColor: '#ffffff',
+    borderColor: '#edf2ef',
+    textStyle: { color: '#1f2937' },
+  },
+  legend: { show: false },
+  series: [{
+    name: '风险状态',
+    type: 'pie',
+    radius: ['58%', '78%'],
+    center: ['50%', '50%'],
+    avoidLabelOverlap: true,
+    label: { show: false },
+    itemStyle: { borderColor: '#ffffff', borderWidth: 3 },
+    data: riskDistribution.value.map((item) => ({
+      name: item.label,
+      value: item.value,
+      itemStyle: { color: getStatusHex(item.key) },
+    })),
+  }],
+}));
 
 const regionOption = computed<EChartsOption>(() => ({
   tooltip: {
@@ -185,9 +326,10 @@ const regionOption = computed<EChartsOption>(() => ({
     borderColor: '#edf2ef',
     textStyle: { color: '#1f2937' },
   },
-  grid: { top: 36, right: 24, bottom: 36, left: 48 },
+  grid: { top: 24, right: 18, bottom: 32, left: 42 },
   legend: {
-    top: 4,
+    top: 0,
+    right: 0,
     textStyle: { color: '#6b7280' },
     itemWidth: 10,
     itemHeight: 10,
@@ -224,76 +366,48 @@ const regionOption = computed<EChartsOption>(() => ({
   ],
 }));
 
-const qualityOption = computed<EChartsOption>(() => ({
-  tooltip: {
-    trigger: 'item',
-    backgroundColor: '#ffffff',
-    borderColor: '#edf2ef',
-    textStyle: { color: '#1f2937' },
-  },
-  legend: { right: 12, top: 'middle', orient: 'vertical', textStyle: { color: '#6b7280' } },
-  series: [{
-    name: '质量状态',
-    type: 'pie',
-    radius: ['54%', '76%'],
-    center: ['38%', '50%'],
-    avoidLabelOverlap: true,
-    label: { show: false },
-    itemStyle: { borderColor: '#ffffff', borderWidth: 2 },
-    data: qualityRows.value,
-  }],
-}));
-
-const compareOption = computed<EChartsOption>(() => ({
-  tooltip: {
-    trigger: 'axis',
-    backgroundColor: '#ffffff',
-    borderColor: '#edf2ef',
-    textStyle: { color: '#1f2937' },
-  },
-  grid: { top: 24, right: 24, bottom: 36, left: 48 },
-  xAxis: {
-    type: 'category',
-    data: compareRows.value.map((item) => item.plot_code),
-    axisLine: { show: false },
-    axisTick: { show: false },
-    axisLabel: { color: '#6b7280' },
-  },
-  yAxis: {
-    type: 'value',
-    axisLine: { show: false },
-    axisTick: { show: false },
-    splitLine: { lineStyle: { color: '#edf2ef' } },
-    axisLabel: { color: '#9ca3af' },
-  },
-  series: [{
-    name: '指标值',
-    type: 'bar',
-    barWidth: 28,
-    data: compareRows.value.map((item) => ({
-      value: item.value,
-      itemStyle: {
-        color: getStatusHex(mapQualityToStatus(item.quality_flag)),
-        borderRadius: [4, 4, 0, 0],
-      },
-    })),
-  }],
-}));
-
 onMounted(async () => {
   loading.value = true;
   try {
     const overviewData = await fetchScenarioOverview();
     overview.value = overviewData;
-    const [compareData, warningData] = await Promise.all([
-      fetchMetricCompare({
-        metricCode: overviewData.default_metric_code,
-        observedAt: overviewData.default_observed_at,
-      }),
+
+    const [metricsData, warningData, ...compareData] = await Promise.all([
+      fetchMetrics(),
       fetchWarnings(),
+      ...CORE_METRIC_CODES.map((metricCode) =>
+        fetchMetricCompare({
+          metricCode,
+          observedAt: overviewData.default_observed_at,
+        }),
+      ),
     ]);
-    compareRows.value = sortMetricCompareRows(compareData.items).slice(0, 8);
-    warnings.value = warningData.items;
+
+    warnings.value = warningData.items
+      .slice()
+      .sort((left, right) => right.observed_at.localeCompare(left.observed_at));
+
+    const seriesData = await Promise.all(
+      compareData.map((metricCompare) => {
+        const representative = metricCompare.items.find((item) => typeof item.value === 'number')
+          ?? metricCompare.items[0];
+        if (!representative) {
+          return Promise.resolve(undefined);
+        }
+        return fetchPlotSeries({
+          plotId: representative.plot_id,
+          metricCode: metricCompare.metric_code,
+        }).catch(() => undefined);
+      }),
+    );
+
+    keyMetricCards.value = compareData.map((metricCompare, index) =>
+      buildKeyMetricCard(
+        metricCompare,
+        metricsData.items.find((item) => item.metric_code === metricCompare.metric_code),
+        seriesData[index],
+      ),
+    );
   } catch (currentError) {
     error.value = getOverviewApiErrorMessage(
       currentError,
@@ -304,9 +418,97 @@ onMounted(async () => {
   }
 });
 
+function buildKeyMetricCard(
+  metricCompare: MetricCompareResponse,
+  metric: Metric | undefined,
+  seriesResponse: PlotSeriesResponse | undefined,
+): KeyMetricCard {
+  const numericRows = metricCompare.items.filter((item): item is MetricCompareItem & { value: number } =>
+    typeof item.value === 'number',
+  );
+  const average = numericRows.length
+    ? numericRows.reduce((sum, item) => sum + item.value, 0) / numericRows.length
+    : 0;
+  const displayValue = normalizeMetricValue(metricCompare.metric_code, average);
+  const statusLevel = worstStatus(metricCompare.items.map((item) => mapQualityToStatus(item.quality_flag)));
+  const points = seriesResponse?.series
+    .find((item) => item.metric_code === metricCompare.metric_code)
+    ?.points
+    .filter((point) => typeof point.value === 'number')
+    .slice(-7)
+    .map((point) => normalizeMetricValue(metricCompare.metric_code, point.value as number)) ?? [];
+
+  const first = points[0] ?? displayValue;
+  const last = points[points.length - 1] ?? displayValue;
+  const delta = first === 0 ? 0 : ((last - first) / Math.abs(first)) * 100;
+
+  return {
+    metricCode: metricCompare.metric_code,
+    name: metric?.metric_name ?? metricCompare.metric_name,
+    value: formatMetricNumber(displayValue, metric?.precision),
+    unit: metric?.unit ?? metricCompare.items[0]?.unit ?? '',
+    statusLevel,
+    direction: delta > 0.1 ? 'up' : delta < -0.1 ? 'down' : 'flat',
+    trendText: Math.abs(delta) < 0.1 ? '近7次持平' : `近7次 ${delta > 0 ? '+' : ''}${delta.toFixed(1)}%`,
+    sparklinePoints: buildSparklinePoints(points.length ? points : [displayValue]),
+  };
+}
+
+function normalizeMetricValue(metricCode: string, value: number): number {
+  if (metricCode === 'crop_growth') {
+    return value * 100;
+  }
+  return value;
+}
+
+function formatMetricNumber(value: number, precision = 2): string {
+  const fixed = value >= 20 ? 1 : precision;
+  return Number(value.toFixed(fixed)).toString();
+}
+
+function worstStatus(levels: StatusLevel[]): StatusLevel {
+  const weight: Record<StatusLevel, number> = {
+    empty: 0,
+    normal: 1,
+    watch: 2,
+    warning: 3,
+    critical: 4,
+  };
+  return levels.reduce((current, next) => (weight[next] > weight[current] ? next : current), 'normal');
+}
+
+function buildSparklinePoints(values: number[]): string {
+  if (!values.length) {
+    return '4,26 92,26';
+  }
+  const width = 88;
+  const height = 22;
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+  return values.map((value, index) => {
+    const x = 4 + (values.length === 1 ? width : (index / (values.length - 1)) * width);
+    const y = 4 + height - ((value - min) / range) * height;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+}
+
+function cardRoute(label: string) {
+  if (label.includes('预警')) {
+    return '/warnings';
+  }
+  if (label.includes('地块') || label.includes('健康')) {
+    return '/map-twin';
+  }
+  if (label.includes('指标')) {
+    return '/metric-compare';
+  }
+  return '/overview';
+}
+
 function cardIcon(label: string) {
   if (label.includes('地块')) {
-    return EnvironmentOutlined;
+    return AppstoreOutlined;
   }
   if (label.includes('指标')) {
     return BarChartOutlined;
@@ -317,10 +519,13 @@ function cardIcon(label: string) {
   if (label.includes('预警')) {
     return AlertOutlined;
   }
+  if (label.includes('健康')) {
+    return FundOutlined;
+  }
   return DashboardOutlined;
 }
 
-function cardTone(label: string): 'green' | 'cyan' | 'purple' | 'orange' {
+function cardTone(label: string): 'green' | 'cyan' | 'purple' | 'orange' | 'blue' {
   if (label.includes('地块')) {
     return 'green';
   }
@@ -333,111 +538,120 @@ function cardTone(label: string): 'green' | 'cyan' | 'purple' | 'orange' {
   if (label.includes('预警')) {
     return 'orange';
   }
-  return 'green';
+  return 'blue';
 }
 
 function getStatusHex(level: StatusLevel): string {
-  const map: Record<StatusLevel, string> = {
-    normal: '#16a36a',
-    watch: '#c58b04',
-    warning: '#ea580c',
-    critical: '#dc2626',
-    empty: '#9ca3af',
-  };
-  return map[level] ?? '#9ca3af';
+  return STATUS_HEX[level] ?? STATUS_HEX.empty;
 }
 </script>
 
 <style scoped>
 .scene-hero {
   position: relative;
-  display: flex;
-  align-items: stretch;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: 224px;
   overflow: hidden;
-  border: 1px solid var(--rf-primary-line);
   border-radius: var(--rf-radius-lg);
   background:
-    linear-gradient(135deg, var(--rf-primary-soft) 0%, #ffffff 65%);
-  box-shadow: var(--rf-shadow);
-  padding: 22px 26px;
+    linear-gradient(90deg, rgba(4, 74, 51, 0.92), rgba(11, 107, 69, 0.78) 48%, rgba(21, 144, 93, 0.58)),
+    linear-gradient(180deg, #e8f6ef, #bfe6ce);
+  box-shadow: 0 16px 32px rgba(15, 56, 37, 0.14);
+  padding: 30px 32px;
 }
 
-.scene-hero__media {
-  position: relative;
-  flex: 0 0 200px;
-  border-radius: 10px;
-  overflow: hidden;
-  min-height: 132px;
-  background:
-    linear-gradient(150deg, var(--rf-primary) 0%, var(--rf-primary-darker) 100%);
-}
-
-.scene-hero__pattern {
+.scene-hero::before,
+.scene-hero::after {
   position: absolute;
+  content: "";
+  pointer-events: none;
+}
+
+.scene-hero::before {
+  inset: auto -8% -34% -8%;
+  height: 70%;
+  background:
+    repeating-linear-gradient(92deg, rgba(255, 255, 255, 0.14) 0 2px, transparent 2px 42px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.10) 0 1px, transparent 1px 28px);
+  transform: perspective(520px) rotateX(58deg);
+  transform-origin: bottom;
+}
+
+.scene-hero::after {
   inset: 0;
   background:
-    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.16) 0 4px, transparent 4px 28px),
-    radial-gradient(circle at 75% 25%, rgba(255, 255, 255, 0.32), transparent 60%);
+    radial-gradient(circle at 68% 20%, rgba(255, 255, 255, 0.28), transparent 26%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 42%);
 }
 
-.scene-hero__badge {
+.scene-hero__field {
   position: absolute;
-  left: 14px;
-  bottom: 14px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  color: var(--rf-primary-dark);
-  font-size: 12px;
-  font-weight: 700;
-  padding: 4px 10px;
+  inset: auto 0 0;
+  display: grid;
+  gap: 10px;
+  height: 88px;
+  padding: 0 32px 16px;
+  opacity: 0.55;
 }
 
-.scene-hero__badge :deep(svg) {
-  font-size: 13px;
+.scene-hero__field span {
+  border-top: 1px solid rgba(255, 255, 255, 0.32);
+  transform: skewX(-24deg);
 }
 
-.scene-hero__content {
-  flex: 1;
-  min-width: 0;
+.scene-hero__content,
+.scene-hero__actions {
+  position: relative;
+  z-index: 1;
 }
 
 .scene-hero__tag {
   display: inline-flex;
   align-items: center;
-  border-radius: 999px;
-  background: rgba(21, 144, 93, 0.12);
-  color: var(--rf-primary-dark);
-  font-size: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.36);
+  border-radius: var(--rf-radius);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
   font-weight: 700;
   padding: 4px 10px;
 }
 
+.scene-hero h1,
+.scene-hero h2,
+.scene-hero p {
+  color: #ffffff;
+}
+
+.scene-hero h1 {
+  margin: 14px 0 6px;
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1.08;
+}
+
 .scene-hero h2 {
-  margin: 12px 0 6px;
-  color: var(--rf-text);
+  margin: 0;
   font-size: 24px;
-  font-weight: 700;
-  line-height: 1.2;
+  font-weight: 800;
+  line-height: 1.25;
 }
 
 .scene-hero p {
-  margin: 0 0 12px;
-  color: var(--rf-text-muted);
-  font-size: 13px;
-  line-height: 1.6;
-  max-width: 640px;
+  max-width: 720px;
+  margin: 18px 0 0;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 .scene-hero__meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  color: var(--rf-text-muted);
-  font-size: 12px;
+  gap: 14px;
+  margin-top: 18px;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 13px;
 }
 
 .scene-hero__meta span {
@@ -446,138 +660,419 @@ function getStatusHex(level: StatusLevel): string {
   gap: 6px;
 }
 
-.scene-hero__meta :deep(svg) {
-  color: var(--rf-primary);
-  font-size: 14px;
-}
-
-.scene-hero__score {
+.scene-hero__actions {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border-left: 1px solid var(--rf-primary-line);
-  padding-left: 24px;
-  flex: 0 0 auto;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 12px;
+  min-width: 250px;
 }
 
-.scene-hero__score-ring {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 4px;
-  color: var(--rf-primary);
+.scene-hero__actions :deep(.ant-btn) {
+  height: 42px;
+  border-color: rgba(255, 255, 255, 0.42);
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: none;
+  backdrop-filter: blur(8px);
 }
 
-.scene-hero__score-ring strong {
-  font-size: 42px;
+.scene-hero__link {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.overview-kpis {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.kpi-card {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+  gap: 2px 14px;
+  min-height: 126px;
+  border: 1px solid var(--rf-border-soft);
+  border-radius: var(--rf-radius-lg);
+  background: linear-gradient(180deg, #ffffff, #fbfdfc);
+  box-shadow: var(--rf-shadow);
+  color: inherit;
+  padding: 20px;
+  text-decoration: none;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.kpi-card:hover {
+  border-color: color-mix(in srgb, var(--tone) 32%, var(--rf-border-soft));
+  box-shadow: 0 10px 24px rgba(15, 56, 37, 0.10);
+  transform: translateY(-2px);
+}
+
+.kpi-card__icon {
+  display: grid;
+  grid-row: 1 / span 3;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--tone) 14%, white);
+  color: var(--tone);
+  font-size: 19px;
+}
+
+.kpi-card__label {
+  color: var(--rf-text-muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.kpi-card strong {
+  color: var(--rf-text);
+  font-size: 30px;
   font-weight: 800;
-  line-height: 1;
-  letter-spacing: -1px;
+  line-height: 1.08;
 }
 
-.scene-hero__score-ring small {
-  font-size: 16px;
+.kpi-card small {
+  min-width: 0;
+  color: var(--rf-text-soft);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.kpi-card--green {
+  --tone: var(--rf-primary);
+}
+
+.kpi-card--cyan {
+  --tone: var(--rf-accent-cyan);
+}
+
+.kpi-card--purple {
+  --tone: var(--rf-purple);
+}
+
+.kpi-card--orange {
+  --tone: var(--rf-status-warning);
+}
+
+.kpi-card--blue {
+  --tone: var(--rf-info);
+}
+
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--rf-border-soft);
+  padding: 16px 20px 14px;
+}
+
+.key-metrics {
+  overflow: hidden;
+}
+
+.key-metrics__grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  padding: 16px 20px 20px;
+}
+
+.key-metric {
+  min-width: 0;
+  border: 1px solid var(--rf-border-soft);
+  border-radius: var(--rf-radius);
+  background: var(--rf-surface-soft);
+  padding: 14px;
+}
+
+.key-metric header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--rf-text);
+  font-size: 13px;
   font-weight: 700;
 }
 
-.scene-hero__score > span {
+.key-metric__value {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.key-metric__value strong {
+  color: var(--rf-text);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.key-metric__value small {
   color: var(--rf-text-muted);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+}
+
+.key-metric__trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.key-metric__trend--up {
+  color: var(--rf-status-normal);
+}
+
+.key-metric__trend--down {
+  color: var(--rf-status-warning);
+}
+
+.key-metric__trend--flat {
+  color: var(--rf-text-muted);
+}
+
+.key-metric__sparkline {
+  width: 100%;
+  height: 30px;
+  margin-top: 12px;
+}
+
+.key-metric__sparkline polyline {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.4;
+}
+
+.key-metric--normal {
+  color: var(--rf-status-normal);
+}
+
+.key-metric--watch {
+  color: var(--rf-status-watch);
+}
+
+.key-metric--warning {
+  color: var(--rf-status-warning);
+}
+
+.key-metric--critical {
+  color: var(--rf-status-critical);
+}
+
+.key-metric--empty {
+  color: var(--rf-status-empty);
 }
 
 .overview-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.6fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 16px;
 }
 
-.warning-panel {
-  display: flex;
-  flex-direction: column;
-  padding: 16px 20px 18px;
+.risk-layout,
+.region-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px;
+  align-items: center;
+  gap: 16px;
 }
 
-.warning-panel__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 14px;
-  border-bottom: 1px solid var(--rf-border-soft);
-  margin: 0 -20px 12px;
-  padding: 0 20px 12px;
+.risk-list,
+.region-cards {
+  display: grid;
+  gap: 10px;
 }
 
-.warning-panel__more {
-  color: var(--rf-primary);
-  font-size: 12px;
-  font-weight: 600;
+.risk-list__item,
+.region-card,
+.focus-plot {
+  color: inherit;
   text-decoration: none;
 }
 
-.warning-panel__more:hover {
-  color: var(--rf-primary-hover);
-}
-
-.warning-list {
+.risk-list__item {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.warning-list li {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  border: 1px solid var(--status-line);
+  border-radius: var(--rf-radius);
+  background: var(--status-bg);
+  color: var(--status);
+  padding: 10px 12px;
 }
 
-.warning-list__body {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.warning-list__body strong {
-  color: var(--rf-text);
+.risk-list__item span {
   font-size: 13px;
   font-weight: 700;
-  line-height: 1.3;
 }
 
-.warning-list__body span {
+.risk-list__item strong {
+  color: var(--rf-text);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.risk-list__item--normal {
+  --status: var(--rf-status-normal);
+  --status-bg: var(--rf-status-normal-bg);
+  --status-line: var(--rf-status-normal-line);
+}
+
+.risk-list__item--watch {
+  --status: var(--rf-status-watch);
+  --status-bg: var(--rf-status-watch-bg);
+  --status-line: var(--rf-status-watch-line);
+}
+
+.risk-list__item--warning {
+  --status: var(--rf-status-warning);
+  --status-bg: var(--rf-status-warning-bg);
+  --status-line: var(--rf-status-warning-line);
+}
+
+.risk-list__item--critical {
+  --status: var(--rf-status-critical);
+  --status-bg: var(--rf-status-critical-bg);
+  --status-line: var(--rf-status-critical-line);
+}
+
+.region-card {
+  display: grid;
+  gap: 2px;
+  border: 1px solid var(--rf-border-soft);
+  border-radius: var(--rf-radius);
+  background: var(--rf-surface-soft);
+  padding: 10px 12px;
+}
+
+.region-card span {
   color: var(--rf-text-muted);
   font-size: 12px;
-  line-height: 1.4;
+  font-weight: 700;
+}
+
+.region-card strong {
+  color: var(--rf-text);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.region-card small {
+  color: var(--rf-status-warning);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.focus-panel {
   overflow: hidden;
+}
+
+.focus-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  padding: 16px 20px 20px;
+}
+
+.focus-plot {
+  display: grid;
+  gap: 6px;
+  border: 1px solid var(--rf-border-soft);
+  border-radius: var(--rf-radius);
+  background: linear-gradient(180deg, #ffffff, var(--rf-surface-soft));
+  padding: 14px;
+}
+
+.focus-plot:hover {
+  border-color: var(--rf-primary-line);
+}
+
+.focus-plot__code {
+  color: var(--rf-primary-dark);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.focus-plot__name,
+.focus-plot__meta {
+  overflow: hidden;
+  color: var(--rf-text-muted);
+  font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.warning-list li small {
-  color: var(--rf-text-soft);
-  font-size: 11px;
-  white-space: nowrap;
+.focus-plot strong {
+  color: var(--rf-status-warning);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+@media (max-width: 1280px) {
+  .overview-kpis,
+  .key-metrics__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .focus-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 1080px) {
+  .scene-hero,
   .overview-grid {
     grid-template-columns: 1fr;
   }
-  .scene-hero {
-    flex-wrap: wrap;
+
+  .scene-hero__actions {
+    align-items: flex-start;
+    min-width: 0;
   }
-  .scene-hero__score {
-    border-left: 0;
-    border-top: 1px solid var(--rf-primary-line);
-    padding-left: 0;
-    padding-top: 16px;
-    flex-direction: row;
-    width: 100%;
+}
+
+@media (max-width: 720px) {
+  .scene-hero {
+    padding: 24px 20px;
+  }
+
+  .scene-hero h1 {
+    font-size: 30px;
+  }
+
+  .scene-hero h2 {
+    font-size: 20px;
+  }
+
+  .overview-kpis,
+  .key-metrics__grid,
+  .focus-grid,
+  .risk-layout,
+  .region-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-header {
+    display: block;
+  }
+
+  .panel-header .rf-action-link {
+    display: inline-block;
+    margin-top: 10px;
   }
 }
 </style>

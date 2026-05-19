@@ -53,11 +53,12 @@ export function mapQualityToStatus(value?: string | null): StatusLevel {
     case 'normal':
     case 'success':
       return 'normal';
+    case 'watch':
     case 'missing':
       return 'watch';
+    case 'warning':
     case 'outlier':
     case 'abnormal':
-    case 'warning':
       return 'warning';
     case 'error':
     case 'critical':

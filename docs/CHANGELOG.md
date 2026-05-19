@@ -4,6 +4,11 @@
 
 ### 修改
 
+- 第二阶段优化场景驾驶舱首页，形成程序化稻田场景横幅、5 个核心 KPI、关键指标概览、风险状态分布、区域状态和重点关注地块的驾驶舱结构。
+- 首页关键指标概览复用现有 `metrics`、`metric-compare` 和 `plot-series` API，展示作物长势、叶绿素、氮、pH、LAI 的最新值、单位、近 7 次趋势和状态；未新增后端字段。
+- 首页交互补齐：重点关注地块跳转地块画像，预警入口跳转预警分析，地图入口跳转 Cesium 地图孪生。
+- 前端状态映射补充直接识别 `watch` 和 `warning` 状态值，确保概览页四级状态标签与设计系统一致。
+- 前端入口页新增内联 SVG favicon，避免本地浏览器自动请求 `/favicon.ico` 产生 404 控制台错误。
 - 重构前端整体视觉风格，统一为浅色科研工作台与绿色稻田数字孪生平台风格。
 - 左侧导航改为浅色固定侧栏，当前页面使用绿色高亮；顶部栏改为全局状态、预警入口、文档入口和演示用户信息。
 - 优化基础组件样式，统一 `PageContainer`、`FilterBar`、`StatCard`、`ChartCard`、`DataTable`、`StatusTag`、`MetricValueTag` 和 `CesiumMapPanel` 的间距、圆角、阴影、标题和预警色阶。
@@ -18,12 +23,16 @@
 
 ### 文档更新
 
+- 更新 `docs/DESIGN_SYSTEM.md`，补充第二阶段场景驾驶舱横幅、KPI、关键指标、风险分布、区域状态和重点关注地块规范。
+- 更新 `docs/FRONTEND_GUIDE.md`，明确场景驾驶舱首页结构和 API 复用原则。
+- 更新 `docs/USER_MANUAL.md`，同步场景驾驶舱第二阶段首页使用说明。
 - 更新 `docs/DESIGN_SYSTEM.md`，沉淀参考图提炼出的平台色彩、布局、组件、地图和预警规范。
 - 更新 `docs/FRONTEND_GUIDE.md`，补充六页页面结构和视觉实现规则。
 - 更新 `docs/USER_MANUAL.md`，同步新版页面功能说明和状态分级说明。
 
 ### 验证
 
+- 已通过场景驾驶舱浏览器验证：`http://127.0.0.1:5173/overview` 桌面与移动视口渲染正常，控制台 0 error / 0 warning；重点关注地块、预警入口和地图入口跳转正常。
 - 已通过后端测试：`backend\.venv\Scripts\python.exe -m pytest backend\tests -q`。
 - 已通过前端服务测试：`npm --prefix frontend run test:overview`、`npm --prefix frontend run test:page-linkage`、`npm --prefix frontend run test:twin-analysis`、`npm --prefix frontend run test:map`。
 - 已通过前端构建：`npm --prefix frontend run build`。
