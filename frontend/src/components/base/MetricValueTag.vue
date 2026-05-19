@@ -1,5 +1,5 @@
 <template>
-  <span class="metric-value-tag" :class="`metric-value-tag--${tone}`">
+  <span class="metric-value-tag" :class="`metric-value-tag--${level}`">
     {{ displayValue }}
     <small v-if="unit">{{ unit }}</small>
   </span>
@@ -7,6 +7,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+
+import { mapQualityToStatus } from '@/utils/status';
 
 const props = withDefaults(
   defineProps<{
@@ -28,18 +30,7 @@ const displayValue = computed(() => {
   return typeof props.value === 'number' ? props.value.toLocaleString('zh-CN') : props.value;
 });
 
-const tone = computed(() => {
-  if (props.qualityFlag === 'error') {
-    return 'critical';
-  }
-  if (props.qualityFlag === 'outlier') {
-    return 'warning';
-  }
-  if (props.qualityFlag === 'missing') {
-    return 'watch';
-  }
-  return 'normal';
-});
+const level = computed(() => mapQualityToStatus(props.qualityFlag));
 </script>
 
 <style scoped>
@@ -47,33 +38,40 @@ const tone = computed(() => {
   display: inline-flex;
   align-items: baseline;
   gap: 4px;
-  border-radius: 7px;
-  font-weight: 850;
+  border-radius: 6px;
+  font-weight: 700;
   padding: 3px 8px;
+  font-size: 13px;
 }
 
 .metric-value-tag small {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
+  opacity: 0.85;
 }
 
 .metric-value-tag--normal {
-  background: #e7f7ee;
-  color: #04733a;
-}
-
-.metric-value-tag--warning {
-  background: #ffead5;
-  color: #c2410c;
+  background: var(--rf-status-normal-bg);
+  color: var(--rf-status-normal);
 }
 
 .metric-value-tag--watch {
-  background: #fff4cf;
-  color: #9a6700;
+  background: var(--rf-status-watch-bg);
+  color: var(--rf-status-watch);
+}
+
+.metric-value-tag--warning {
+  background: var(--rf-status-warning-bg);
+  color: var(--rf-status-warning);
 }
 
 .metric-value-tag--critical {
-  background: #fee2dc;
-  color: #c7281d;
+  background: var(--rf-status-critical-bg);
+  color: var(--rf-status-critical);
+}
+
+.metric-value-tag--empty {
+  background: var(--rf-status-empty-bg);
+  color: var(--rf-status-empty);
 }
 </style>

@@ -1,67 +1,53 @@
 <template>
-  <a-tag class="status-tag" :class="`status-tag--${config.tone}`">{{ config.label }}</a-tag>
+  <span class="status-tag" :class="`status-tag--${meta.level}`">{{ meta.label }}</span>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 
+import { statusMetaFromQuality } from '@/utils/status';
+
 const props = defineProps<{
   status?: string | null;
 }>();
 
-const config = computed(() => {
-  switch (props.status) {
-    case 'normal':
-    case 'success':
-      return { label: '正常', tone: 'normal' };
-    case 'outlier':
-    case 'abnormal':
-      return { label: '预警', tone: 'warning' };
-    case 'missing':
-      return { label: '关注', tone: 'watch' };
-    case 'error':
-      return { label: '严重', tone: 'critical' };
-    case 'no_data':
-    case 'empty':
-      return { label: '无数据', tone: 'empty' };
-    default:
-      return { label: props.status || '未知', tone: 'empty' };
-  }
-});
+const meta = computed(() => statusMetaFromQuality(props.status));
 </script>
 
 <style scoped>
 .status-tag {
-  margin-inline-end: 0;
-  border: 0;
+  display: inline-flex;
+  align-items: center;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
-  padding: 2px 9px;
+  padding: 2px 10px;
+  line-height: 1.5;
+  white-space: nowrap;
 }
 
 .status-tag--normal {
-  background: #e7f7ee;
-  color: #087145;
+  background: var(--rf-status-normal-bg);
+  color: var(--rf-status-normal);
 }
 
 .status-tag--watch {
-  background: #fff4cf;
-  color: #9a6700;
+  background: var(--rf-status-watch-bg);
+  color: var(--rf-status-watch);
 }
 
 .status-tag--warning {
-  background: #ffead5;
-  color: #c2410c;
+  background: var(--rf-status-warning-bg);
+  color: var(--rf-status-warning);
 }
 
 .status-tag--critical {
-  background: #fee2dc;
-  color: #c7281d;
+  background: var(--rf-status-critical-bg);
+  color: var(--rf-status-critical);
 }
 
 .status-tag--empty {
-  background: #eef2f1;
-  color: #667789;
+  background: var(--rf-status-empty-bg);
+  color: var(--rf-status-empty);
 }
 </style>

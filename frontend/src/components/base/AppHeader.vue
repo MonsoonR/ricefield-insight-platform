@@ -1,23 +1,34 @@
 <template>
   <header class="app-header">
-    <div class="app-header__context" aria-label="全局数据状态">
-      <span>{{ selectedScenarioName }}</span>
-      <strong>{{ selectedDate || '最新观测日期' }}</strong>
-      <small>{{ selectedMetricName }}</small>
+    <div class="app-header__title">
+      <h1>{{ title }}</h1>
+      <p v-if="subtitle">{{ subtitle }}</p>
     </div>
     <div class="app-header__actions">
-      <span class="app-header__weather">26°C</span>
+      <div class="app-header__weather" title="演示天气">
+        <CloudOutlined class="app-header__weather-icon" />
+        <span class="app-header__weather-temp">26°C</span>
+        <span class="app-header__weather-text">晴 · 试验区</span>
+      </div>
       <RouterLink class="app-header__icon-link" to="/warnings" title="查看预警分析">
-        <a-badge :count="alertCount" size="small">
+        <a-badge
+          :count="alertCount"
+          :offset="[-2, 2]"
+          :number-style="{ background: 'var(--rf-status-warning)', boxShadow: 'none' }"
+        >
           <BellOutlined class="app-header__icon" />
         </a-badge>
       </RouterLink>
       <RouterLink class="app-header__icon-link" to="/system-docs" title="查看系统文档">
         <QuestionCircleOutlined class="app-header__icon" />
       </RouterLink>
+      <a-divider type="vertical" class="app-header__divider" />
       <div class="app-header__user" title="当前角色">
-        <span>研</span>
-        <strong>Demo User</strong>
+        <span class="app-header__avatar">研</span>
+        <div class="app-header__user-text">
+          <strong>演示用户</strong>
+          <small>研究员</small>
+        </div>
       </div>
     </div>
   </header>
@@ -26,41 +37,26 @@
 <script setup lang="ts">
 import {
   BellOutlined,
+  CloudOutlined,
   QuestionCircleOutlined,
 } from '@ant-design/icons-vue';
 import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
-import { fetchCurrentScenario, fetchDates, fetchMetrics, fetchWarnings } from '@/api';
+import { fetchWarnings } from '@/api';
 
-const selectedScenarioName = ref<string>('稻田数字孪生演示场景');
-const selectedDate = ref<string>();
-const selectedMetricName = ref<string>('标准化模拟数据');
+const route = useRoute();
 const alertCount = ref(0);
 
-const dates = ref<string[]>([]);
-
-const latestDate = computed(() => dates.value[dates.value.length - 1]);
+const title = computed(() => (route.meta?.title as string) ?? '稻田智研平台');
+const subtitle = computed(() => (route.meta?.subtitle as string) ?? '');
 
 onMounted(async () => {
-  const [scenarioResponse, datesResponse, metricsResponse, warningsResponse] = await Promise.allSettled([
-    fetchCurrentScenario(),
-    fetchDates(),
-    fetchMetrics(),
-    fetchWarnings(),
-  ]);
-
-  if (scenarioResponse.status === 'fulfilled') {
-    selectedScenarioName.value = scenarioResponse.value.scenario_name;
-  }
-  if (datesResponse.status === 'fulfilled') {
-    dates.value = datesResponse.value.items;
-    selectedDate.value = latestDate.value;
-  }
-  if (metricsResponse.status === 'fulfilled') {
-    selectedMetricName.value = `${metricsResponse.value.items.length} 个指标在线`;
-  }
-  if (warningsResponse.status === 'fulfilled') {
-    alertCount.value = warningsResponse.value.total;
+  try {
+    const response = await fetchWarnings();
+    alertCount.value = response.total;
+  } catch {
+    alertCount.value = 0;
   }
 });
 </script>
@@ -70,82 +66,130 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
-  min-height: 66px;
-  background: transparent;
-  padding: 0 26px;
+  gap: 24px;
+  height: var(--rf-header-height);
+  border-bottom: 1px solid var(--rf-border-soft);
+  background: var(--rf-surface);
+  padding: 0 28px;
 }
 
-.app-header__context {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.app-header__title {
   min-width: 0;
+}
+
+.app-header__title h1 {
+  margin: 0;
+  color: var(--rf-text);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.app-header__title p {
+  margin: 3px 0 0;
   color: var(--rf-text-muted);
   font-size: 13px;
-}
-
-.app-header__context span {
-  color: var(--rf-text);
-  font-weight: 850;
-}
-
-.app-header__context strong {
-  font-weight: 800;
-}
-
-.app-header__context small {
-  color: var(--rf-primary);
-  font-weight: 800;
+  line-height: 1.4;
 }
 
 .app-header__actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
 }
 
 .app-header__weather {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--rf-border-soft);
+  border-radius: 999px;
+  background: var(--rf-surface-soft);
+  padding: 6px 14px;
+}
+
+.app-header__weather-icon {
+  color: var(--rf-accent-cyan);
+  font-size: 16px;
+}
+
+.app-header__weather-temp {
   color: var(--rf-text);
   font-size: 13px;
-  font-weight: 850;
+  font-weight: 700;
+}
+
+.app-header__weather-text {
+  color: var(--rf-text-muted);
+  font-size: 12px;
 }
 
 .app-header__icon-link {
   display: inline-flex;
-  color: inherit;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  color: var(--rf-text-muted);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.app-header__icon-link:hover {
+  background: var(--rf-surface-soft);
+  color: var(--rf-text);
 }
 
 .app-header__icon {
-  color: #102033;
-  font-size: 20px;
+  font-size: 18px;
+}
+
+.app-header__divider {
+  height: 22px;
+  margin: 0 2px;
+  background: var(--rf-border-soft);
 }
 
 .app-header__user {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
-.app-header__user span {
+.app-header__avatar {
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   place-items: center;
   border-radius: 50%;
-  background: var(--rf-primary);
-  color: #fff;
-  font-weight: 900;
+  background: var(--rf-primary-soft);
+  color: var(--rf-primary);
+  font-size: 13px;
+  font-weight: 700;
 }
 
-.app-header__user strong {
-  white-space: nowrap;
-  font-size: 14px;
+.app-header__user-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.app-header__user-text strong {
+  color: var(--rf-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.app-header__user-text small {
+  color: var(--rf-text-soft);
+  font-size: 11px;
 }
 
 @media (max-width: 1180px) {
-  .app-header__context small,
-  .app-header__context strong {
+  .app-header__weather-text {
+    display: none;
+  }
+  .app-header__user-text {
     display: none;
   }
 }

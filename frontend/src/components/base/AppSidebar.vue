@@ -4,7 +4,7 @@
       <span class="app-sidebar__logo">
         <ApartmentOutlined />
       </span>
-      <span>
+      <span class="app-sidebar__brand-text">
         <strong>稻田智研平台</strong>
         <small>稻田数字孪生演示平台</small>
       </span>
@@ -17,12 +17,15 @@
         class="app-sidebar__link"
         :to="item.path"
       >
-        <component :is="item.icon" />
-        <span>{{ item.label }}</span>
+        <span class="app-sidebar__indicator" aria-hidden="true" />
+        <component :is="item.icon" class="app-sidebar__icon" />
+        <span class="app-sidebar__label">{{ item.label }}</span>
       </RouterLink>
     </nav>
 
-    <button class="app-sidebar__collapse" type="button">收起菜单</button>
+    <div class="app-sidebar__footer">
+      <small>v1.0.0 · 演示场景</small>
+    </div>
   </aside>
 </template>
 
@@ -65,11 +68,8 @@ const items = computed(() =>
   width: var(--rf-sidebar-width);
   height: 100vh;
   border-right: 1px solid var(--rf-border-soft);
-  background: rgba(255, 255, 255, 0.94);
-  color: var(--rf-text);
-  padding: 24px 18px 22px;
-  box-shadow: 8px 0 28px rgba(15, 56, 37, 0.04);
-  backdrop-filter: blur(16px);
+  background: var(--rf-surface);
+  padding: 22px 14px 18px;
 }
 
 .app-sidebar__brand {
@@ -78,45 +78,52 @@ const items = computed(() =>
   gap: 12px;
   color: var(--rf-text);
   text-decoration: none;
-  padding: 0 4px 28px;
+  border-bottom: 1px solid var(--rf-border-soft);
+  margin-bottom: 14px;
+  padding: 0 6px 20px;
 }
 
 .app-sidebar__logo {
   display: grid;
-  flex: 0 0 38px;
-  width: 38px;
-  height: 38px;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
   place-items: center;
-  border: 1px solid rgba(21, 144, 93, 0.22);
-  border-radius: 8px;
-  background: linear-gradient(135deg, #e8f6ef, #ffffff);
-  box-shadow: 0 10px 22px rgba(21, 144, 93, 0.12);
-  color: var(--rf-primary);
-  font-size: 22px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--rf-primary), var(--rf-primary-darker));
+  color: #fff;
+  font-size: 18px;
 }
 
-.app-sidebar__brand strong,
-.app-sidebar__brand small {
-  display: block;
+.app-sidebar__logo :deep(svg) {
+  font-size: 18px;
 }
 
-.app-sidebar__brand strong {
-  font-size: 19px;
-  font-weight: 900;
-  line-height: 1.15;
+.app-sidebar__brand-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
-.app-sidebar__brand small {
-  margin-top: 2px;
-  color: var(--rf-text-muted);
-  font-size: 12px;
+.app-sidebar__brand-text strong {
+  color: var(--rf-text);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.app-sidebar__brand-text small {
+  margin-top: 3px;
+  color: var(--rf-text-soft);
+  font-size: 11px;
+  letter-spacing: 0.4px;
 }
 
 .app-sidebar__nav {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .app-sidebar__link {
@@ -124,35 +131,70 @@ const items = computed(() =>
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 46px;
+  height: 44px;
   border-radius: 8px;
-  color: #435267;
-  text-decoration: none;
-  padding: 0 14px 0 16px;
-  font-size: 14px;
-  font-weight: 750;
-  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
-}
-
-.app-sidebar__link :deep(svg) {
-  font-size: 18px;
-}
-
-.app-sidebar__link:hover,
-.app-sidebar__link.router-link-active {
-  background: linear-gradient(90deg, rgba(21, 144, 93, 0.14), rgba(21, 144, 93, 0.06));
-  color: var(--rf-primary-dark);
-  box-shadow: inset 3px 0 0 var(--rf-primary);
-}
-
-.app-sidebar__collapse {
-  border: 0;
-  background: transparent;
   color: var(--rf-text-muted);
-  cursor: default;
-  font-family: inherit;
-  font-size: 13px;
-  text-align: left;
-  padding: 10px 4px 0;
+  text-decoration: none;
+  padding: 0 12px 0 18px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.app-sidebar__indicator {
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 22px;
+  border-radius: 2px;
+  background: transparent;
+  transition: background-color 0.15s ease;
+}
+
+.app-sidebar__icon {
+  font-size: 17px;
+  color: var(--rf-text-soft);
+  transition: color 0.15s ease;
+}
+
+.app-sidebar__label {
+  flex: 1;
+  min-width: 0;
+}
+
+.app-sidebar__link:hover {
+  background: var(--rf-surface-soft);
+  color: var(--rf-text);
+}
+
+.app-sidebar__link:hover .app-sidebar__icon {
+  color: var(--rf-text);
+}
+
+.app-sidebar__link.router-link-active {
+  background: var(--rf-primary-soft);
+  color: var(--rf-primary);
+  font-weight: 700;
+}
+
+.app-sidebar__link.router-link-active .app-sidebar__icon {
+  color: var(--rf-primary);
+}
+
+.app-sidebar__link.router-link-active .app-sidebar__indicator {
+  background: var(--rf-primary);
+}
+
+.app-sidebar__footer {
+  border-top: 1px solid var(--rf-border-soft);
+  padding-top: 14px;
+  text-align: center;
+}
+
+.app-sidebar__footer small {
+  color: var(--rf-text-soft);
+  font-size: 12px;
 }
 </style>

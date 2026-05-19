@@ -28,8 +28,8 @@ import AppSidebar from '@/components/base/AppSidebar.vue';
 }
 
 .main-layout__content {
-  min-height: calc(100vh - 66px);
-  padding: 18px 26px 28px;
+  min-height: calc(100vh - var(--rf-header-height));
+  padding: 24px 28px 32px;
 }
 
 @media (max-width: 860px) {
