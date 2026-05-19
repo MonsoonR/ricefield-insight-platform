@@ -48,7 +48,7 @@
       <section class="panel docs-recommend docs-boundary">
         <h2 class="section-title">当前系统边界</h2>
         <ul>
-          <li>不做 Excel、GeoJSON、PDF、图片等文件导入。</li>
+          <li>不处理 Excel、GeoJSON、PDF、图片等原始文件。</li>
           <li>不提供原始文件处理主线与文件处理报告。</li>
           <li>不保存真实客户数据或可识别来源数据。</li>
           <li>不提供文件上传、自动报告和权限系统。</li>

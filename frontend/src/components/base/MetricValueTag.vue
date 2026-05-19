@@ -30,15 +30,15 @@ const displayValue = computed(() => {
 
 const tone = computed(() => {
   if (props.qualityFlag === 'error') {
-    return 'red';
+    return 'critical';
   }
   if (props.qualityFlag === 'outlier') {
-    return 'orange';
+    return 'warning';
   }
   if (props.qualityFlag === 'missing') {
-    return 'yellow';
+    return 'watch';
   }
-  return 'green';
+  return 'normal';
 });
 </script>
 
@@ -57,22 +57,22 @@ const tone = computed(() => {
   font-weight: 700;
 }
 
-.metric-value-tag--green {
+.metric-value-tag--normal {
   background: #e7f7ee;
   color: #04733a;
 }
 
-.metric-value-tag--orange {
+.metric-value-tag--warning {
   background: #ffead5;
   color: #c2410c;
 }
 
-.metric-value-tag--yellow {
+.metric-value-tag--watch {
   background: #fff4cf;
   color: #9a6700;
 }
 
-.metric-value-tag--red {
+.metric-value-tag--critical {
   background: #fee2dc;
   color: #c7281d;
 }

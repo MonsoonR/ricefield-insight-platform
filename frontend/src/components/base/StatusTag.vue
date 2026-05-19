@@ -18,9 +18,9 @@ const config = computed(() => {
     case 'abnormal':
       return { label: '预警', tone: 'warning' };
     case 'missing':
-      return { label: '关注', tone: 'attention' };
+      return { label: '关注', tone: 'watch' };
     case 'error':
-      return { label: '严重', tone: 'severe' };
+      return { label: '严重', tone: 'critical' };
     case 'no_data':
     case 'empty':
       return { label: '无数据', tone: 'empty' };
@@ -45,7 +45,7 @@ const config = computed(() => {
   color: #087145;
 }
 
-.status-tag--attention {
+.status-tag--watch {
   background: #fff4cf;
   color: #9a6700;
 }
@@ -55,7 +55,7 @@ const config = computed(() => {
   color: #c2410c;
 }
 
-.status-tag--severe {
+.status-tag--critical {
   background: #fee2dc;
   color: #c7281d;
 }

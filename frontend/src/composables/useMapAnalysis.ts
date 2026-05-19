@@ -65,7 +65,7 @@ export function useMapAnalysis() {
       }
       await Promise.all([loadDates(), loadLayers()]);
     } catch (currentError) {
-      error.value = getMapApiErrorMessage(currentError, '地图分析数据加载失败，请检查后端接口和数据导入状态。');
+      error.value = getMapApiErrorMessage(currentError, '地图分析数据加载失败，请检查后端接口和模拟场景服务状态。');
     } finally {
       loading.value = false;
     }
