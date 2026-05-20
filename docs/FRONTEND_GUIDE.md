@@ -59,3 +59,12 @@ npm --prefix frontend run test:map
 ```powershell
 npm --prefix frontend run build
 ```
+## Cesium 地图孪生组件与交互规则
+
+- 页面入口：`/map-twin`，页面标题为 `Cesium 地图孪生`，副标题为 `地块空间分布、指标可视化与交互分析`。
+- 页面组件：`MapAnalysisPage.vue` 组织工作台结构；`CesiumMapPanel.vue` 只负责 Cesium 容器、地块 polygon、中心编号、地图工具、图例插槽和图层开关响应。
+- 筛选交互：指标、日期、区域、查询、重置放在地图顶部浮层。切换筛选项后可自动刷新图层，点击查询会按当前条件重新请求 `/api/map/layers`；重置回到叶绿素、最新日期和全部区域。
+- 地块交互：点击 polygon 或地块编号后选中地块，右侧详情、当前指标、关键指标快照、趋势图、关键指标表和最新观测记录联动刷新。选中地块仅跳转画像，不提供编辑。
+- 趋势交互：趋势图基于 `/api/plots/{plot_id}/series` 返回的标准化时序数据，支持近 7 天、近 15 天、近 30 天切换；较昨日变化在前端由当前点和前一日点计算。
+- 图层交互：图层控制使用 Ant Design Vue `a-switch`，控制地块边界、当前指标渲染、预警地块高亮和区域边界。不得新增测距、绘制、编辑、上传、GeoJSON 导入等复杂 GIS 功能。
+- 数据约束：地图页只消费标准化 API 和程序生成示例边界，不直接解析 Excel、GeoJSON、PDF、图片或真实客户数据文件。

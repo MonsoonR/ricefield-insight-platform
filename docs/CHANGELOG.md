@@ -1,5 +1,28 @@
 # 变更记录
 
+## 2026-05-20
+
+### 修改
+
+- 优化 `Cesium 地图孪生` 页面为核心空间分析工作台，形成地图主区域、右侧地块详情、下方趋势图、关键指标表和最新观测记录的结构。
+- 将地图筛选栏调整为地图顶部浮层，包含指标选择、日期选择、区域选择、查询和重置；查询按钮使用主绿色，重置按钮使用浅色描边。
+- 强化 Cesium 地块渲染，新增地块中心编号、选中地块亮色描边和弱发光、缺失数据灰色低透明度、预警地块高亮，以及地图左下角指标色阶图例。
+- 优化地图工具，新增定位选中地块、图层透明度、回到默认视角、放大和缩小按钮，统一白底圆角和轻阴影样式。
+- 扩展右侧地块详情面板，展示状态、地块编号、区域、名称、面积、演示品种、最近观测、数据来源、观测批次、当前指标、较昨日变化和关键指标快照。
+- 新增图层控制开关，支持地块边界、当前指标渲染、预警地块和区域边界显示控制；未新增 GeoJSON 导入、文件上传、地块编辑、测距或绘制功能。
+
+### 文档更新
+
+- 更新 `docs/DESIGN_SYSTEM.md`，补充 Cesium 地图孪生页面视觉规范。
+- 更新 `docs/FRONTEND_GUIDE.md`，补充地图页组件分工、筛选、地块点击、趋势和图层交互规则。
+- 更新 `docs/USER_MANUAL.md`，同步地图页用户可见操作说明。
+
+### 验证
+
+- 已通过后端测试：`backend\.venv\Scripts\python.exe -m pytest backend\tests -q`。
+- 已通过前端服务测试：`npm --prefix frontend run test:overview`、`npm --prefix frontend run test:page-linkage`、`npm --prefix frontend run test:twin-analysis`、`npm --prefix frontend run test:map`。
+- 已通过前端构建：`npm --prefix frontend run build`。
+
 ## 2026-05-19
 
 ### 修改

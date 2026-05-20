@@ -18,7 +18,7 @@ export const routes = [
         path: 'map-twin',
         name: 'map-twin',
         component: () => import('@/pages/MapAnalysisPage.vue'),
-        meta: { title: 'Cesium 地图孪生', subtitle: '地块边界、指标着色与点击联动的空间分析视图' },
+        meta: { title: 'Cesium 地图孪生', subtitle: '地块空间分布、指标可视化与交互分析' },
       },
       {
         path: 'metric-compare',

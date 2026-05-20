@@ -19,6 +19,7 @@ import {
   Skeleton,
   Space,
   Statistic,
+  Switch,
   Tabs,
   Table,
   Tag,
@@ -55,6 +56,7 @@ createApp(App)
   .use(Skeleton)
   .use(Space)
   .use(Statistic)
+  .use(Switch)
   .use(Tabs)
   .use(Table)
   .use(Tag)
