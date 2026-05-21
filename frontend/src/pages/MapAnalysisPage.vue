@@ -208,6 +208,7 @@
 import type { TableColumnsType } from 'ant-design-vue';
 import type { EChartsOption } from 'echarts';
 import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 
 import {
   fetchDates,
@@ -232,6 +233,7 @@ import {
   RegionSelector,
   StatusTag,
 } from '@/components/base';
+import { firstRouteQueryValue } from '@/services/pageLinkage';
 import type {
   MapFeature,
   MapFeatureCollection,
@@ -255,6 +257,7 @@ const shortMetricName: Record<string, string> = {
   plant_height: '株高',
 };
 
+const route = useRoute();
 const loading = ref(false);
 const seriesLoading = ref(false);
 const error = ref('');
@@ -262,7 +265,7 @@ const imageryError = ref('');
 const metrics = ref<Metric[]>([]);
 const dates = ref<string[]>([]);
 const featureCollection = ref<MapFeatureCollection>(emptyCollection);
-const selectedPlotId = ref('');
+const selectedPlotId = ref(firstRouteQueryValue(route.query.plotId));
 const selectedProperties = ref<MapFeatureProperties>();
 const summary = ref<PlotSummaryResponse>();
 const series = ref<PlotSeriesResponse>();
@@ -407,6 +410,19 @@ const observationColumns: TableColumnsType = [
 onMounted(() => {
   void initialize();
 });
+
+watch(
+  () => route.query.plotId,
+  (plotId) => {
+    const nextPlotId = firstRouteQueryValue(plotId);
+    if (nextPlotId && nextPlotId !== selectedPlotId.value) {
+      selectedPlotId.value = nextPlotId;
+      const next = featureCollection.value.features.find((feature) => feature.properties.plot_id === nextPlotId);
+      selectedProperties.value = next?.properties;
+      void loadSelectedPlot();
+    }
+  },
+);
 
 watch(
   () => [filters.region, filters.metricCode, filters.observedAt],
@@ -570,6 +586,7 @@ function calculatePolygonAreaMu(feature: MapFeature) {
   }
   return Math.abs(area) / 2 / 666.667;
 }
+
 </script>
 
 <style scoped>

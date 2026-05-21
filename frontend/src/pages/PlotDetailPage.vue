@@ -1,32 +1,45 @@
 <template>
-  <PageContainer>
+  <PageContainer
+    :title="pageTitle"
+    description="全面了解单个地块的基础信息、指标状态与变化趋势。"
+  >
     <template #actions>
-      <a-button @click="$router.push('/map-twin')">
-        <EnvironmentOutlined />
+      <a-button @click="returnToMap">
+        <RollbackOutlined />
         返回地图
       </a-button>
     </template>
 
-    <ErrorState v-if="error" :message="error" compact />
+    <section v-if="plotNotFound" class="plot-empty panel">
+      <EmptyState compact description="未找到对应地块，请返回地图选择一个可用地块。" />
+      <a-button type="primary" @click="returnToMap">
+        <EnvironmentOutlined />
+        返回地图
+      </a-button>
+    </section>
+
+    <ErrorState v-else-if="error" :message="error" compact />
 
     <section v-if="summary" class="plot-summary panel">
-      <div class="plot-summary__main">
+      <div class="plot-summary__identity">
         <div class="plot-summary__id">
           <strong>{{ summary.plot.plot_code }}</strong>
           <StatusTag :status="plotOverallStatus" />
         </div>
         <h2>{{ summary.plot.plot_name || summary.plot.plot_code }}</h2>
-        <div class="plot-summary__meta">
-          <span><EnvironmentOutlined />{{ summary.plot.region }}</span>
-          <span><AppstoreOutlined />{{ plotArea }}</span>
-          <span><ExperimentOutlined />{{ riceVariety }}</span>
-          <span><CalendarOutlined />最近观测：{{ latestDate }}</span>
-          <span><DatabaseOutlined />{{ latestBatchId }}</span>
-          <span><CloudServerOutlined />{{ latestDataSource }}</span>
+        <span class="plot-summary__region">
+          <EnvironmentOutlined />
+          {{ summary.plot.region || '--' }}
+        </span>
+      </div>
+      <div class="plot-summary__facts">
+        <div v-for="fact in summaryFacts" :key="fact.label" class="plot-summary__fact">
+          <span>{{ fact.label }}</span>
+          <strong :title="fact.value">{{ fact.value }}</strong>
         </div>
       </div>
       <div class="plot-summary__actions">
-        <RouterLink :to="{ path: '/map-twin', query: { plotId: selectedPlotId } }">
+        <RouterLink :to="mapTwinLocation">
           <a-button type="primary">
             <AimOutlined />
             定位到地图
@@ -51,10 +64,6 @@
           <div><dt>观测批次</dt><dd>{{ latestBatchId }}</dd></div>
           <div><dt>创建时间</dt><dd>{{ createdAt }}</dd></div>
         </dl>
-        <div class="plot-notes">
-          <h4>地块备注</h4>
-          <p>{{ plotNotes }}</p>
-        </div>
       </aside>
 
       <section class="plot-metrics">
@@ -75,8 +84,8 @@
               <StatusTag :status="item.quality_flag" />
             </header>
             <div class="metric-snap__value">
-              <strong>{{ formatValue(item.value) }}</strong>
-              <small>{{ item.unit }}</small>
+              <strong>{{ formatMetricValue(item.value) }}</strong>
+              <small v-if="item.value !== null && item.value !== undefined">{{ item.unit }}</small>
             </div>
             <div class="metric-snap__change" :class="item.changeClass">
               <RiseOutlined v-if="item.direction === 'up'" />
@@ -100,19 +109,14 @@
           />
         </header>
         <div class="plot-trend__range">
-          <a-radio-group v-model:value="trendRange" size="small" button-style="solid">
-            <a-radio-button value="7">近 7 天</a-radio-button>
-            <a-radio-button value="15">近 15 天</a-radio-button>
-            <a-radio-button value="30">近 30 天</a-radio-button>
-            <a-radio-button value="all">全部</a-radio-button>
-          </a-radio-group>
+          <a-segmented v-model:value="trendRange" :options="trendRangeOptions" size="small" />
         </div>
         <EmptyState v-if="!loading && trendPoints.length === 0" compact description="暂无趋势数据" />
         <EChartView v-else :option="trendOption" :height="280" />
       </section>
     </div>
 
-    <div class="page-grid page-grid--asymmetric">
+    <div class="plot-bottom-grid">
       <DataTable
         title="观测批次记录"
         description="当前地块最近的观测批次与数据质量情况。"
@@ -126,6 +130,9 @@
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'quality_flag'">
             <StatusTag :status="record.quality_flag as string" />
+          </template>
+          <template v-if="column.key === 'data_source_id'">
+            {{ sourceLabel(record.data_source_id as string | null | undefined) }}
           </template>
         </template>
       </DataTable>
@@ -153,6 +160,14 @@
           </ul>
         </div>
       </section>
+
+      <section class="plot-note-panel panel">
+        <h3 class="section-title">地块备注</h3>
+        <div class="plot-note-panel__empty">
+          <span>暂无备注信息</span>
+          <small>当前仅展示备注占位，不保存到后端。</small>
+        </div>
+      </section>
     </div>
   </PageContainer>
 </template>
@@ -160,20 +175,16 @@
 <script setup lang="ts">
 import {
   AimOutlined,
-  AppstoreOutlined,
-  CalendarOutlined,
-  CloudServerOutlined,
-  DatabaseOutlined,
   EnvironmentOutlined,
-  ExperimentOutlined,
   FallOutlined,
   MinusOutlined,
   RiseOutlined,
+  RollbackOutlined,
 } from '@ant-design/icons-vue';
 import type { TableColumnsType } from 'ant-design-vue';
 import type { EChartsOption } from 'echarts';
 import { computed, onMounted, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import {
   fetchMetrics,
@@ -192,6 +203,7 @@ import {
   StatusTag,
 } from '@/components/base';
 import {
+  buildMapTwinLocation,
   buildPlotDetailRequestPlan,
   shouldReloadPlotDetail,
 } from '@/services/pageLinkage';
@@ -218,8 +230,10 @@ interface MetricSnap {
 }
 
 const route = useRoute();
+const router = useRouter();
 const loading = ref(false);
 const error = ref('');
+const plotNotFound = ref(false);
 const selectedPlotId = ref(String(route.params.plotId ?? ''));
 const plots = ref<Plot[]>([]);
 const metrics = ref<Metric[]>([]);
@@ -227,28 +241,62 @@ const summary = ref<PlotSummaryResponse>();
 const series = ref<PlotSeriesResponse>();
 const allWarnings = ref<WarningItem[]>([]);
 const selectedTrendMetric = ref<string>('');
-const trendRange = ref<string>('all');
+const trendRange = ref<string>('30');
+const trendRangeOptions = [
+  { label: '近7天', value: '7' },
+  { label: '近15天', value: '15' },
+  { label: '近30天', value: '30' },
+  { label: '全部', value: 'all' },
+];
+
+const metricDisplayNames: Record<string, string> = {
+  soluble_total_salt: '盐分',
+  leaf_area_index: 'LAI',
+};
+
+const requiredMetricOrder = [
+  'crop_growth',
+  'chlorophyll',
+  'nitrogen',
+  'phosphorus',
+  'potassium',
+  'ph',
+  'organic_matter',
+  'soluble_total_salt',
+  'leaf_area_index',
+  'plant_height',
+  'maturity_prediction',
+];
+
+const pageTitle = computed(() => `地块画像 / ${summary.value?.plot.plot_code ?? selectedPlotCode.value ?? '--'}`);
+const selectedPlotCode = computed(() => plots.value.find((plot) => plot.plot_id === selectedPlotId.value)?.plot_code);
+const mapTwinLocation = computed(() => buildMapTwinLocation(selectedPlotId.value));
 
 const plotArea = computed(() => {
-  const code = summary.value?.plot.plot_code;
-  if (!code) return '--';
-  const hash = code.charCodeAt(code.length - 1) % 5;
-  return `${(0.8 + hash * 0.3).toFixed(1)} 亩（模拟）`;
+  const area = summary.value?.plot ? calculatePolygonAreaMu(summary.value.plot) : undefined;
+  return area ? `约 ${area.toFixed(1)} 亩` : '--';
 });
 
 const riceVariety = computed(() => '南粳 9108（模拟）');
-const sowingDate = computed(() => '2025-03-15（模拟）');
-const transplantDate = computed(() => '2025-04-20（模拟）');
-const maturityDate = computed(() => '2025-09-10（模拟）');
-const createdAt = computed(() => summary.value?.plot.plot_id ? '2025-01-01' : '--');
-const plotNotes = computed(() => '暂无备注。当前阶段为演示数据，后续可接入田间记录。');
+const sowingDate = computed(() => '2025-03-20（模拟）');
+const transplantDate = computed(() => '2025-04-05（模拟）');
+const maturityDate = computed(() => '2025-07-28（模拟）');
+const createdAt = computed(() => summary.value?.plot.plot_id ? '2025-07-15（模拟）' : '--');
 
 const latestObservation = computed(() =>
   [...(summary.value?.latest_observations ?? [])].sort((a, b) => b.observed_at.localeCompare(a.observed_at))[0],
 );
 const latestDate = computed(() => latestObservation.value?.observed_at ?? '--');
 const latestBatchId = computed(() => latestObservation.value?.batch_id ?? summary.value?.batch_ids[0] ?? '--');
-const latestDataSource = computed(() => latestObservation.value?.data_source_id ?? '--');
+const latestDataSource = computed(() => sourceLabel(latestObservation.value?.data_source_id));
+
+const summaryFacts = computed(() => [
+  { label: '地块面积', value: plotArea.value },
+  { label: '水稻品种', value: riceVariety.value },
+  { label: '最近观测', value: latestDate.value },
+  { label: '数据来源', value: latestDataSource.value },
+  { label: '观测批次', value: latestBatchId.value },
+]);
 
 const plotOverallStatus = computed(() => {
   const counts = summary.value?.quality_counts ?? {};
@@ -261,18 +309,28 @@ const plotOverallStatus = computed(() => {
 const metricSnapshots = computed<MetricSnap[]>(() => {
   const observations = summary.value?.latest_observations ?? [];
   const seriesData = series.value?.series ?? [];
+  const metricMap = new Map(metrics.value.map((metric) => [metric.metric_code, metric]));
+  const orderedMetricCodes = [
+    ...requiredMetricOrder.filter((metricCode) => metricMap.has(metricCode)),
+    ...metrics.value
+      .map((metric) => metric.metric_code)
+      .filter((metricCode) => !requiredMetricOrder.includes(metricCode)),
+  ];
 
-  return observations.map((obs) => {
-    const metricSeries = seriesData.find((s) => s.metric_code === obs.metric_code);
+  return orderedMetricCodes.map((metricCode) => {
+    const metricDef = metricMap.get(metricCode);
+    const obs = observations.find((item) => item.metric_code === metricCode);
+    const metricSeries = seriesData.find((s) => s.metric_code === metricCode);
     const points = [...(metricSeries?.points ?? [])].sort((a, b) => a.observed_at.localeCompare(b.observed_at));
-    const lastIdx = points.findIndex((p) => p.observed_at === obs.observed_at);
+    const currentObservedAt = obs?.observed_at ?? points[points.length - 1]?.observed_at;
+    const lastIdx = currentObservedAt ? points.findIndex((p) => p.observed_at === currentObservedAt) : -1;
     const prevPoint = lastIdx > 0 ? points[lastIdx - 1] : undefined;
 
     let direction: 'up' | 'down' | 'flat' = 'flat';
-    let changeText = '持平';
+    let changeText = obs ? '持平' : '暂无数据';
     let changeClass = 'change--flat';
 
-    if (prevPoint && typeof obs.value === 'number' && typeof prevPoint.value === 'number') {
+    if (obs && prevPoint && typeof obs.value === 'number' && typeof prevPoint.value === 'number') {
       const diff = obs.value - prevPoint.value;
       if (Math.abs(diff) > 0.01) {
         direction = diff > 0 ? 'up' : 'down';
@@ -283,12 +341,12 @@ const metricSnapshots = computed<MetricSnap[]>(() => {
     }
 
     return {
-      metric_code: obs.metric_code,
-      metric_name: obs.metric_name,
-      value: obs.value,
-      unit: obs.unit,
-      quality_flag: obs.quality_flag,
-      level: mapQualityToStatus(obs.quality_flag),
+      metric_code: metricCode,
+      metric_name: metricDisplayNames[metricCode] ?? obs?.metric_name ?? metricDef?.metric_name ?? metricCode,
+      value: obs?.value ?? null,
+      unit: obs?.unit ?? metricDef?.unit ?? '',
+      quality_flag: obs?.quality_flag ?? 'empty',
+      level: mapQualityToStatus(obs?.quality_flag ?? 'empty'),
       direction,
       changeText,
       changeClass,
@@ -297,9 +355,9 @@ const metricSnapshots = computed<MetricSnap[]>(() => {
 });
 
 const trendMetricOptions = computed(() =>
-  (series.value?.series ?? []).map((s) => ({
-    label: `${s.metric_name}${s.unit ? ` (${s.unit})` : ''}`,
-    value: s.metric_code,
+  metricSnapshots.value.map((item) => ({
+    label: `${item.metric_name}${item.unit ? ` (${item.unit})` : ''}`,
+    value: item.metric_code,
   })),
 );
 
@@ -312,8 +370,9 @@ const trendPoints = computed(() => {
   if (trendRange.value === 'all') return points;
   const days = parseInt(trendRange.value, 10);
   if (!days || points.length === 0) return points;
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - days);
+  const latestPointDate = points[points.length - 1].observed_at;
+  const cutoff = new Date(`${latestPointDate}T00:00:00`);
+  cutoff.setDate(cutoff.getDate() - days + 1);
   const cutoffStr = cutoff.toISOString().slice(0, 10);
   return points.filter((p) => p.observed_at >= cutoffStr);
 });
@@ -372,24 +431,40 @@ const suggestions = computed(() => {
 });
 
 const batchRows = computed(() => {
-  const observations = summary.value?.latest_observations ?? [];
-  const batchMap = new Map<string, { batch_id: string; observed_at: string; data_source_id: string; metric_count: number; quality_flag: string }>();
-  for (const obs of observations) {
-    const existing = batchMap.get(obs.batch_id);
+  const points = (series.value?.series ?? []).flatMap((item) => item.points);
+  const batchMap = new Map<string, {
+    batch_id: string;
+    observed_at: string;
+    data_source_id: string;
+    metric_count: number;
+    quality_flag: string;
+    remark: string;
+  }>();
+  for (const point of points) {
+    const key = `${point.batch_id}-${point.observed_at}`;
+    const existing = batchMap.get(key);
     if (existing) {
       existing.metric_count++;
-      if (obs.quality_flag !== 'normal') existing.quality_flag = obs.quality_flag;
+      existing.quality_flag = mergeQualityFlag(existing.quality_flag, point.quality_flag);
     } else {
-      batchMap.set(obs.batch_id, {
-        batch_id: obs.batch_id,
-        observed_at: obs.observed_at,
-        data_source_id: obs.data_source_id,
+      batchMap.set(key, {
+        batch_id: point.batch_id,
+        observed_at: point.observed_at,
+        data_source_id: point.data_source_id,
         metric_count: 1,
-        quality_flag: obs.quality_flag,
+        quality_flag: point.quality_flag,
+        remark: point.quality_flag === 'normal' ? '--' : qualityRemark(point.quality_flag),
       });
     }
   }
-  return [...batchMap.values()].map((item) => ({ ...item, id: item.batch_id }));
+  return [...batchMap.values()]
+    .sort((a, b) => b.observed_at.localeCompare(a.observed_at))
+    .slice(0, 8)
+    .map((item) => ({
+      ...item,
+      remark: item.quality_flag === 'normal' ? '--' : qualityRemark(item.quality_flag),
+      id: `${item.batch_id}-${item.observed_at}`,
+    }));
 });
 
 const batchColumns: TableColumnsType = [
@@ -398,6 +473,7 @@ const batchColumns: TableColumnsType = [
   { title: '数据来源', dataIndex: 'data_source_id', key: 'data_source_id', ellipsis: true },
   { title: '观测指标数', dataIndex: 'metric_count', key: 'metric_count', width: 100 },
   { title: '数据质量', dataIndex: 'quality_flag', key: 'quality_flag', width: 90 },
+  { title: '备注', dataIndex: 'remark', key: 'remark', ellipsis: true },
 ];
 
 onMounted(async () => {
@@ -440,6 +516,7 @@ async function loadPlot() {
   if (!requestPlan) return;
   loading.value = true;
   error.value = '';
+  plotNotFound.value = false;
   try {
     const [summaryData, seriesData] = await Promise.all([
       fetchPlotSummary(requestPlan.summaryPlotId),
@@ -447,11 +524,16 @@ async function loadPlot() {
     ]);
     summary.value = summaryData;
     series.value = seriesData;
-    if (!selectedTrendMetric.value && seriesData.series.length > 0) {
-      selectedTrendMetric.value = seriesData.series[0].metric_code;
+    const nextMetric = seriesData.series.find((item) => item.metric_code === 'chlorophyll') ?? seriesData.series[0];
+    if (!selectedTrendMetric.value && nextMetric) {
+      selectedTrendMetric.value = nextMetric.metric_code;
     }
   } catch (currentError) {
-    error.value = getApiErrorMessage(currentError, '地块画像加载失败。');
+    summary.value = undefined;
+    series.value = undefined;
+    const message = getApiErrorMessage(currentError, '地块画像加载失败。');
+    error.value = message;
+    plotNotFound.value = message.includes('未找到地块');
   } finally {
     loading.value = false;
   }
@@ -463,6 +545,11 @@ function formatValue(value: number | string | null): string {
   return value;
 }
 
+function formatMetricValue(value: number | string | null): string {
+  if (value === null || value === undefined || value === '') return '暂无数据';
+  return formatValue(value);
+}
+
 function toNumber(value: number | string | null): number | null {
   if (typeof value === 'number' && Number.isFinite(value)) return value;
   if (typeof value === 'string' && value.trim()) {
@@ -471,19 +558,78 @@ function toNumber(value: number | string | null): number | null {
   }
   return null;
 }
+
+function sourceLabel(value?: string | null) {
+  if (!value) return '--';
+  if (value.includes('simulated') || value.includes('demo')) return '模拟数据';
+  if (value.includes('generated')) return '程序生成';
+  return value;
+}
+
+function mergeQualityFlag(current: string, next: string) {
+  const order: Record<string, number> = { normal: 0, missing: 1, outlier: 2, error: 3 };
+  return (order[next] ?? 0) > (order[current] ?? 0) ? next : current;
+}
+
+function qualityRemark(flag: string) {
+  if (flag === 'missing') return '存在缺失指标';
+  if (flag === 'outlier' || flag === 'abnormal') return '存在异常指标';
+  if (flag === 'error' || flag === 'critical') return '存在严重质量问题';
+  return '--';
+}
+
+function returnToMap() {
+  void router.push('/map-twin');
+}
+
+function calculatePolygonAreaMu(plot: Plot) {
+  if (plot.geometry?.type !== 'Polygon' || !Array.isArray(plot.geometry.coordinates)) {
+    return undefined;
+  }
+  const ring = plot.geometry.coordinates[0];
+  if (!Array.isArray(ring) || ring.length < 4) {
+    return undefined;
+  }
+
+  const points = ring
+    .filter((point): point is [number, number] =>
+      Array.isArray(point) && typeof point[0] === 'number' && typeof point[1] === 'number',
+    );
+  if (points.length < 4) {
+    return undefined;
+  }
+
+  const avgLat = points.reduce((sum, [, lat]) => sum + lat, 0) / points.length;
+  const metersPerDegreeLat = 111_320;
+  const metersPerDegreeLng = 111_320 * Math.cos((avgLat * Math.PI) / 180);
+  const projected = points.map(([lng, lat]) => [lng * metersPerDegreeLng, lat * metersPerDegreeLat]);
+  let area = 0;
+  for (let index = 0; index < projected.length; index += 1) {
+    const [x1, y1] = projected[index];
+    const [x2, y2] = projected[(index + 1) % projected.length];
+    area += x1 * y2 - x2 * y1;
+  }
+  return Math.abs(area) / 2 / 666.667;
+}
 </script>
 
 <style scoped>
-.plot-summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 22px 24px;
+.plot-empty {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  padding: 36px 24px;
 }
 
-.plot-summary__main {
-  flex: 1;
+.plot-summary {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.72fr) minmax(0, 2fr) auto;
+  align-items: center;
+  gap: 24px;
+  padding: 24px 28px;
+}
+
+.plot-summary__identity {
   min-width: 0;
 }
 
@@ -498,37 +644,61 @@ function toNumber(value: number | string | null): number | null {
   font-size: 28px;
   font-weight: 800;
   color: var(--rf-primary);
-  letter-spacing: -0.5px;
 }
 
 .plot-summary h2 {
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   color: var(--rf-text);
   font-size: 18px;
   font-weight: 700;
 }
 
-.plot-summary__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+.plot-summary__region {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--rf-text-muted);
   font-size: 13px;
 }
 
-.plot-summary__meta span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.plot-summary__region :deep(svg) {
+  color: var(--rf-text-soft);
 }
 
-.plot-summary__meta :deep(svg) {
-  color: var(--rf-text-soft);
-  font-size: 14px;
+.plot-summary__facts {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(108px, 1fr));
+  min-width: 0;
+}
+
+.plot-summary__fact {
+  min-width: 0;
+  border-left: 1px solid var(--rf-border-soft);
+  padding: 4px 14px;
+}
+
+.plot-summary__fact span {
+  display: block;
+  color: var(--rf-text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.plot-summary__fact strong {
+  display: -webkit-box;
+  margin-top: 8px;
+  color: var(--rf-text);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.25;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .plot-summary__actions {
-  flex: 0 0 auto;
+  justify-self: end;
 }
 
 .plot-body {
@@ -720,6 +890,13 @@ function toNumber(value: number | string | null): number | null {
   margin-bottom: 14px;
 }
 
+.plot-bottom-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(360px, 0.9fr) minmax(260px, 0.65fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
 .warnings-panel {
   padding: 18px 20px;
 }
@@ -794,16 +971,68 @@ function toNumber(value: number | string | null): number | null {
   line-height: 1.8;
 }
 
-@media (max-width: 1280px) {
+.plot-note-panel {
+  display: flex;
+  min-height: 260px;
+  flex-direction: column;
+  padding: 18px 20px;
+}
+
+.plot-note-panel__empty {
+  display: grid;
+  flex: 1;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  border: 1px solid var(--rf-border-soft);
+  border-radius: var(--rf-radius);
+  background: var(--rf-surface-soft);
+  color: var(--rf-text-muted);
+  text-align: center;
+}
+
+.plot-note-panel__empty span {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.plot-note-panel__empty small {
+  max-width: 220px;
+  color: var(--rf-text-soft);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+@media (max-width: 1180px) {
+  .plot-summary,
   .plot-body {
+    grid-template-columns: 1fr;
+  }
+
+  .plot-summary__facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .plot-summary__fact {
+    border-left: 0;
+    border-top: 1px solid var(--rf-border-soft);
+    padding: 12px 0 0;
+  }
+
+  .plot-summary__actions {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 1380px) {
+  .plot-bottom-grid {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 920px) {
-  .plot-summary {
-    flex-direction: column;
-    align-items: flex-start;
+  .plot-summary__facts {
+    grid-template-columns: 1fr;
   }
 }
 </style>
