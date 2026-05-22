@@ -4,6 +4,11 @@
 
 ### 修改
 
+- 按 `docs/design-reference/warnings-analysis-reference.png` 优化 `预警分析` 页面为“风险诊断中心”，形成顶部风险统计卡、紧凑筛选区、预警类型/严重程度分布、预警地块地图、最新预警列表和预警明细表。
+- 预警分析页前端基于现有 `/analysis/warnings` 与 `/map/layers` 数据聚合风险总览、受影响地块、受影响指标和地图严重程度着色，未新增后端 API 字段。
+- 将 `missing / outlier / error` 等技术字段转换为数据质量预警、农情状态预警、趋势变化预警以及关注/预警/严重等级，补充面向用户的中文预警描述和谨慎建议措施。
+- 最新预警列表、地图地块和明细表新增联动：点击预警或地块会选中对应地块、滚动到明细表并高亮对应行；“查看画像”和“定位地图”分别联动地块画像与地图孪生。
+- `DataTable` 新增 `rowClassName` 透传能力，并统一表格单元格不换行，支持预警明细表横向滚动和行高亮。
 - 按 `docs/design-reference/metric-compare-reference.png` 优化 `指标对比` 页面为多维度指标分析工作台，形成紧凑筛选区、5 个统计卡、地块排行图、区域对比、状态分布、明细数据表和指标说明。
 - 指标对比页默认优先展示叶绿素指标；查询/重置按钮遵循统一 `FilterBar` 交互，筛选区显示当前参与对比地块数量。
 - 地块排行图按指标值排序，使用正常、关注、预警、严重四级状态色，并新增均值参考线和柱子点击进入地块画像能力。
@@ -13,6 +18,9 @@
 
 ### 文档更新
 
+- 更新 `docs/DESIGN_SYSTEM.md`，新增第 13 章“预警分析页面规范”，补充风险统计卡、筛选区、双环图、预警地图、最新预警、明细表、严重程度颜色、语义映射、建议措施和空状态规范。
+- 更新 `docs/FRONTEND_GUIDE.md`，补充预警分析页组件结构、筛选逻辑、前端语义映射、地图/列表/表格联动和路由跳转说明。
+- 更新 `docs/USER_MANUAL.md`，补充预警分析页筛选风险、查看分布、点击地图、查看最新预警、进入地块画像和定位地图的操作说明。
 - 更新 `docs/DESIGN_SYSTEM.md`，新增第 12 章“指标对比页面规范”，补充筛选、KPI、排行图、区域对比卡、状态分布图、明细表、指标说明和空状态规范。
 - 更新 `docs/FRONTEND_GUIDE.md`，补充指标对比页组件结构、前端聚合逻辑、时序补充数据和页面联动说明。
 - 更新 `docs/USER_MANUAL.md`，补充指标对比页筛选、排行、区域对比、状态分布、明细表、地块画像和地图定位操作说明。
@@ -22,6 +30,7 @@
 - 已通过后端测试：`backend\.venv\Scripts\python.exe -m pytest backend\tests -q`（19 passed）。
 - 已通过前端服务测试：`test:overview`、`test:page-linkage`、`test:twin-analysis`、`test:map`。
 - 已通过前端构建：`npm --prefix frontend run build`（构建成功；保留既有 Cesium/Ant Design 大 chunk 提示）。
+- 已通过 Playwright 截图验证：`/warnings` 桌面与移动视口渲染正常，风险统计、筛选区、分布图、地图、最新预警和明细表布局可用。
 - 已通过 Playwright 截图验证：`/metric-compare` 桌面与移动视口渲染正常，无框架错误页；`/plot-detail/demo-ricefield-2025-B04` 和 `/map-twin?plotId=demo-ricefield-2025-B04` 可正常加载联动目标页。
 
 ## 2026-05-21

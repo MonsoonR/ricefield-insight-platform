@@ -16,6 +16,7 @@
       :loading="loading"
       :pagination="pagination"
       :row-key="rowKey"
+      :row-class-name="rowClassName"
       :scroll="scroll"
     >
       <template v-for="(_, name) in $slots" #[name]="slotData">
@@ -46,6 +47,7 @@ withDefaults(
     emptyText?: string;
     pagination?: false | Record<string, unknown>;
     scroll?: Record<string, string | number | true>;
+    rowClassName?: (record: object, index: number) => string;
   }>(),
   {
     title: '',
@@ -56,6 +58,7 @@ withDefaults(
     emptyText: '暂无数据',
     pagination: false,
     scroll: undefined,
+    rowClassName: undefined,
   },
 );
 </script>
@@ -94,6 +97,10 @@ withDefaults(
 .data-table :deep(.ant-table) {
   color: var(--rf-text);
   font-size: 13px;
+}
+
+.data-table :deep(.ant-table-cell) {
+  white-space: nowrap;
 }
 
 .data-table :deep(.ant-table-thead > tr > th) {

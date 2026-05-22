@@ -36,7 +36,7 @@ export const routes = [
         path: 'warnings',
         name: 'warnings',
         component: () => import('@/pages/WarningAnalysisPage.vue'),
-        meta: { title: '预警分析', subtitle: '缺失、异常与严重事件的综合预警视图' },
+        meta: { title: '预警分析', subtitle: '识别数据异常与农情风险，辅助科学决策。' },
       },
       {
         path: 'system-docs',
