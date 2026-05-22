@@ -24,7 +24,7 @@ export const routes = [
         path: 'metric-compare',
         name: 'metric-compare',
         component: () => import('@/pages/MetricComparePage.vue'),
-        meta: { title: '指标对比', subtitle: '按指标、日期与区域比较各地块的最新观测' },
+        meta: { title: '指标对比', subtitle: '多维度指标对比分析，发现地块差异与异常。' },
       },
       {
         path: 'plot-detail/:plotId?',

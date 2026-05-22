@@ -7,6 +7,10 @@ import type { ECharts, EChartsOption } from 'echarts';
 import { init } from 'echarts';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
+const emit = defineEmits<{
+  click: [params: unknown];
+}>();
+
 const props = withDefaults(
   defineProps<{
     option: EChartsOption;
@@ -21,11 +25,16 @@ const chartRef = ref<HTMLDivElement>();
 let chart: ECharts | undefined;
 let resizeObserver: ResizeObserver | undefined;
 
+function handleChartClick(params: unknown) {
+  emit('click', params);
+}
+
 onMounted(() => {
   if (!chartRef.value) {
     return;
   }
   chart = init(chartRef.value);
+  chart.on('click', handleChartClick);
   chart.setOption(props.option, true);
   resizeObserver = new ResizeObserver(() => chart?.resize());
   resizeObserver.observe(chartRef.value);
@@ -41,6 +50,7 @@ watch(
 
 onBeforeUnmount(() => {
   resizeObserver?.disconnect();
+  chart?.off('click', handleChartClick);
   chart?.dispose();
   chart = undefined;
 });

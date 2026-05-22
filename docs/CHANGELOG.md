@@ -1,5 +1,29 @@
 # 变更记录
 
+## 2026-05-22
+
+### 修改
+
+- 按 `docs/design-reference/metric-compare-reference.png` 优化 `指标对比` 页面为多维度指标分析工作台，形成紧凑筛选区、5 个统计卡、地块排行图、区域对比、状态分布、明细数据表和指标说明。
+- 指标对比页默认优先展示叶绿素指标；查询/重置按钮遵循统一 `FilterBar` 交互，筛选区显示当前参与对比地块数量。
+- 地块排行图按指标值排序，使用正常、关注、预警、严重四级状态色，并新增均值参考线和柱子点击进入地块画像能力。
+- 区域对比、状态分布、较均值差值在前端基于现有对比列表聚合；较昨日变化、观测批次和数据来源复用现有地块时序接口补充，未新增后端 API 字段。
+- 明细表补齐排名、地块编号、地块名称、区域、当前指标值、较均值差值、较昨日变化、状态、数据来源、观测批次和操作列；“查看画像”和“定位地图”分别联动地块画像与地图孪生。
+- `EChartView` 新增通用 click 事件透传，供排行图等图表联动使用。
+
+### 文档更新
+
+- 更新 `docs/DESIGN_SYSTEM.md`，新增第 12 章“指标对比页面规范”，补充筛选、KPI、排行图、区域对比卡、状态分布图、明细表、指标说明和空状态规范。
+- 更新 `docs/FRONTEND_GUIDE.md`，补充指标对比页组件结构、前端聚合逻辑、时序补充数据和页面联动说明。
+- 更新 `docs/USER_MANUAL.md`，补充指标对比页筛选、排行、区域对比、状态分布、明细表、地块画像和地图定位操作说明。
+
+### 验证
+
+- 已通过后端测试：`backend\.venv\Scripts\python.exe -m pytest backend\tests -q`（19 passed）。
+- 已通过前端服务测试：`test:overview`、`test:page-linkage`、`test:twin-analysis`、`test:map`。
+- 已通过前端构建：`npm --prefix frontend run build`（构建成功；保留既有 Cesium/Ant Design 大 chunk 提示）。
+- 已通过 Playwright 截图验证：`/metric-compare` 桌面与移动视口渲染正常，无框架错误页；`/plot-detail/demo-ricefield-2025-B04` 和 `/map-twin?plotId=demo-ricefield-2025-B04` 可正常加载联动目标页。
+
 ## 2026-05-21
 
 ### 修改
