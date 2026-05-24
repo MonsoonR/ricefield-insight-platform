@@ -87,7 +87,7 @@ npm --prefix frontend run build
 - 页面入口：`/warnings`，页面标题为 `预警分析`，副标题为 `识别数据异常与农情风险，辅助科学决策。`
 - 页面组件：`WarningAnalysisPage.vue` 复用 `StatCard`、`FilterBar`、`ChartCard`、`EChartView`、`CesiumMapPanel`、`StatusTag` 和 `DataTable`，不新增页面专用基础组件。
 - 筛选逻辑：指标、区域和日期范围请求 `/api/analysis/warnings`；预警类型和严重程度在前端基于语义映射过滤。重置恢复全部指标、全部区域、全部类型、全部严重程度和空日期范围。
-- 地图联动：页面用 `/api/map/layers` 返回的示例地块边界叠加当前筛选后的最严重预警等级，传入 `CesiumMapPanel` 渲染；点击地块会选中对应预警并滚动到明细表。
+- 地图联动：页面用 `/api/map/layers` 返回的示例地块边界叠加当前筛选后的最严重预警等级，传入 `CesiumMapPanel` 渲染；预警页开启 `tightView` 紧凑视角以提升地块可见性；点击地块会选中对应预警并滚动到明细表。
 - 列表联动：最新预警列表取当前筛选结果前 5 条，点击后同步 `selectedPlotId` 与 `selectedWarningId`；`DataTable` 通过 `rowClassName` 高亮当前预警行。
 - 路由联动：`查看画像` 使用 `buildPlotDetailRequestPlan(plotId)` 跳转 `/plot-detail/:plotId?`；`定位地图` 使用 `buildMapTwinLocation(plotId)` 跳转 `/map-twin?plotId=xxx`。
 - 数据边界：预警页不引入真实客户数据、文件上传或旧导入语义；如未来后端新增预警类型、处理状态或建议字段，必须同步更新 `docs/API.md`、`docs/DATA_MODEL.md`、schema 和测试。

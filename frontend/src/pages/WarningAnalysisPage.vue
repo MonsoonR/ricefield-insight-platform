@@ -53,7 +53,16 @@
           empty-text="当前筛选条件下暂无预警"
           :height="232"
         >
-          <EChartView :option="typeDistributionOption" :height="232" />
+          <div class="distribution-chart">
+            <EChartView :option="typeDistributionOption" :height="164" />
+            <div class="distribution-legend">
+              <div v-for="entry in typeDistribution" :key="entry.name" class="distribution-legend__item">
+                <span><i :style="{ backgroundColor: entry.itemStyle.color }" />{{ entry.name }}</span>
+                <strong>{{ entry.value }} 条</strong>
+                <em>{{ percent(entry.value, filteredWarnings.length) }}%</em>
+              </div>
+            </div>
+          </div>
         </ChartCard>
         <ChartCard
           title="严重程度分布"
@@ -63,7 +72,16 @@
           empty-text="当前筛选条件下暂无预警"
           :height="232"
         >
-          <EChartView :option="severityDistributionOption" :height="232" />
+          <div class="distribution-chart">
+            <EChartView :option="severityDistributionOption" :height="164" />
+            <div class="distribution-legend">
+              <div v-for="entry in severityDistribution" :key="entry.name" class="distribution-legend__item">
+                <span><i :style="{ backgroundColor: entry.itemStyle.color }" />{{ entry.name }}</span>
+                <strong>{{ entry.value }} 条</strong>
+                <em>{{ percent(entry.value, filteredWarnings.length) }}%</em>
+              </div>
+            </div>
+          </div>
         </ChartCard>
       </div>
 
@@ -73,6 +91,7 @@
         :height="522"
         :loading="loading"
         :selected-plot-id="selectedPlotId"
+        tight-view
         @plot-click="handlePlotClick"
       >
         <template #legend>
@@ -598,27 +617,17 @@ function buildDonutOption(data: Array<{ name: string; value: number; itemStyle: 
     title: {
       text: String(total),
       subtext,
-      left: '34%',
+      left: '50%',
       top: '40%',
       textAlign: 'center',
       textStyle: { color: '#1F2937', fontSize: 24, fontWeight: 800 },
       subtextStyle: { color: '#6B7280', fontSize: 12 },
     },
-    legend: {
-      right: 0,
-      top: 'middle',
-      orient: 'vertical',
-      itemWidth: 10,
-      itemHeight: 10,
-      formatter: (name: string) => {
-        const item = data.find((entry) => entry.name === name);
-        return item ? `${name}  ${item.value} (${percent(item.value, total)}%)` : name;
-      },
-    },
+    legend: { show: false },
     series: [{
       type: 'pie',
-      radius: ['48%', '72%'],
-      center: ['34%', '50%'],
+      radius: ['54%', '78%'],
+      center: ['50%', '50%'],
       label: { show: false },
       data,
     }],
@@ -675,6 +684,58 @@ function percent(value: number, total: number) {
 .risk-distribution {
   display: grid;
   gap: 16px;
+}
+
+.distribution-chart {
+  display: grid;
+  gap: 8px;
+}
+
+.distribution-legend {
+  display: grid;
+  gap: 7px;
+  border-top: 1px solid var(--rf-border-soft);
+  padding-top: 10px;
+}
+
+.distribution-legend__item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 46px;
+  align-items: center;
+  gap: 8px;
+  color: var(--rf-text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.distribution-legend__item span {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 7px;
+  overflow: hidden;
+  color: var(--rf-text);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.distribution-legend__item i {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.distribution-legend__item strong {
+  color: var(--rf-text);
+  font-weight: 800;
+}
+
+.distribution-legend__item em {
+  color: var(--rf-text-soft);
+  font-style: normal;
+  text-align: right;
 }
 
 .latest-warning-panel {

@@ -95,6 +95,7 @@ const props = withDefaults(
     showMetricLayer?: boolean;
     showWarnings?: boolean;
     showRegionBoundary?: boolean;
+    tightView?: boolean;
   }>(),
   {
     title: '',
@@ -105,6 +106,7 @@ const props = withDefaults(
     showMetricLayer: true,
     showWarnings: true,
     showRegionBoundary: false,
+    tightView: false,
   },
 );
 
@@ -248,7 +250,7 @@ async function renderGeoJson() {
     viewer.value.dataSources.add(nextDataSource);
     applyEntityStyles();
     renderMapOverlays();
-    await viewer.value.zoomTo(nextDataSource);
+    await zoomToDataSource(nextDataSource);
   } catch {
     imageryError.value = '地块图层加载失败，请检查 /api/map/layers 返回的 GeoJSON 结构。';
   }
@@ -600,8 +602,23 @@ function pointInRing(point: [number, number], ring: Array<[number, number]>) {
 
 function zoomHome() {
   if (dataSource.value) {
-    void viewer.value?.zoomTo(dataSource.value);
+    void zoomToDataSource(dataSource.value);
   }
+}
+
+async function zoomToDataSource(nextDataSource: GeoJsonDataSource) {
+  const currentViewer = viewer.value;
+  if (!currentViewer || currentViewer.isDestroyed()) {
+    return;
+  }
+
+  await currentViewer.zoomTo(nextDataSource);
+  if (!props.tightView) {
+    return;
+  }
+
+  const height = currentViewer.camera.positionCartographic.height;
+  currentViewer.camera.zoomIn(Math.max(height * 0.56, 1));
 }
 
 function locateSelectedPlot() {
