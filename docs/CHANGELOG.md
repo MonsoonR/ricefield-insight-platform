@@ -1,5 +1,28 @@
 # 变更记录
 
+## 2026-05-26
+
+### 修改
+
+- 按 `docs/design-reference/system-docs-reference.png` 优化 `系统说明` 页面为项目说明中心，覆盖平台定位、当前数据说明、数字孪生构建流程、当前系统功能、数据来源与生成方式、系统边界、未来演进方向、文档索引和页脚。
+- 当前数据说明改为优先读取后端标准化 API，展示数据模式、场景 ID、地块数量、指标数量、时间范围和预警数量；页面明确当前为程序生成的模拟数据，不展示真实采集数据或客户来源数据。
+- 文档索引由旧表格目录改为文档卡片网格，包含项目计划、系统架构、数据模型、API、设计系统、前端指南、后端指南、用户手册、部署说明、模拟数据指南、指标字典和变更记录；入口仅展示本地仓库路径，不伪装在线文档跳转。
+- 更新系统说明页响应式布局，桌面端数字孪生构建流程保持 6 步横向流程卡展示，窄屏纵向堆叠。
+- 同步更新系统说明页路由副标题为“了解平台定位、数据来源、功能边界与未来规划。”。
+
+### 文档更新
+
+- 更新 `docs/DESIGN_SYSTEM.md`，补充系统说明页作为说明型页面的布局规范、流程卡片、边界说明卡、未来演进卡和文档索引卡规范。
+- 更新 `docs/USER_MANUAL.md`，补充系统说明页展示内容、数据说明、边界说明和文档入口使用方式。
+- 更新 `docs/PROJECT_PLAN.md`，将项目定位表述收敛为面向科研展示、项目汇报与教学演示。
+
+### 验证
+
+- 已通过后端测试：`backend\.venv\Scripts\python.exe -m pytest backend\tests -q`（首次受系统临时目录权限影响失败，改用仓库内临时目录后 19 passed）。
+- 已通过前端服务测试：`npm --prefix frontend run test:overview`、`npm --prefix frontend run test:page-linkage`、`npm --prefix frontend run test:twin-analysis`、`npm --prefix frontend run test:map`。
+- 已通过前端构建：`npm --prefix frontend run build`（构建成功；保留既有 Cesium/Ant Design 大 chunk 提示）。
+- 已通过 Playwright 截图验证：`/system-docs` 桌面 1440x980 与移动 390x844 视口渲染正常；桌面流程卡保持 6 步横向展示，移动端按单列堆叠。
+
 ## 2026-05-22
 
 ### 修改

@@ -42,7 +42,7 @@ export const routes = [
         path: 'system-docs',
         name: 'system-docs',
         component: () => import('@/pages/SystemDocsPage.vue'),
-        meta: { title: '系统说明', subtitle: '平台文档索引、维护提示与协作规范' },
+        meta: { title: '系统说明', subtitle: '了解平台定位、数据来源、功能边界与未来规划。' },
       },
     ],
   },
