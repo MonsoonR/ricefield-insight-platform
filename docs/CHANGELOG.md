@@ -6,15 +6,24 @@
 
 - 新增 `docs/DEMO_SCRIPT.md`，补充 3 分钟演示脚本，按演示目标、准备工作、页面顺序、讲解词、点击动作、预期画面和注意事项组织。
 
+### 修改
+
+- 修复 `指标对比` 页面未注册 Ant Design Vue `Alert` 组件导致的控制台警告。
+- 优化 `Cesium 地图孪生` 移动端地图浮层布局，压缩筛选条并下移地图工具按钮，避免工具按钮遮挡查询、重置和区域筛选控件。
+
 ### 文档更新
 
 - 更新 `README.md` 文档入口，加入 `docs/DEMO_SCRIPT.md`。
 - 演示脚本明确第一阶段只使用后端程序生成的模拟数据，不展示真实客户数据，不引入 Excel、GeoJSON、PDF、图片导入主线。
+- 更新 `docs/DESIGN_SYSTEM.md`，补充移动端地图筛选浮层与地图工具按钮不得互相遮挡的规范。
 
 ### 验证
 
-- 本次为纯文档修改，不涉及后端代码、前端代码、API 契约、依赖或运行时配置。
-- 已执行文档内容检查和 `git diff` 检查。
+- 已执行六页浏览器回归，覆盖 `/overview`、`/map-twin`、`/plot-detail/demo-ricefield-2025-A04`、`/metric-compare`、`/warnings`、`/system-docs` 的桌面 1440x980 与移动 390x844 视口。
+- 已验证上述页面无白屏、无框架错误覆盖层、无关键控制台错误；地图 canvas 与 ECharts 图表均正常渲染；地块画像“定位到地图”、指标对比“查看画像”和预警分析“查看画像”跳转正常。
+- 已通过后端测试：`backend\.venv\Scripts\python.exe -m pytest backend\tests -q --basetemp=backend\.pytest_tmp_codex_regression`（19 passed）。首次直接运行受系统临时目录 `C:\Users\Monso\AppData\Local\Temp\pytest-of-Monso` 权限影响失败，改用仓库内临时目录后通过。
+- 已通过前端服务测试：`npm --prefix frontend run test:overview`、`npm --prefix frontend run test:page-linkage`、`npm --prefix frontend run test:twin-analysis`、`npm --prefix frontend run test:map`。
+- 已通过前端构建：`npm --prefix frontend run build`（构建成功；保留既有 Cesium/Ant Design 大 chunk 提示）。
 
 ## 2026-05-26
 

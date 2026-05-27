@@ -833,4 +833,47 @@ function toggleAlpha() {
 :deep(.cesium-viewer-toolbar) {
   display: none;
 }
+
+@media (max-width: 720px) {
+  .map-panel__filters {
+    top: 12px;
+    width: calc(100% - 28px);
+  }
+
+  .map-panel__tools {
+    gap: 6px;
+  }
+
+  .map-panel__tools--left,
+  .map-panel__tools--right {
+    top: 196px;
+  }
+
+  .map-panel__tools--left {
+    left: 12px;
+  }
+
+  .map-panel__tools--right {
+    right: 12px;
+  }
+
+  .map-panel__tools button {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    font-size: 16px;
+  }
+
+  .map-panel__legend {
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    padding: 10px;
+  }
+
+  .map-panel__scale {
+    right: 18px;
+    bottom: 18px;
+  }
+}
 </style>

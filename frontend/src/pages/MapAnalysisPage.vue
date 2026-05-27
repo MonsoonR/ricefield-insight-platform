@@ -866,7 +866,25 @@ function calculatePolygonAreaMu(feature: MapFeature) {
 
 @media (max-width: 720px) {
   .map-filter-bar {
+    gap: 8px;
+    padding: 10px;
     width: 100%;
+  }
+
+  .map-filter-bar :deep(.ant-select),
+  .map-filter-bar :deep(.ant-picker) {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+  }
+
+  .map-filter-bar :deep(.ant-segmented) {
+    flex: 1 1 100%;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .map-filter-bar :deep(.ant-btn) {
+    flex: 1 1 calc(50% - 4px);
   }
 
   .map-detail__actions {

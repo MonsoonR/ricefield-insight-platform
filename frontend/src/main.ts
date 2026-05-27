@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Badge,
   Card,
@@ -36,6 +37,7 @@ import './styles/global.css';
 createApp(App)
   .use(createPinia())
   .use(router)
+  .use(Alert)
   .use(Button)
   .use(Badge)
   .use(Card)
