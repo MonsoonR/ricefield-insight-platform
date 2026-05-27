@@ -58,11 +58,15 @@ backend\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --rel
 | `docs/DEMO_SCRIPT.md` | 3 分钟演示脚本 |
 | `docs/RELEASE_CHECKLIST.md` | 第一阶段发布检查清单 |
 | `docs/NEXT_ACTION_TODO.md` | 下一步待办执行计划与 Codex 提示词 |
-| `docs/CLAUDE_WORKFLOW.md` | Claude 专用协作流程（当前主流程）|
-| `docs/CODEX_WORKFLOW.md` | Codex 协作流程（当前暂停使用）|
+| `docs/CLAUDE_WORKFLOW.md` | Claude 协作注意事项 |
+| `docs/CODEX_WORKFLOW.md` | Codex 协作注意事项 |
 | `docs/CHANGELOG.md` | 变更记录 |
 
 ## 开发协作
 
-当前阶段全程优先使用 Claude，开发主线是把系统功能和工程结构做扎实，不以大创答辩 PPT 作为当前核心任务。所有 Claude 开发统一在 `claude/digital-twin-dev` 分支上进行，从基准分支 `codex/digital-twin-clean` 创建。完整工作流见 [`docs/CLAUDE_WORKFLOW.md`](docs/CLAUDE_WORKFLOW.md)。
+当前协作以 `AGENTS.md`、当前活跃分支和任务上下文为准，不再使用“Claude 优先 / Codex 暂停”的旧流程。Claude 和 Codex 都可以继续参与开发，但必须先检查 `git status --short --branch`、最近提交和未提交改动，避免覆盖用户或其他工具的工作。
+
+截至本次梳理，当前主线开发分支为 `claude/digital-twin-dev`，它承接 `codex/digital-twin-clean` 之后的数字孪生主线。后续如果没有用户明确要求新建分支，继续在当前活跃分支上完成任务；如需切换基准分支、回合并 `main`、推送远端或创建 PR，先向用户确认。
+
+每次实际更新都必须同步 `docs/CHANGELOG.md`，涉及数据字段、指标编码、API、页面结构、设计规范、模拟数据规则或部署方式时，同时更新对应专题文档。完成验证后创建 Git commit；纯文档改动可以跳过前后端完整测试，但最终说明必须写明原因。Claude 细节见 [`docs/CLAUDE_WORKFLOW.md`](docs/CLAUDE_WORKFLOW.md)，Codex 细节见 [`docs/CODEX_WORKFLOW.md`](docs/CODEX_WORKFLOW.md)。
 

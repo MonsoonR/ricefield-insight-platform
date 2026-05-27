@@ -9,11 +9,18 @@
 
 ### 修改
 
+- 梳理当前 git 分支和最近提交记录，确认实际开发仍在 `claude/digital-twin-dev` 上推进，且本地分支相对远端已有连续文档与六页回归提交。
+- 修正 `README.md`、`docs/CLAUDE_WORKFLOW.md`、`docs/CODEX_WORKFLOW.md` 和 `AGENTS.md` 中“Claude 优先 / Codex 暂停使用”的过时表述，改为 Claude 与 Codex 都可基于当前活跃分支继续协作。
+- 明确当前分支使用方式：默认继续使用当前活跃分支，不因工具名称另起分支；切换基准分支、push、创建 PR、回退历史或强制推送前必须先确认。
 - 修复 `指标对比` 页面未注册 Ant Design Vue `Alert` 组件导致的控制台警告。
 - 优化 `Cesium 地图孪生` 移动端地图浮层布局，压缩筛选条并下移地图工具按钮，避免工具按钮遮挡查询、重置和区域筛选控件。
 
 ### 文档更新
 
+- 更新 `README.md` 开发协作说明，将 Claude/Codex 文档入口改为协作注意事项，并补充分支、提交、文档同步和确认要求。
+- 重写 `docs/CLAUDE_WORKFLOW.md`，保留 Claude 参与时的检查清单、禁止事项、验证命令、文档同步、提交和最终回复要求。
+- 重写 `docs/CODEX_WORKFLOW.md`，明确 Codex 当前可用，并补充分支检查、开发顺序、确认点、验证命令、文档同步和提交要求。
+- 更新 `AGENTS.md`，新增当前协作流程，明确当前主线分支、提交要求、禁止未经授权 push/PR/改写历史，以及流程类文档同步范围。
 - 更新 `README.md` 文档入口，加入 `docs/DEMO_SCRIPT.md`。
 - 更新 `README.md` 文档入口，加入 `docs/RELEASE_CHECKLIST.md`。
 - 演示脚本明确第一阶段只使用后端程序生成的模拟数据，不展示真实客户数据，不引入 Excel、GeoJSON、PDF、图片导入主线。
@@ -22,6 +29,8 @@
 
 ### 验证
 
+- 本次协作流程梳理为纯文档修改，不涉及后端代码、前端代码、依赖、配置、API 契约或运行时行为，跳过完整前后端测试与构建。
+- 已通过本地检查：`git status --short --branch`、`git log --oneline -n 8`，确认当前分支和最近提交记录。
 - 已通过第一阶段发布检查清单验证：`backend\.venv\Scripts\python.exe -m pytest backend\tests -q --basetemp=backend\.pytest_tmp_codex_release`（19 passed）。
 - 已通过第一阶段发布检查清单前端服务测试：`npm --prefix frontend run test:overview`、`npm --prefix frontend run test:page-linkage`、`npm --prefix frontend run test:twin-analysis`、`npm --prefix frontend run test:map`。
 - 已通过第一阶段发布检查清单前端构建：`npm --prefix frontend run build`（构建成功；保留既有 Cesium/Ant Design 大 chunk 提示）。
