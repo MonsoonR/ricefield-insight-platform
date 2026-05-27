@@ -9,6 +9,10 @@
 
 ### 修改
 
+- 优化 `场景驾驶舱` 首页信息层级：将孪生健康度、待核查预警数量、最近观测日期和地图/预警入口整合到横幅右侧判断区，避免健康度与普通 KPI 平铺竞争。
+- 将首页横幅下方 KPI 收敛为地块数量、指标数量、预警数量和观测天数 4 个支撑指标，降低首屏噪声，让用户先判断状态再进入地图或预警分析。
+- 优化关键指标概览卡片的内边距、状态色边和辅助说明，提升作物长势、叶绿素、氮、pH、叶面积指数的可读性。
+- 统一基础排版细节，补充全局字体、字号和行高基线，移除 `StatCard` 数字负字距，改善卡片文字与边框距离。
 - 梳理当前 git 分支和最近提交记录，确认实际开发仍在 `claude/digital-twin-dev` 上推进，且本地分支相对远端已有连续文档与六页回归提交。
 - 修正 `README.md`、`docs/CLAUDE_WORKFLOW.md`、`docs/CODEX_WORKFLOW.md` 和 `AGENTS.md` 中“Claude 优先 / Codex 暂停使用”的过时表述，改为 Claude 与 Codex 都可基于当前活跃分支继续协作。
 - 明确当前分支使用方式：默认继续使用当前活跃分支，不因工具名称另起分支；切换基准分支、push、创建 PR、回退历史或强制推送前必须先确认。
@@ -25,11 +29,14 @@
 - 更新 `README.md` 文档入口，加入 `docs/RELEASE_CHECKLIST.md`。
 - 演示脚本明确第一阶段只使用后端程序生成的模拟数据，不展示真实客户数据，不引入 Excel、GeoJSON、PDF、图片导入主线。
 - 发布检查清单明确第一阶段只发布模拟数据驱动的六页 MVP，不把 Excel、GeoJSON、PDF、图片导入、真实客户数据、报告导出或二期能力纳入发布主线。
+- 更新 `docs/DESIGN_SYSTEM.md`，补充场景驾驶舱首屏判断区和首页 4 个支撑 KPI 的布局规范。
 - 更新 `docs/DESIGN_SYSTEM.md`，补充移动端地图筛选浮层与地图工具按钮不得互相遮挡的规范。
 
 ### 验证
 
-- 本次协作流程梳理为纯文档修改，不涉及后端代码、前端代码、依赖、配置、API 契约或运行时行为，跳过完整前后端测试与构建。
+- 已通过首页视觉验证：使用 Playwright 截图检查 `/overview` 桌面 1440x1000 与移动 390x844 视口，确认健康度判断区、KPI 行和关键指标卡正常渲染，无文字溢出。
+- 已通过前端构建：`npm --prefix frontend run build`（构建成功；保留既有 Cesium/Ant Design 大 chunk 提示）。
+- 本次首页视觉优化未修改后端代码、依赖、API 契约、数据字段或运行时配置。
 - 已通过本地检查：`git status --short --branch`、`git log --oneline -n 8`，确认当前分支和最近提交记录。
 - 已通过第一阶段发布检查清单验证：`backend\.venv\Scripts\python.exe -m pytest backend\tests -q --basetemp=backend\.pytest_tmp_codex_release`（19 passed）。
 - 已通过第一阶段发布检查清单前端服务测试：`npm --prefix frontend run test:overview`、`npm --prefix frontend run test:page-linkage`、`npm --prefix frontend run test:twin-analysis`、`npm --prefix frontend run test:map`。

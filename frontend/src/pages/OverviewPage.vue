@@ -17,22 +17,34 @@
           <span><DatabaseOutlined />模拟观测 · 可追溯批次</span>
         </div>
       </div>
-      <div class="scene-hero__actions">
-        <RouterLink to="/map-twin">
-          <a-button type="primary" size="large">
-            <EnvironmentOutlined />
-            进入 Cesium 地图孪生
-          </a-button>
-        </RouterLink>
-        <RouterLink to="/warnings" class="scene-hero__link">
-          查看预警分析
-        </RouterLink>
+      <div class="scene-hero__decision" :class="`scene-hero__decision--${heroHealthTone}`">
+        <span class="scene-hero__decision-label">当前孪生健康度</span>
+        <strong>{{ overview.health_score }}%</strong>
+        <p>{{ heroSummaryText }}</p>
+        <div class="scene-hero__decision-meta">
+          <span>{{ heroWarningText }}</span>
+          <span>{{ overview.default_observed_at }}</span>
+        </div>
+        <div class="scene-hero__actions">
+          <RouterLink to="/map-twin">
+            <a-button type="primary" size="large">
+              <EnvironmentOutlined />
+              查看地图
+            </a-button>
+          </RouterLink>
+          <RouterLink to="/warnings">
+            <a-button size="large">
+              <AlertOutlined />
+              处理预警
+            </a-button>
+          </RouterLink>
+        </div>
       </div>
     </section>
 
     <div class="overview-kpis">
       <RouterLink
-        v-for="card in overviewCards"
+        v-for="card in supportingOverviewCards"
         :key="card.label"
         :to="cardRoute(card.label)"
         class="kpi-card"
@@ -71,6 +83,7 @@
             <strong>{{ metric.value }}</strong>
             <small>{{ metric.unit }}</small>
           </div>
+          <p class="key-metric__hint">{{ metricHint(metric.metricCode) }}</p>
           <div class="key-metric__trend" :class="`key-metric__trend--${metric.direction}`">
             <RiseOutlined v-if="metric.direction === 'up'" />
             <FallOutlined v-else-if="metric.direction === 'down'" />
@@ -250,6 +263,9 @@ const warnings = ref<WarningItem[]>([]);
 const overviewCards = computed(() =>
   overview.value ? buildOverviewCards(overview.value) : [],
 );
+const supportingOverviewCards = computed(() =>
+  overviewCards.value.filter((card) => card.label !== '孪生健康度'),
+);
 const regionStatus = computed(() => overview.value?.region_status ?? []);
 const riskDistribution = computed(() =>
   buildRiskDistribution(overview.value?.quality_counts ?? {}),
@@ -267,6 +283,37 @@ const regionSummary = computed(() => {
   const total = regionStatus.value.reduce((sum, item) => sum + item.plot_count, 0);
   return `${regionStatus.value.length} 个试验区 · ${total} 块地块`;
 });
+
+const warningCount = computed(() => {
+  const warningCard = overviewCards.value.find((card) => card.label.includes('预警'));
+  return Number.parseInt(warningCard?.value ?? '0', 10) || 0;
+});
+
+const heroHealthTone = computed<StatusLevel>(() => {
+  const score = overview.value?.health_score ?? 0;
+  if (score >= 90) {
+    return 'normal';
+  }
+  if (score >= 75) {
+    return 'watch';
+  }
+  if (score >= 60) {
+    return 'warning';
+  }
+  return 'critical';
+});
+
+const heroSummaryText = computed(() => {
+  const count = warningCount.value;
+  if (count === 0) {
+    return '当前场景整体稳定，可继续查看地图和指标趋势。';
+  }
+  return `整体状态可演示，但有 ${count} 条质量预警需要优先核查。`;
+});
+
+const heroWarningText = computed(() =>
+  warningCount.value > 0 ? `${warningCount.value} 条预警待核查` : '暂无待处理预警',
+);
 
 const focusPlots = computed<FocusPlot[]>(() => {
   const grouped = new Map<string, FocusPlot>();
@@ -544,21 +591,33 @@ function cardTone(label: string): 'green' | 'cyan' | 'purple' | 'orange' | 'blue
 function getStatusHex(level: StatusLevel): string {
   return STATUS_HEX[level] ?? STATUS_HEX.empty;
 }
+
+function metricHint(metricCode: string) {
+  const hints: Record<string, string> = {
+    crop_growth: '长势评分直接影响演示结论',
+    chlorophyll: '反映叶片活力与氮素吸收',
+    nitrogen: '用于判断土壤养分风险',
+    ph: '用于识别酸碱环境偏离',
+    leaf_area_index: '衡量冠层覆盖与生长量',
+  };
+  return hints[metricCode] ?? '核心观测指标';
+}
 </script>
 
 <style scoped>
 .scene-hero {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  min-height: 224px;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  min-height: 238px;
   overflow: hidden;
   border-radius: var(--rf-radius-lg);
   background:
     linear-gradient(90deg, rgba(4, 74, 51, 0.92), rgba(11, 107, 69, 0.78) 48%, rgba(21, 144, 93, 0.58)),
     linear-gradient(180deg, #e8f6ef, #bfe6ce);
   box-shadow: 0 16px 32px rgba(15, 56, 37, 0.14);
-  padding: 30px 32px;
+  gap: 28px;
+  padding: 28px 32px;
 }
 
 .scene-hero::before,
@@ -601,6 +660,7 @@ function getStatusHex(level: StatusLevel): string {
 }
 
 .scene-hero__content,
+.scene-hero__decision,
 .scene-hero__actions {
   position: relative;
   z-index: 1;
@@ -624,8 +684,8 @@ function getStatusHex(level: StatusLevel): string {
 }
 
 .scene-hero h1 {
-  margin: 14px 0 6px;
-  font-size: 42px;
+  margin: 16px 0 6px;
+  font-size: 40px;
   font-weight: 800;
   line-height: 1.08;
 }
@@ -639,7 +699,7 @@ function getStatusHex(level: StatusLevel): string {
 
 .scene-hero p {
   max-width: 720px;
-  margin: 18px 0 0;
+  margin: 16px 0 0;
   color: rgba(255, 255, 255, 0.88);
   font-size: 14px;
   line-height: 1.7;
@@ -660,33 +720,72 @@ function getStatusHex(level: StatusLevel): string {
   gap: 6px;
 }
 
-.scene-hero__actions {
+.scene-hero__decision {
+  align-self: stretch;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-end;
-  gap: 12px;
-  min-width: 250px;
+  justify-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  padding: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.scene-hero__decision-label {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.scene-hero__decision strong {
+  margin-top: 6px;
+  color: #ffffff;
+  font-size: 54px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.scene-hero__decision p {
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.scene-hero__decision-meta {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.scene-hero__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
 }
 
 .scene-hero__actions :deep(.ant-btn) {
-  height: 42px;
-  border-color: rgba(255, 255, 255, 0.42);
-  background: rgba(255, 255, 255, 0.18);
+  width: 100%;
+  height: 40px;
+  border-color: rgba(255, 255, 255, 0.36);
   box-shadow: none;
-  backdrop-filter: blur(8px);
+  font-weight: 700;
 }
 
-.scene-hero__link {
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 700;
-  text-decoration: none;
+.scene-hero__actions :deep(.ant-btn:not(.ant-btn-primary)) {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--rf-primary-dark);
 }
 
 .overview-kpis {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -695,13 +794,13 @@ function getStatusHex(level: StatusLevel): string {
   grid-template-columns: 48px minmax(0, 1fr);
   grid-template-rows: auto auto auto;
   gap: 2px 14px;
-  min-height: 126px;
+  min-height: 116px;
   border: 1px solid var(--rf-border-soft);
   border-radius: var(--rf-radius-lg);
   background: linear-gradient(180deg, #ffffff, #fbfdfc);
   box-shadow: var(--rf-shadow);
   color: inherit;
-  padding: 20px;
+  padding: 18px 20px;
   text-decoration: none;
   transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
 }
@@ -732,7 +831,7 @@ function getStatusHex(level: StatusLevel): string {
 
 .kpi-card strong {
   color: var(--rf-text);
-  font-size: 30px;
+  font-size: 32px;
   font-weight: 800;
   line-height: 1.08;
 }
@@ -785,11 +884,21 @@ function getStatusHex(level: StatusLevel): string {
 }
 
 .key-metric {
+  position: relative;
   min-width: 0;
   border: 1px solid var(--rf-border-soft);
   border-radius: var(--rf-radius);
   background: var(--rf-surface-soft);
-  padding: 14px;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.key-metric::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: currentColor;
+  content: "";
 }
 
 .key-metric header {
@@ -819,6 +928,14 @@ function getStatusHex(level: StatusLevel): string {
 .key-metric__value small {
   color: var(--rf-text-muted);
   font-size: 12px;
+}
+
+.key-metric__hint {
+  min-height: 36px;
+  margin: 8px 0 0;
+  color: var(--rf-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .key-metric__trend {
@@ -1039,9 +1156,8 @@ function getStatusHex(level: StatusLevel): string {
     grid-template-columns: 1fr;
   }
 
-  .scene-hero__actions {
-    align-items: flex-start;
-    min-width: 0;
+  .scene-hero {
+    gap: 20px;
   }
 }
 

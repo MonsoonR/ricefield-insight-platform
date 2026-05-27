@@ -43,7 +43,7 @@ withDefaults(
   border-radius: var(--rf-radius-lg);
   background: var(--rf-surface);
   box-shadow: var(--rf-shadow);
-  padding: 20px 22px;
+  padding: 18px 20px;
 }
 
 .stat-card__icon {
@@ -86,7 +86,6 @@ withDefaults(
   font-size: 28px;
   font-weight: 800;
   line-height: 1.1;
-  letter-spacing: -0.5px;
 }
 
 .stat-card--green {
