@@ -56,6 +56,7 @@ backend\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --rel
 | `docs/IMPORT_GUIDE.md` | 模拟场景与数据生成指南 |
 | `docs/USER_MANUAL.md` | 页面使用说明 |
 | `docs/DEMO_SCRIPT.md` | 3 分钟演示脚本 |
+| `docs/RELEASE_CHECKLIST.md` | 第一阶段发布检查清单 |
 | `docs/NEXT_ACTION_TODO.md` | 下一步待办执行计划与 Codex 提示词 |
 | `docs/CLAUDE_WORKFLOW.md` | Claude 专用协作流程（当前主流程）|
 | `docs/CODEX_WORKFLOW.md` | Codex 协作流程（当前暂停使用）|
