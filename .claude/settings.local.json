@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/A工大本科/1_大创/数字孪生稻田/**)",
+      "Bash(dir \"D:\\\\A工大本科\\\\1_大创\\\\数字孪生稻田\" /b)",
+      "Bash(python *)",
+      "Bash(python3 -c ' *)",
+      "Bash(py -c ' *)",
+      "Bash(.venv/Scripts/python.exe -c ' *)",
+      "Bash(.venv/Scripts/python.exe -X utf8 -c ' *)"
+    ]
+  }
+}

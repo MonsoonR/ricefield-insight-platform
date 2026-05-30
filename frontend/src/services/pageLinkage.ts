@@ -18,6 +18,13 @@ export interface PlotDetailRequestPlan {
   };
 }
 
+export interface MapTwinLocation {
+  path: '/map-twin';
+  query: {
+    plotId?: string;
+  };
+}
+
 export function selectPlotsAfterRegionChange(
   currentPlotIds: string[],
   nextPlots: Pick<Plot, 'plot_id'>[],
@@ -47,6 +54,20 @@ export function buildPlotDetailRequestPlan(plotId: string): PlotDetailRequestPla
 export function shouldReloadPlotDetail(currentPlotId: string, routePlotId: string | string[] | undefined) {
   const nextPlotId = Array.isArray(routePlotId) ? routePlotId[0] : routePlotId;
   return Boolean(nextPlotId && nextPlotId !== currentPlotId);
+}
+
+export function buildMapTwinLocation(plotId: string): MapTwinLocation {
+  return {
+    path: '/map-twin',
+    query: plotId ? { plotId } : {},
+  };
+}
+
+export function firstRouteQueryValue(value: unknown): string {
+  if (Array.isArray(value)) {
+    return typeof value[0] === 'string' ? value[0] : '';
+  }
+  return typeof value === 'string' ? value : '';
 }
 
 export function buildMetricCompareSeriesFilters(plotIds: string[], metricCode: string | undefined) {

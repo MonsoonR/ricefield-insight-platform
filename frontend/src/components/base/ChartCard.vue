@@ -48,7 +48,7 @@ withDefaults(
   border: 1px solid var(--rf-border-soft);
   border-radius: var(--rf-radius-lg);
   background: var(--rf-surface);
-  box-shadow: var(--rf-shadow-soft);
+  box-shadow: var(--rf-shadow);
 }
 
 .chart-card__header {
@@ -57,15 +57,15 @@ withDefaults(
   justify-content: space-between;
   gap: 14px;
   border-bottom: 1px solid var(--rf-border-soft);
-  padding: 16px 18px 12px;
+  padding: 16px 20px 14px;
 }
 
 .chart-card__header h2 {
   margin: 0;
   color: var(--rf-text);
   font-size: 16px;
-  font-weight: 800;
-  line-height: 1.35;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
 .chart-card__header p {
@@ -77,6 +77,6 @@ withDefaults(
 
 .chart-card__body {
   min-width: 0;
-  padding: 16px 18px;
+  padding: 16px 20px 18px;
 }
 </style>

@@ -1,39 +1,53 @@
 <template>
-  <a-tag class="status-tag" :color="config.color">{{ config.label }}</a-tag>
+  <span class="status-tag" :class="`status-tag--${meta.level}`">{{ meta.label }}</span>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 
+import { statusMetaFromQuality } from '@/utils/status';
+
 const props = defineProps<{
   status?: string | null;
 }>();
 
-const config = computed(() => {
-  switch (props.status) {
-    case 'normal':
-    case 'success':
-      return { label: '有效数据', color: 'success' };
-    case 'outlier':
-    case 'abnormal':
-      return { label: '异常', color: 'error' };
-    case 'missing':
-      return { label: '缺失', color: 'warning' };
-    case 'error':
-      return { label: '错误', color: 'red' };
-    case 'no_data':
-    case 'empty':
-      return { label: '无数据', color: 'default' };
-    default:
-      return { label: props.status || '未知', color: 'default' };
-  }
-});
+const meta = computed(() => statusMetaFromQuality(props.status));
 </script>
 
 <style scoped>
 .status-tag {
-  margin-inline-end: 0;
+  display: inline-flex;
+  align-items: center;
   border-radius: 999px;
+  font-size: 12px;
   font-weight: 700;
+  padding: 2px 10px;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.status-tag--normal {
+  background: var(--rf-status-normal-bg);
+  color: var(--rf-status-normal);
+}
+
+.status-tag--watch {
+  background: var(--rf-status-watch-bg);
+  color: var(--rf-status-watch);
+}
+
+.status-tag--warning {
+  background: var(--rf-status-warning-bg);
+  color: var(--rf-status-warning);
+}
+
+.status-tag--critical {
+  background: var(--rf-status-critical-bg);
+  color: var(--rf-status-critical);
+}
+
+.status-tag--empty {
+  background: var(--rf-status-empty-bg);
+  color: var(--rf-status-empty);
 }
 </style>

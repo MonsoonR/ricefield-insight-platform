@@ -16,6 +16,7 @@
       :loading="loading"
       :pagination="pagination"
       :row-key="rowKey"
+      :row-class-name="rowClassName"
       :scroll="scroll"
     >
       <template v-for="(_, name) in $slots" #[name]="slotData">
@@ -46,6 +47,7 @@ withDefaults(
     emptyText?: string;
     pagination?: false | Record<string, unknown>;
     scroll?: Record<string, string | number | true>;
+    rowClassName?: (record: object, index: number) => string;
   }>(),
   {
     title: '',
@@ -56,6 +58,7 @@ withDefaults(
     emptyText: '暂无数据',
     pagination: false,
     scroll: undefined,
+    rowClassName: undefined,
   },
 );
 </script>
@@ -75,8 +78,8 @@ withDefaults(
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
-  border-bottom: 1px solid var(--rf-border-soft);
-  padding: 16px 18px 12px;
+  border-bottom: 1px solid rgba(237, 242, 239, 0.86);
+  padding: 18px 20px 13px;
 }
 
 .data-table__header h2 {
@@ -96,7 +99,20 @@ withDefaults(
   font-size: 13px;
 }
 
+.data-table :deep(.ant-table-cell) {
+  white-space: nowrap;
+}
+
 .data-table :deep(.ant-table-thead > tr > th) {
+  background: #f6f8f7;
   font-weight: 800;
+}
+
+.data-table :deep(.ant-table-tbody > tr > td) {
+  border-color: var(--rf-border-soft);
+}
+
+.data-table :deep(.ant-pagination) {
+  margin-right: 16px;
 }
 </style>

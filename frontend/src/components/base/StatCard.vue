@@ -20,7 +20,7 @@ withDefaults(
     label: string;
     value: string | number;
     note?: string;
-    tone?: 'green' | 'blue' | 'purple' | 'orange' | 'red' | 'cyan';
+    tone?: 'green' | 'blue' | 'purple' | 'orange' | 'red' | 'cyan' | 'yellow';
     icon?: Component;
     fallbackIcon?: string;
   }>(),
@@ -38,26 +38,28 @@ withDefaults(
   display: flex;
   align-items: center;
   gap: 16px;
-  min-height: 106px;
+  min-height: 108px;
   border: 1px solid var(--rf-border-soft);
   border-radius: var(--rf-radius-lg);
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.84)),
-    var(--rf-surface);
-  box-shadow: var(--rf-shadow-soft);
+  background: var(--rf-surface);
+  box-shadow: var(--rf-shadow);
   padding: 18px 20px;
 }
 
 .stat-card__icon {
   display: grid;
-  flex: 0 0 54px;
-  width: 54px;
-  height: 54px;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
   place-items: center;
   border-radius: 50%;
   color: var(--tone);
-  background: color-mix(in srgb, var(--tone) 14%, white);
-  font-size: 24px;
+  background: color-mix(in srgb, var(--tone) 12%, white);
+  font-size: 18px;
+}
+
+.stat-card__icon :deep(svg) {
+  font-size: 18px;
 }
 
 .stat-card__body {
@@ -72,17 +74,26 @@ withDefaults(
   line-height: 1.45;
 }
 
+.stat-card__body small {
+  color: var(--rf-text-soft);
+  font-size: 12px;
+}
+
 .stat-card__body strong {
   display: block;
-  margin: 4px 0 2px;
+  margin: 4px 0 4px;
   color: var(--rf-text);
   font-size: 28px;
-  font-weight: 850;
+  font-weight: 800;
   line-height: 1.1;
 }
 
 .stat-card--green {
   --tone: var(--rf-primary);
+}
+
+.stat-card--cyan {
+  --tone: var(--rf-accent-cyan);
 }
 
 .stat-card--blue {
@@ -93,15 +104,15 @@ withDefaults(
   --tone: var(--rf-purple);
 }
 
+.stat-card--yellow {
+  --tone: var(--rf-status-watch);
+}
+
 .stat-card--orange {
-  --tone: var(--rf-warning);
+  --tone: var(--rf-status-warning);
 }
 
 .stat-card--red {
-  --tone: var(--rf-error);
-}
-
-.stat-card--cyan {
-  --tone: var(--rf-cyan);
+  --tone: var(--rf-status-critical);
 }
 </style>

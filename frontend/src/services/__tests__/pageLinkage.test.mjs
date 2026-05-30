@@ -61,6 +61,30 @@ assert.equal(
 );
 
 assert.deepEqual(
+  pageLinkage.buildMapTwinLocation('demo-ricefield-2025-A04'),
+  {
+    path: '/map-twin',
+    query: { plotId: 'demo-ricefield-2025-A04' },
+  },
+  '画像页定位到地图时应携带当前地块 ID 查询参数',
+);
+
+assert.deepEqual(
+  pageLinkage.buildMapTwinLocation(''),
+  {
+    path: '/map-twin',
+    query: {},
+  },
+  '未选地块时回到地图不应携带空 plotId',
+);
+
+assert.equal(
+  pageLinkage.firstRouteQueryValue(['demo-ricefield-2025-B02', 'ignored']),
+  'demo-ricefield-2025-B02',
+  '地图页应从路由查询参数中读取第一个 plotId',
+);
+
+assert.deepEqual(
   pageLinkage.buildMetricCompareSeriesFilters(['east-21A', 'west-12B'], 'chlorophyll'),
   [
     { plotId: 'east-21A', metricCode: 'chlorophyll' },

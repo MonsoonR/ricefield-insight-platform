@@ -1,64 +1,34 @@
 <template>
   <header class="app-header">
-    <div class="app-header__filters" aria-label="全局数据状态">
-      <label>
-        <span>当前场景</span>
-        <a-tooltip title="第一阶段固定使用内置数字孪生演示场景">
-          <a-select
-            v-model:value="selectedScenario"
-            :options="scenarioOptions"
-            disabled
-            placeholder="演示场景"
-          />
-        </a-tooltip>
-      </label>
-      <label>
-        <span>最新日期</span>
-        <a-tooltip title="全局日期筛选暂未接入，请使用页面内筛选栏">
-          <a-select
-            v-model:value="selectedDate"
-            :options="dateOptions"
-            disabled
-            placeholder="最新日期"
-          />
-        </a-tooltip>
-      </label>
-      <label>
-        <span>区域</span>
-        <a-tooltip title="全局区域筛选暂未接入，请使用页面内筛选栏">
-          <RegionSelector v-model="selectedRegion" disabled />
-        </a-tooltip>
-      </label>
-      <label>
-        <span>默认指标</span>
-        <a-tooltip title="全局指标筛选暂未接入，请使用页面内筛选栏">
-          <MetricSelector
-            v-model="selectedMetric"
-            :options="metricOptions"
-            disabled
-            placeholder="选择指标"
-          />
-        </a-tooltip>
-      </label>
+    <div class="app-header__title">
+      <h1>{{ title }}</h1>
+      <p v-if="subtitle">{{ subtitle }}</p>
     </div>
     <div class="app-header__actions">
-      <RouterLink to="/map-twin">
-        <a-button type="primary">
-          <EnvironmentOutlined />
-          打开地图
-        </a-button>
-      </RouterLink>
+      <div class="app-header__weather" title="演示天气">
+        <CloudOutlined class="app-header__weather-icon" />
+        <span class="app-header__weather-temp">26°C</span>
+        <span class="app-header__weather-text">晴 · 试验区</span>
+      </div>
       <RouterLink class="app-header__icon-link" to="/warnings" title="查看预警分析">
-        <a-badge :count="alertCount" size="small">
+        <a-badge
+          :count="alertCount"
+          :offset="[-2, 2]"
+          :number-style="{ background: 'var(--rf-status-warning)', boxShadow: 'none' }"
+        >
           <BellOutlined class="app-header__icon" />
         </a-badge>
       </RouterLink>
       <RouterLink class="app-header__icon-link" to="/system-docs" title="查看系统文档">
         <QuestionCircleOutlined class="app-header__icon" />
       </RouterLink>
+      <a-divider type="vertical" class="app-header__divider" />
       <div class="app-header__user" title="当前角色">
-        <span>研</span>
-        <strong>研究员</strong>
+        <span class="app-header__avatar">研</span>
+        <div class="app-header__user-text">
+          <strong>演示用户</strong>
+          <small>研究员</small>
+        </div>
       </div>
     </div>
   </header>
@@ -67,61 +37,26 @@
 <script setup lang="ts">
 import {
   BellOutlined,
-  EnvironmentOutlined,
+  CloudOutlined,
   QuestionCircleOutlined,
 } from '@ant-design/icons-vue';
 import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
-import { fetchCurrentScenario, fetchDates, fetchMetrics, fetchWarnings } from '@/api';
-import MetricSelector from '@/components/base/MetricSelector.vue';
-import RegionSelector from '@/components/base/RegionSelector.vue';
-import type { RegionCode } from '@/types/api';
+import { fetchWarnings } from '@/api';
 
-const selectedScenario = ref<string>('demo-ricefield-2025');
-const selectedDate = ref<string>();
-const selectedRegion = ref<RegionCode>('all');
-const selectedMetric = ref<string>();
+const route = useRoute();
 const alertCount = ref(0);
 
-const scenarios = ref<Array<{ label: string; value: string }>>([]);
-const dates = ref<string[]>([]);
-const metrics = ref<Array<{ label: string; value: string; unit?: string }>>([]);
-
-const scenarioOptions = computed(() => scenarios.value);
-const dateOptions = computed(() =>
-  dates.value.map((date) => ({ label: date, value: date })),
-);
-const metricOptions = computed(() => metrics.value);
+const title = computed(() => (route.meta?.title as string) ?? '稻田智研平台');
+const subtitle = computed(() => (route.meta?.subtitle as string) ?? '');
 
 onMounted(async () => {
-  const [scenarioResponse, datesResponse, metricsResponse, warningsResponse] = await Promise.allSettled([
-    fetchCurrentScenario(),
-    fetchDates(),
-    fetchMetrics(),
-    fetchWarnings(),
-  ]);
-
-  if (scenarioResponse.status === 'fulfilled') {
-    selectedScenario.value = scenarioResponse.value.scenario_id;
-    scenarios.value = [{
-      label: scenarioResponse.value.scenario_name,
-      value: scenarioResponse.value.scenario_id,
-    }];
-  }
-  if (datesResponse.status === 'fulfilled') {
-    dates.value = datesResponse.value.items;
-    selectedDate.value = datesResponse.value.items[datesResponse.value.items.length - 1];
-  }
-  if (metricsResponse.status === 'fulfilled') {
-    metrics.value = metricsResponse.value.items.map((item) => ({
-      label: item.metric_name,
-      value: item.metric_code,
-      unit: item.unit,
-    }));
-    selectedMetric.value = metricsResponse.value.items[0]?.metric_code;
-  }
-  if (warningsResponse.status === 'fulfilled') {
-    alertCount.value = warningsResponse.value.total;
+  try {
+    const response = await fetchWarnings();
+    alertCount.value = response.total;
+  } catch {
+    alertCount.value = 0;
   }
 });
 </script>
@@ -131,81 +66,130 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
-  min-height: 66px;
+  gap: 24px;
+  height: var(--rf-header-height);
   border-bottom: 1px solid var(--rf-border-soft);
-  background: rgba(255, 255, 255, 0.92);
-  padding: 0 24px;
-  backdrop-filter: blur(14px);
+  background: var(--rf-surface);
+  padding: 0 28px;
 }
 
-.app-header__filters {
-  display: flex;
-  flex: 1;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 18px;
+.app-header__title {
   min-width: 0;
 }
 
-.app-header label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
+.app-header__title h1 {
+  margin: 0;
+  color: var(--rf-text);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
-.app-header label > span {
-  flex: 0 0 auto;
-  color: #223548;
+.app-header__title p {
+  margin: 3px 0 0;
+  color: var(--rf-text-muted);
   font-size: 13px;
-  font-weight: 800;
-}
-
-.app-header :deep(.ant-select) {
-  min-width: 150px;
+  line-height: 1.4;
 }
 
 .app-header__actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
+}
+
+.app-header__weather {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--rf-border-soft);
+  border-radius: 999px;
+  background: var(--rf-surface-soft);
+  padding: 6px 14px;
+}
+
+.app-header__weather-icon {
+  color: var(--rf-accent-cyan);
+  font-size: 16px;
+}
+
+.app-header__weather-temp {
+  color: var(--rf-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.app-header__weather-text {
+  color: var(--rf-text-muted);
+  font-size: 12px;
 }
 
 .app-header__icon-link {
   display: inline-flex;
-  color: inherit;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  color: var(--rf-text-muted);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.app-header__icon-link:hover {
+  background: var(--rf-surface-soft);
+  color: var(--rf-text);
 }
 
 .app-header__icon {
-  color: #102033;
-  font-size: 20px;
+  font-size: 18px;
+}
+
+.app-header__divider {
+  height: 22px;
+  margin: 0 2px;
+  background: var(--rf-border-soft);
 }
 
 .app-header__user {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
-.app-header__user span {
+.app-header__avatar {
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   place-items: center;
   border-radius: 50%;
-  background: #dbeafe;
-  color: #1d4ed8;
-  font-weight: 900;
+  background: var(--rf-primary-soft);
+  color: var(--rf-primary);
+  font-size: 13px;
+  font-weight: 700;
 }
 
-.app-header__user strong {
-  white-space: nowrap;
-  font-size: 14px;
+.app-header__user-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.app-header__user-text strong {
+  color: var(--rf-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.app-header__user-text small {
+  color: var(--rf-text-soft);
+  font-size: 11px;
 }
 
 @media (max-width: 1180px) {
-  .app-header__filters label:nth-child(-n + 2) {
+  .app-header__weather-text {
+    display: none;
+  }
+  .app-header__user-text {
     display: none;
   }
 }

@@ -1,25 +1,52 @@
 :root {
-  --rf-primary: #07883f;
-  --rf-primary-dark: #01462f;
-  --rf-primary-darker: #003823;
-  --rf-primary-soft: #e7f7ee;
-  --rf-success: #169b62;
-  --rf-warning: #f59e0b;
-  --rf-error: #ef4444;
-  --rf-info: #2563eb;
-  --rf-purple: #8b5cf6;
-  --rf-cyan: #06b6d4;
-  --rf-text: #102033;
-  --rf-text-muted: #667789;
-  --rf-text-soft: #8b9aaa;
-  --rf-bg: #f5f8f7;
+  --rf-primary: #15905d;
+  --rf-primary-hover: #0b7b4d;
+  --rf-primary-dark: #0b6b45;
+  --rf-primary-darker: #064a33;
+  --rf-primary-soft: #e8f6ef;
+  --rf-primary-line: #bfe6ce;
+  --rf-accent-cyan: #0e9f8c;
+
+  --rf-status-normal: #16a36a;
+  --rf-status-normal-bg: #dcf5e6;
+  --rf-status-normal-line: #bfe6ce;
+  --rf-status-watch: #c58b04;
+  --rf-status-watch-bg: #fef3c7;
+  --rf-status-watch-line: #fde68a;
+  --rf-status-warning: #ea580c;
+  --rf-status-warning-bg: #ffedd5;
+  --rf-status-warning-line: #fed7aa;
+  --rf-status-critical: #dc2626;
+  --rf-status-critical-bg: #fee2e2;
+  --rf-status-critical-line: #fecaca;
+  --rf-status-empty: #6b7280;
+  --rf-status-empty-bg: #f1f5f3;
+  --rf-status-empty-line: #e8eef0;
+
+  --rf-success: var(--rf-status-normal);
+  --rf-attention: var(--rf-status-watch);
+  --rf-warning: var(--rf-status-warning);
+  --rf-error: var(--rf-status-critical);
+  --rf-info: #2878d7;
+  --rf-purple: #7c5ce6;
+  --rf-cyan: #0e9fb3;
+
+  --rf-text: #1f2937;
+  --rf-text-muted: #6b7280;
+  --rf-text-soft: #9ca3af;
+
+  --rf-bg: #f6f8f7;
   --rf-surface: #ffffff;
-  --rf-border: #dfe8e4;
-  --rf-border-soft: #edf2f0;
-  --rf-shadow: 0 14px 36px rgba(15, 56, 37, 0.08);
-  --rf-shadow-soft: 0 8px 22px rgba(15, 56, 37, 0.06);
-  --rf-radius: 8px;
-  --rf-radius-lg: 10px;
+  --rf-surface-soft: #f8faf9;
+  --rf-border: #e5ece7;
+  --rf-border-soft: #edf2ef;
+
+  --rf-shadow: 0 1px 2px rgba(15, 56, 37, 0.04), 0 1px 3px rgba(15, 56, 37, 0.06);
+  --rf-shadow-soft: 0 1px 2px rgba(15, 56, 37, 0.03), 0 1px 2px rgba(15, 56, 37, 0.04);
+  --rf-radius: 6px;
+  --rf-radius-lg: 12px;
+  --rf-sidebar-width: 240px;
+  --rf-header-height: 64px;
   color: var(--rf-text);
   background: var(--rf-bg);
   font-synthesis: none;
@@ -36,10 +63,11 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 32% 0%, rgba(7, 136, 63, 0.06), transparent 28rem),
-    var(--rf-bg);
+  background: var(--rf-bg);
   color: var(--rf-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
 }
 
 #app {
@@ -48,7 +76,7 @@ body {
 
 .page-grid {
   display: grid;
-  gap: 14px;
+  gap: 16px;
 }
 
 .page-grid--two {
@@ -78,11 +106,20 @@ body {
   box-shadow: var(--rf-shadow-soft);
 }
 
+.panel,
+.chart-card,
+.stat-card,
+.kpi-card,
+.key-metric,
+.focus-plot {
+  text-wrap: pretty;
+}
+
 .section-title {
   margin: 0;
   color: var(--rf-text);
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.35;
 }
 
@@ -97,13 +134,67 @@ body {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  border: 1px solid #bfdbfe;
+  border: 1px solid var(--rf-border);
   border-radius: var(--rf-radius);
-  background: #eff6ff;
-  color: #1e3a8a;
+  background: var(--rf-surface-soft);
+  color: var(--rf-text-muted);
   padding: 12px 14px;
   font-size: 13px;
   line-height: 1.6;
+}
+
+.rf-card-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.rf-muted-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--rf-text-muted);
+  font-size: 13px;
+}
+
+.rf-action-link {
+  color: var(--rf-primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.rf-action-link:hover {
+  color: var(--rf-primary-hover);
+}
+
+.ant-btn-primary {
+  box-shadow: 0 1px 2px rgba(21, 144, 93, 0.12);
+}
+
+.ant-select-selector,
+.ant-picker,
+.ant-input-affix-wrapper,
+.ant-input {
+  border-color: var(--rf-border) !important;
+}
+
+.ant-table-thead > tr > th {
+  background: var(--rf-surface-soft) !important;
+  color: var(--rf-text) !important;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.ant-table-tbody > tr > td {
+  font-size: 13px;
+  color: var(--rf-text);
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: var(--rf-surface-soft) !important;
+}
+
+.ant-tag {
+  border: 0 !important;
 }
 
 @media (max-width: 920px) {
