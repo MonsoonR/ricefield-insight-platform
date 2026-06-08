@@ -7,6 +7,7 @@
 - 新增 `.codex/skills/ricefield-insight-platform/SKILL.md` 项目专用 Codex skill，固化稻田智研平台 MVP 边界、数据治理、文档同步、验证和提交要求。
 - 新增 `.codex/skills/ricefield-insight-platform/agents/openai.yaml`，为项目专用 skill 提供 Codex UI 元数据。
 - 新增 `docs/superpowers/specs/2026-06-08-tailwind-shadcn-vue-frontend-redesign-design.md`，沉淀前端整体重构设计。
+- 新增 `docs/superpowers/plans/2026-06-08-tailwind-shadcn-vue-frontend-redesign.md`，拆解 Tailwind CSS + shadcn-vue 前端迁移实施计划。
 
 ### 修改
 
@@ -16,8 +17,7 @@
 ### 验证
 
 - 已通过：`backend\.venv\Scripts\python.exe C:\Users\Monso\.codex\skills\.system\skill-creator\scripts\quick_validate.py .\.codex\skills\ricefield-insight-platform`。
-- 项目专用 Codex skill、`.gitignore` 和对应变更记录迁移未修改业务代码，未运行前后端测试。
-- 本次仅更新设计规格和变更记录，未修改业务代码，未运行前后端测试。
+- 本次仅更新项目专用 Codex skill、`.gitignore`、设计规格、实施计划和变更记录，未修改业务代码，未运行前后端测试。
 
 ## 2026-05-27
 
