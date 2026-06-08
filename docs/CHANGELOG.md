@@ -8,16 +8,20 @@
 - 新增 `.codex/skills/ricefield-insight-platform/agents/openai.yaml`，为项目专用 skill 提供 Codex UI 元数据。
 - 新增 `docs/superpowers/specs/2026-06-08-tailwind-shadcn-vue-frontend-redesign-design.md`，沉淀前端整体重构设计。
 - 新增 `docs/superpowers/plans/2026-06-08-tailwind-shadcn-vue-frontend-redesign.md`，拆解 Tailwind CSS + shadcn-vue 前端迁移实施计划。
+- 新增 Tailwind 工作台外壳组件 `AppShell`、`AppSidebar`、`CommandBar` 和统一导出入口，为后续六页逐步迁移提供基础布局。
 
 ### 修改
 
 - 明确下一轮前端优化方向调整为 Tailwind CSS + shadcn-vue 源码组件体系，计划完全移除 Ant Design Vue。
 - 明确六页统一重构路线：先统一 App Shell 和组件系统，再逐页重构场景驾驶舱、Cesium 地图孪生、地块画像、指标对比、预警分析和系统说明。
+- 将主布局切换到新的 Tailwind 工作台外壳，保留 Ant Design Vue 全局注册，确保未迁移页面在分阶段迁移期间继续可用。
 
 ### 验证
 
 - 已通过：`backend\.venv\Scripts\python.exe C:\Users\Monso\.codex\skills\.system\skill-creator\scripts\quick_validate.py .\.codex\skills\ricefield-insight-platform`。
 - 本次仅更新项目专用 Codex skill、`.gitignore`、设计规格、实施计划和变更记录，未修改业务代码，未运行前后端测试。
+- 已通过：`npm --prefix frontend run build`。
+- 构建仍存在 Cesium 和 Ant Design Vue 相关大 chunk 警告，属于既有体积问题，后续页面迁移和 AntD 移除阶段再处理。
 
 ## 2026-05-27
 
