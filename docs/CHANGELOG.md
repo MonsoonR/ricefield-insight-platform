@@ -9,6 +9,7 @@
 - 新增 `docs/superpowers/specs/2026-06-08-tailwind-shadcn-vue-frontend-redesign-design.md`，沉淀前端整体重构设计。
 - 新增 `docs/superpowers/plans/2026-06-08-tailwind-shadcn-vue-frontend-redesign.md`，拆解 Tailwind CSS + shadcn-vue 前端迁移实施计划。
 - 新增 Tailwind 工作台外壳组件 `AppShell`、`AppSidebar`、`CommandBar` 和统一导出入口，为后续六页逐步迁移提供基础布局。
+- 新增工作台数据组件 `StatusBadge`、`MetricValue`、`DataPanel`，统一状态标签、指标数值和分析面板的非 AntD 表达方式。
 
 ### 修改
 
