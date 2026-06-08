@@ -1,5 +1,17 @@
 # 变更记录
 
+## 2026-06-08
+
+### 新增
+
+- 新增 `.codex/skills/ricefield-insight-platform/SKILL.md` 项目专用 Codex skill，固化稻田智研平台 MVP 边界、数据治理、文档同步、验证和提交要求。
+- 新增 `.codex/skills/ricefield-insight-platform/agents/openai.yaml`，为项目专用 skill 提供 Codex UI 元数据。
+
+### 验证
+
+- 已通过：`backend\.venv\Scripts\python.exe C:\Users\Monso\.codex\skills\.system\skill-creator\scripts\quick_validate.py .\.codex\skills\ricefield-insight-platform`。
+- 本次仅迁移项目专用 Codex skill、`.gitignore` 和变更记录，未修改业务代码，未运行前后端测试。
+
 ## 2026-05-27
 
 ### 新增
