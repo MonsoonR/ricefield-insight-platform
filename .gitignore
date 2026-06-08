@@ -27,6 +27,7 @@ build/
 coverage/
 htmlcov/
 *.egg-info/
+.worktrees/
 
 # Environment files
 .env
