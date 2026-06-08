@@ -13,7 +13,9 @@
     "test:page-linkage": "node --experimental-strip-types src/services/__tests__/pageLinkage.test.mjs"
   },
   "dependencies": {
+    "@lucide/vue": "^1.17.0",
     "@vitejs/plugin-vue": "^5.2.1",
+    "@vueuse/core": "^14.3.0",
     "ant-design-vue": "^4.2.6",
     "axios": "^1.7.9",
     "cesium": "^1.123.1",
