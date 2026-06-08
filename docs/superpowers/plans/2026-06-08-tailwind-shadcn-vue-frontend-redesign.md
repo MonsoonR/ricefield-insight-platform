@@ -225,28 +225,82 @@ git commit -m "feat: add shadcn vue primitives"
 
 ---
 
-### Task 3: Replace AntD app bootstrap with Tailwind bootstrap
+### Task 3: Keep AntD bootstrap during staged migration
 
 **Files:**
 - Modify: `frontend/src/main.ts`
-- Delete later: `frontend/src/styles/theme.ts`
+- Keep: `frontend/src/styles/theme.ts`
 
-- [ ] **Step 1: Replace `main.ts` with Vue-only bootstrap**
+- [ ] **Step 1: Keep `main.ts` runtime-safe**
 
-Set `frontend/src/main.ts` to:
+Do not remove Ant Design Vue global registration until all `<a-*>` templates are migrated. Keep `frontend/src/main.ts` in this shape during Tasks 4 through 6:
 
 ```ts
+import {
+  Button,
+  Badge,
+  Card,
+  ConfigProvider,
+  DatePicker,
+  Divider,
+  Drawer,
+  Form,
+  Empty,
+  Input,
+  Layout,
+  Menu,
+  Pagination,
+  Progress,
+  Result,
+  Select,
+  Segmented,
+  Skeleton,
+  Space,
+  Statistic,
+  Tabs,
+  Table,
+  Tag,
+  Tooltip,
+} from 'ant-design-vue';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 
 import App from './App.vue';
 import router from './router';
+import 'ant-design-vue/dist/reset.css';
 import './styles/global.css';
 
-createApp(App).use(createPinia()).use(router).mount('#app');
+createApp(App)
+  .use(createPinia())
+  .use(router)
+  .use(Button)
+  .use(Badge)
+  .use(Card)
+  .use(ConfigProvider)
+  .use(DatePicker)
+  .use(Divider)
+  .use(Drawer)
+  .use(Form)
+  .use(Empty)
+  .use(Input)
+  .use(Layout)
+  .use(Menu)
+  .use(Pagination)
+  .use(Progress)
+  .use(Result)
+  .use(Select)
+  .use(Segmented)
+  .use(Skeleton)
+  .use(Space)
+  .use(Statistic)
+  .use(Tabs)
+  .use(Table)
+  .use(Tag)
+  .use(Tooltip)
+  .mount('#app');
 ```
 
-- [ ] **Step 2: Run build to expose page-level AntD imports**
+- [ ] **Step 2: Run build to confirm the compatibility bridge still works**
 
 Run:
 
@@ -254,11 +308,11 @@ Run:
 npm --prefix frontend run build
 ```
 
-Expected: If it fails, failures should identify Vue files still using unregistered AntD components or AntD theme imports. Record the list before migrating components.
+Expected: Build passes. Existing AntD components remain runtime-safe until their pages are migrated.
 
-- [ ] **Step 3: Do not delete `theme.ts` yet**
+- [ ] **Step 3: Record remaining AntD usage**
 
-Keep `frontend/src/styles/theme.ts` until every import is removed. Run:
+Run:
 
 ```powershell
 Select-String -Path .\frontend\src\**\*.vue,.\frontend\src\**\*.ts -Pattern "themeConfig|ant-design-vue|a-button|a-card|a-select|a-table|a-tag"
@@ -266,13 +320,13 @@ Select-String -Path .\frontend\src\**\*.vue,.\frontend\src\**\*.ts -Pattern "the
 
 Expected: Remaining matches are migration targets for later tasks.
 
-- [ ] **Step 4: Commit bootstrap removal**
+- [ ] **Step 4: Commit compatibility checkpoint**
 
 Run:
 
 ```powershell
 git add frontend/src/main.ts
-git commit -m "refactor: remove antd app bootstrap"
+git commit -m "chore: keep antd bootstrap during migration"
 ```
 
 ---
@@ -709,6 +763,19 @@ Use:
 Use `DataPanel` for document groups. Do not add marketing copy.
 
 - [ ] **Step 6: Remove AntD package**
+
+First remove the Ant Design Vue global registration and reset CSS import from `frontend/src/main.ts`, leaving only:
+
+```ts
+import { createPinia } from 'pinia';
+import { createApp } from 'vue';
+
+import App from './App.vue';
+import router from './router';
+import './styles/global.css';
+
+createApp(App).use(createPinia()).use(router).mount('#app');
+```
 
 Run:
 
