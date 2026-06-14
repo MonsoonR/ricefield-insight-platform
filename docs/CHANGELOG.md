@@ -19,6 +19,7 @@
 - 将主布局切换到新的 Tailwind 工作台外壳，保留 Ant Design Vue 全局注册，确保未迁移页面在分阶段迁移期间继续可用。
 - 将场景驾驶舱和 Cesium 地图孪生页迁移到新的 CommandBar、地图主画布、右侧 Inspector 和工作台数据组件结构。
 - 移除场景驾驶舱和 Cesium 地图孪生页内的直接 Ant Design Vue 标签、AntD 表格和 AntD 类型依赖，保留 Cesium 地图内核与现有数据服务契约。
+- 补充地图分析服务 `findFeatureByPlotId` 工具函数，支持迁移后的地图页根据路由或选中地块恢复 Feature 状态。
 
 ### 验证
 

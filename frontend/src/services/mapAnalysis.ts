@@ -129,6 +129,17 @@ export function buildMapLayerParams(filters: MapLayerFilters) {
   return params;
 }
 
+export function findFeatureByPlotId(
+  collection: MapFeatureCollection | undefined,
+  plotId: string | undefined,
+) {
+  if (!collection || !plotId) {
+    return undefined;
+  }
+
+  return collection.features.find((feature) => feature.properties.plot_id === plotId);
+}
+
 export function resolvePlotVisualStatus(properties: MapFeatureProperties): PlotVisualStatus {
   const qualityFlag = properties.quality_flag;
   const plotStatus = properties.status?.toLowerCase();
