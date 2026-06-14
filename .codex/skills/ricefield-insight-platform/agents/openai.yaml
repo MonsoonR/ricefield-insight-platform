@@ -1,0 +1,4 @@
+interface:
+  display_name: "RiceField Insight Platform"
+  short_description: "Project workflow for RiceField Insight Platform changes"
+  default_prompt: "Use $ricefield-insight-platform to implement or review a RiceField Insight Platform change while preserving MVP scope, data governance, docs, tests, and commit discipline."
