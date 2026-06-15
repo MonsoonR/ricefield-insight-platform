@@ -1,7 +1,7 @@
 <template>
   <Badge
     variant="outline"
-    class="rounded-full border-transparent px-2.5 py-0.5 text-xs font-bold"
+    class="rounded-full px-2.5 py-0.5 text-xs font-bold"
     :style="badgeStyle"
   >
     {{ meta.label }}
@@ -20,16 +20,11 @@ const props = defineProps<{
 
 const meta = computed(() => statusMetaFromQuality(props.status));
 
-const statusColors = {
-  normal: ['var(--rf-success-soft)', 'var(--rf-success)'],
-  watch: ['var(--rf-warning-soft)', 'var(--rf-warning)'],
-  warning: ['var(--rf-warning-soft)', 'var(--rf-warning)'],
-  critical: ['var(--rf-error-soft)', 'var(--rf-error)'],
-  empty: ['var(--rf-bg-subtle)', 'var(--rf-text-muted)'],
-};
-
 const badgeStyle = computed(() => {
-  const [background, color] = statusColors[meta.value.level];
-  return { background, color };
+  return {
+    background: meta.value.background,
+    borderColor: meta.value.border,
+    color: meta.value.color,
+  };
 });
 </script>

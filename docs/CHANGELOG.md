@@ -4,6 +4,10 @@
 
 ### 修改
 
+- 补齐前端设计 token：在 `global.css` 中落地 `--rf-status-normal`、`--rf-status-watch`、`--rf-status-warning`、`--rf-status-critical`、`--rf-status-empty` 及对应背景、描边变量，并在 Tailwind 配置中暴露 `status.*` 和补充 `rice.dark`、`rice.deep` 语义色。
+- 新增 shadcn-vue 源码组件 `alert` 与 `toggle-group`，保留为 `src/components/ui` 原子组件；`toggle-group` 依赖同目录 `toggle` 源码组件，未批量新增后续页面暂不需要的组件。
+- 将 `StatusTag` 与 `MetricValueTag` 调整为统一读取 `src/utils/status.ts` 的状态 token 映射，前端展示固定收敛为正常、关注、预警、严重、无数据。
+- 新增 `src/components/base/AppShell.vue` 并让 `MainLayout` 切换到 `base` 组件边界；迁移期暂不删除 `src/components/workbench`，不改写 `/overview` 与 `/map-twin` 页面结构。
 - 将 `AppHeader`、`AppSidebar`、`PageContainer`、`StatCard`、`ChartCard`、`StatusTag`、`MetricValueTag`、`FilterBar`、`EmptyState`、`LoadingState` 等基础组件迁移为 Tailwind CSS + shadcn-vue 风格实现。
 - 将 `MetricSelector`、`DateSelector`、`RegionSelector` 改为不依赖 Ant Design Vue 的基础筛选控件，并新增 `SelectControl`、`DateRangeSelector` 供筛选区复用。
 - 将 `DataTable` 从 Ant Design Vue `a-table` 迁移为基于 shadcn-vue table 源码组件和项目自定义分页/横向滚动的实现，保留 `columns`、`dataSource`、`rowKey`、`rowClassName`、`pagination`、`scroll` 和 `bodyCell` slot 兼容。
@@ -17,6 +21,7 @@
 - 更新组件迁移策略：`src/components/ui` 存放 shadcn-vue 源码组件，`src/components/base` 存放项目语义组件，页面优先使用 `base` 组件，不直接散落大量 `ui` 原子组件。
 - 明确本轮迁移不修改后端 API、数据模型、模拟数据生成逻辑，不恢复 Excel、GeoJSON、PDF、图片导入，不扩大 `/overview`、`/map-twin`、`/plot-detail/:plotId?`、`/metric-compare`、`/warnings`、`/system-docs` 六页闭环。
 - 更新设计系统和前端指南，补充基础组件迁移完成状态、`DataTable` 兼容策略、`FilterBar` 不依赖 AntD DOM 样式的规则，以及下一轮业务页面 AntD 标签迁移方向。
+- 更新设计系统和前端指南，明确 `base/AppShell` 是当前主布局边界，`workbench` 为迁移期遗留目录；明确 `src/components/ui` 当前补齐 `alert`、`toggle-group`，状态展示统一通过 `--rf-status-*` token 与 `src/utils/status.ts` 映射。
 
 ### 验证
 

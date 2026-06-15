@@ -12,7 +12,9 @@
 
 - `src/components/ui/` 存放 shadcn-vue 通过源码方式加入的 UI 原子组件，保持接近上游实现，使用 Tailwind 语义 token 和 Reka UI 可访问性能力。
 - `src/components/base/` 存放稻田智研平台的项目语义组件，如 `PageContainer`、`StatCard`、`FilterBar`、`DataTable`、`ChartCard`、`CesiumMapPanel`、`StatusTag`、`MetricValueTag` 等。
+- `src/components/base/AppShell.vue` 是当前主布局边界，统一承载浅色侧栏、顶部状态栏和页面内容区；`src/components/workbench/` 是迁移期遗留工作台组件，仍可被已迁移页面引用，但不作为新增基础组件目录。
 - 页面优先使用 `base` 组件表达业务语义，不在页面内直接散落大量 `ui` 原子组件；确需组合 `ui` 原子组件时，应优先沉淀到 `base` 层。
+- `src/components/ui/` 当前基础组件包括 `button`、`badge`、`card`、`dialog`、`popover`、`scroll-area`、`select`、`separator`、`sheet`、`skeleton`、`table`、`tabs`、`tooltip`、`alert` 和 `toggle-group`；新增组件必须按 shadcn-vue 源码组件方式进入该目录。
 - 基础组件迁移优先级：先迁移 App Shell 与 `base` 组件，保持页面 props、事件和数据结构兼容；再逐页清理业务页面内的 Ant Design Vue 标签、弹层、按钮和局部样式。
 - 后续迁移按页面或组件逐步替换 Ant Design Vue，只有运行时代码完全不再引用 Ant Design Vue 后，才删除 `ant-design-vue` 依赖、全局注册、主题配置和 `vendor-antd` 分包。
 
@@ -41,6 +43,7 @@
 ### 2.2 状态色（4 级）
 
 页面任何状态展示（StatusTag、MetricValueTag、KPI 图标、地图着色、图表系列色）必须从这 4 级中选用。
+代码层统一使用 `frontend/src/styles/global.css` 中的 `--rf-status-*`、`--rf-status-*-bg` 和 `--rf-status-*-line` token；Tailwind 通过 `status.*` 语义色暴露这些变量。`StatusTag` 与 `MetricValueTag` 必须通过 `src/utils/status.ts` 做状态映射，不直接向用户展示 `missing`、`outlier`、`error` 等后端技术字段。
 
 | 等级 | 文案 | Token | 主色 | 背景 tint | 描边 |
 |---|---|---|---|---|---|

@@ -11,7 +11,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { mapQualityToStatus } from '@/utils/status';
+import { statusMetaFromQuality } from '@/utils/status';
 
 const props = withDefaults(
   defineProps<{
@@ -33,18 +33,12 @@ const displayValue = computed(() => {
   return typeof props.value === 'number' ? props.value.toLocaleString('zh-CN') : props.value;
 });
 
-const level = computed(() => mapQualityToStatus(props.qualityFlag));
-
-const statusColors = {
-  normal: ['var(--rf-success-soft)', 'var(--rf-success)'],
-  watch: ['var(--rf-warning-soft)', 'var(--rf-warning)'],
-  warning: ['var(--rf-warning-soft)', 'var(--rf-warning)'],
-  critical: ['var(--rf-error-soft)', 'var(--rf-error)'],
-  empty: ['var(--rf-bg-subtle)', 'var(--rf-text-muted)'],
-};
+const meta = computed(() => statusMetaFromQuality(props.qualityFlag));
 
 const tagStyle = computed(() => {
-  const [background, color] = statusColors[level.value];
-  return { background, color };
+  return {
+    background: meta.value.background,
+    color: meta.value.color,
+  };
 });
 </script>
