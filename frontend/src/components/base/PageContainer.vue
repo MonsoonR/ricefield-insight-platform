@@ -1,12 +1,12 @@
 <template>
-  <main class="page-container">
-    <div v-if="title || $slots.actions" class="page-container__heading">
-      <div>
-        <div v-if="breadcrumb" class="page-container__breadcrumb">{{ breadcrumb }}</div>
-        <h2 v-if="title">{{ title }}</h2>
-        <p v-if="description">{{ description }}</p>
+  <main class="flex flex-col gap-5">
+    <div v-if="title || $slots.actions" class="flex items-start justify-between gap-[18px] max-md:block">
+      <div class="min-w-0">
+        <div v-if="breadcrumb" class="mb-1.5 text-xs text-[var(--rf-text-soft)]">{{ breadcrumb }}</div>
+        <h2 v-if="title" class="m-0 text-[22px] font-bold leading-tight text-[var(--rf-text)]">{{ title }}</h2>
+        <p v-if="description" class="mt-1.5 max-w-[760px] text-[13px] leading-relaxed text-[var(--rf-text-muted)]">{{ description }}</p>
       </div>
-      <div v-if="$slots.actions" class="page-container__actions">
+      <div v-if="$slots.actions" class="flex flex-wrap justify-end gap-2.5 max-md:mt-3 max-md:justify-start">
         <slot name="actions" />
       </div>
     </div>
@@ -28,58 +28,3 @@ withDefaults(
   },
 );
 </script>
-
-<style scoped>
-.page-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.page-container__heading {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 18px;
-}
-
-.page-container__breadcrumb {
-  margin-bottom: 6px;
-  color: var(--rf-text-soft);
-  font-size: 12px;
-}
-
-.page-container h2 {
-  margin: 0;
-  color: var(--rf-text);
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.25;
-}
-
-.page-container p {
-  margin: 6px 0 0;
-  color: var(--rf-text-muted);
-  font-size: 13px;
-  line-height: 1.55;
-  max-width: 760px;
-}
-
-.page-container__actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-@media (max-width: 720px) {
-  .page-container__heading {
-    display: block;
-  }
-
-  .page-container__actions {
-    justify-content: flex-start;
-    margin-top: 12px;
-  }
-}
-</style>

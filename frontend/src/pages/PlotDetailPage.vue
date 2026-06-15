@@ -181,7 +181,6 @@ import {
   RiseOutlined,
   RollbackOutlined,
 } from '@ant-design/icons-vue';
-import type { TableColumnsType } from 'ant-design-vue';
 import type { EChartsOption } from 'echarts';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -208,6 +207,7 @@ import {
   shouldReloadPlotDetail,
 } from '@/services/pageLinkage';
 import { mapQualityToStatus, type StatusLevel } from '@/utils/status';
+import type { TableColumnsType } from '@/types/table';
 import type {
   Metric,
   MetricSeries,

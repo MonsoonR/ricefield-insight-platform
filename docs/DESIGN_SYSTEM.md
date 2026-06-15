@@ -13,6 +13,7 @@
 - `src/components/ui/` 存放 shadcn-vue 通过源码方式加入的 UI 原子组件，保持接近上游实现，使用 Tailwind 语义 token 和 Reka UI 可访问性能力。
 - `src/components/base/` 存放稻田智研平台的项目语义组件，如 `PageContainer`、`StatCard`、`FilterBar`、`DataTable`、`ChartCard`、`CesiumMapPanel`、`StatusTag`、`MetricValueTag` 等。
 - 页面优先使用 `base` 组件表达业务语义，不在页面内直接散落大量 `ui` 原子组件；确需组合 `ui` 原子组件时，应优先沉淀到 `base` 层。
+- 基础组件迁移优先级：先迁移 App Shell 与 `base` 组件，保持页面 props、事件和数据结构兼容；再逐页清理业务页面内的 Ant Design Vue 标签、弹层、按钮和局部样式。
 - 后续迁移按页面或组件逐步替换 Ant Design Vue，只有运行时代码完全不再引用 Ant Design Vue 后，才删除 `ant-design-vue` 依赖、全局注册、主题配置和 `vendor-antd` 分包。
 
 ## 1. 平台视觉定位
@@ -166,6 +167,7 @@
 
 - 浅灰底 `--rf-surface-soft`，描边 `--rf-border-soft`，圆角 12，padding `14px 16px`。
 - 控件之间间距 12px，右侧放 `查询`（`type=primary`）+ `重置`（描边款）。
+- `FilterBar` 只负责布局容器，不依赖 Ant Design Vue 的 Form、Select、DatePicker DOM 类名。筛选控件应优先使用 `MetricSelector`、`DateSelector`、`RegionSelector`、`SelectControl`、`DateRangeSelector` 等 `base` 语义组件。
 
 ### 5.7 StatusTag
 
@@ -182,6 +184,7 @@
 - 表头使用 `--rf-surface-soft` 背景，表头字号 13，字重 700。
 - 行高 48px，行分割线 `--rf-border-soft`。
 - 操作列固定在最右，使用描边款小按钮（如 `查看画像`、`定位地图`）。
+- `DataTable` 基于 shadcn-vue table 源码组件和项目自定义分页/横向滚动实现，不再使用 `a-table`。为降低页面迁移成本，继续兼容现有 `columns`、`dataSource`、`rowKey`、`rowClassName`、`pagination`、`scroll` 和 `bodyCell` slot 传参。
 
 ### 5.10 CesiumMapPanel
 

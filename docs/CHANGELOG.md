@@ -2,19 +2,32 @@
 
 ## 2026-06-15
 
+### 修改
+
+- 将 `AppHeader`、`AppSidebar`、`PageContainer`、`StatCard`、`ChartCard`、`StatusTag`、`MetricValueTag`、`FilterBar`、`EmptyState`、`LoadingState` 等基础组件迁移为 Tailwind CSS + shadcn-vue 风格实现。
+- 将 `MetricSelector`、`DateSelector`、`RegionSelector` 改为不依赖 Ant Design Vue 的基础筛选控件，并新增 `SelectControl`、`DateRangeSelector` 供筛选区复用。
+- 将 `DataTable` 从 Ant Design Vue `a-table` 迁移为基于 shadcn-vue table 源码组件和项目自定义分页/横向滚动的实现，保留 `columns`、`dataSource`、`rowKey`、`rowClassName`、`pagination`、`scroll` 和 `bodyCell` slot 兼容。
+- 新增 `src/types/table.ts` 项目表格类型，页面表格列定义不再从 `ant-design-vue` 导入 `TableColumnsType`。
+- 移除全局样式中针对 Ant Design Vue table 的覆盖，保留按钮、选择器、日期等迁移期仍被业务页面使用的 `.ant-*` 兼容样式。
+
 ### 文档更新
 
 - 统一前端 UI 迁移方向：目标前端栈调整为 Vue 3 + TypeScript + Vite + Tailwind CSS + shadcn-vue + Reka UI + ECharts + CesiumJS + Axios，并明确 Vue Router 与 Pinia 继续保留。
 - 明确 Ant Design Vue 为待移除旧依赖，在运行时代码仍有引用前不删除依赖、全局注册、主题配置和 `vendor-antd` 分包。
 - 更新组件迁移策略：`src/components/ui` 存放 shadcn-vue 源码组件，`src/components/base` 存放项目语义组件，页面优先使用 `base` 组件，不直接散落大量 `ui` 原子组件。
 - 明确本轮迁移不修改后端 API、数据模型、模拟数据生成逻辑，不恢复 Excel、GeoJSON、PDF、图片导入，不扩大 `/overview`、`/map-twin`、`/plot-detail/:plotId?`、`/metric-compare`、`/warnings`、`/system-docs` 六页闭环。
+- 更新设计系统和前端指南，补充基础组件迁移完成状态、`DataTable` 兼容策略、`FilterBar` 不依赖 AntD DOM 样式的规则，以及下一轮业务页面 AntD 标签迁移方向。
 
 ### 验证
 
 - 已执行：`git status --short --branch`。
 - 已执行：`rg "ant-design-vue|<a-|</a-|\\.ant-|ConfigProvider|themeConfig|vendor-antd" frontend`，确认 AntD 仍有运行时代码引用，本轮未删除依赖。
 - 已执行文档与前端冲突标记扫描，未发现 merge conflict 标记。
-- 本次仅更新文档，未修改 frontend 运行时代码，未运行完整前端测试和构建。
+- 已通过：`npm --prefix frontend run test:overview`。
+- 已通过：`npm --prefix frontend run test:page-linkage`。
+- 已通过：`npm --prefix frontend run test:twin-analysis`。
+- 已通过：`npm --prefix frontend run test:map`。
+- 已通过：`npm --prefix frontend run build`（仍存在既有 Cesium/Ant Design Vue 大 chunk 警告）。
 
 ## 2026-06-08
 

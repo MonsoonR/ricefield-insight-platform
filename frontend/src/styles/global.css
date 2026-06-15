@@ -215,21 +215,6 @@ body {
   background: color-mix(in srgb, var(--rf-info-soft) 50%, white);
 }
 
-.ant-table-wrapper .ant-table {
-  border-radius: var(--rf-radius-xl);
-}
-
-.ant-table-thead > tr > th {
-  color: var(--rf-text-muted) !important;
-  background: var(--rf-surface-muted) !important;
-  font-size: 12px;
-  font-weight: 650 !important;
-}
-
-.ant-table-tbody > tr:hover > td {
-  background: color-mix(in srgb, var(--rf-primary-soft) 46%, white) !important;
-}
-
 .ant-select-selector,
 .ant-picker,
 .ant-input,

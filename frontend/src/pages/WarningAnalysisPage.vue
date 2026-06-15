@@ -19,15 +19,23 @@
       </div>
       <div class="filter-field">
         <span>预警类型</span>
-        <a-select v-model:value="filters.warningCategory" :options="warningCategoryOptions" />
+        <SelectControl
+          v-model="filters.warningCategory"
+          :options="warningCategoryOptions"
+          :allow-empty="false"
+        />
       </div>
       <div class="filter-field">
         <span>严重程度</span>
-        <a-select v-model:value="filters.severityLevel" :options="severityOptions" />
+        <SelectControl
+          v-model="filters.severityLevel"
+          :options="severityOptions"
+          :allow-empty="false"
+        />
       </div>
       <div class="filter-field filter-field--range">
         <span>日期范围</span>
-        <a-range-picker v-model:value="filters.dateRange" value-format="YYYY-MM-DD" />
+        <DateRangeSelector v-model="filters.dateRange" />
       </div>
       <div class="filter-actions">
         <a-button type="primary" :loading="loading" @click="loadWarnings">
@@ -184,7 +192,6 @@ import {
   SearchOutlined,
   WarningOutlined,
 } from '@ant-design/icons-vue';
-import type { TableColumnsType } from 'ant-design-vue';
 import type { EChartsOption } from 'echarts';
 import { computed, nextTick, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -199,6 +206,7 @@ import {
   CesiumMapPanel,
   ChartCard,
   DataTable,
+  DateRangeSelector,
   EChartView,
   EmptyState,
   ErrorState,
@@ -206,6 +214,7 @@ import {
   MetricSelector,
   PageContainer,
   RegionSelector,
+  SelectControl,
   StatCard,
   StatusTag,
 } from '@/components/base';
@@ -217,6 +226,7 @@ import type {
   RegionCode,
   WarningItem,
 } from '@/types/api';
+import type { TableColumnsType } from '@/types/table';
 import type { StatusLevel } from '@/utils/status';
 
 type WarningCategory = 'all' | 'data_quality' | 'agronomy' | 'trend';

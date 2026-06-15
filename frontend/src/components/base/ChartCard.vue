@@ -1,13 +1,13 @@
 <template>
-  <section class="chart-card">
-    <header class="chart-card__header">
+  <section class="min-w-0 rounded-[var(--rf-radius-lg)] border border-[var(--rf-border-soft)] bg-[var(--rf-surface)] shadow-[var(--rf-shadow)]">
+    <header class="flex items-start justify-between gap-3.5 border-b border-[var(--rf-border-soft)] px-5 py-4">
       <div>
-        <h2>{{ title }}</h2>
-        <p v-if="description">{{ description }}</p>
+        <h2 class="m-0 text-base font-bold leading-tight text-[var(--rf-text)]">{{ title }}</h2>
+        <p v-if="description" class="mt-1 text-xs leading-normal text-[var(--rf-text-muted)]">{{ description }}</p>
       </div>
       <slot name="extra" />
     </header>
-    <div class="chart-card__body">
+    <div class="min-w-0 px-5 py-4">
       <LoadingState v-if="loading" :height="height" />
       <ErrorState v-else-if="error" :message="error" compact />
       <EmptyState v-else-if="empty" :description="emptyText" compact />
@@ -41,42 +41,3 @@ withDefaults(
   },
 );
 </script>
-
-<style scoped>
-.chart-card {
-  min-width: 0;
-  border: 1px solid var(--rf-border-soft);
-  border-radius: var(--rf-radius-lg);
-  background: var(--rf-surface);
-  box-shadow: var(--rf-shadow);
-}
-
-.chart-card__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 14px;
-  border-bottom: 1px solid var(--rf-border-soft);
-  padding: 16px 20px 14px;
-}
-
-.chart-card__header h2 {
-  margin: 0;
-  color: var(--rf-text);
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.3;
-}
-
-.chart-card__header p {
-  margin: 4px 0 0;
-  color: var(--rf-text-muted);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.chart-card__body {
-  min-width: 0;
-  padding: 16px 20px 18px;
-}
-</style>

@@ -183,7 +183,6 @@ import {
   TrophyOutlined,
   WarningOutlined,
 } from '@ant-design/icons-vue';
-import type { TableColumnsType } from 'ant-design-vue';
 import type { EChartsOption } from 'echarts';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -213,6 +212,7 @@ import {
 import { buildMapTwinLocation, buildPlotDetailRequestPlan } from '@/services/pageLinkage';
 import { sortMetricCompareRows } from '@/services/twinAnalysis';
 import type { Metric, MetricCompareItem, MetricCompareResponse, PlotSeriesResponse, RegionCode } from '@/types/api';
+import type { TableColumnsType } from '@/types/table';
 import type { StatusLevel } from '@/utils/status';
 import { mapQualityToStatus, statusLevelMeta } from '@/utils/status';
 

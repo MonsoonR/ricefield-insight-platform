@@ -1,7 +1,10 @@
 <template>
-  <span class="metric-value-tag" :class="`metric-value-tag--${level}`">
+  <span
+    class="inline-flex items-baseline gap-1 rounded-md px-2 py-1 text-[13px] font-bold"
+    :style="tagStyle"
+  >
     {{ displayValue }}
-    <small v-if="unit">{{ unit }}</small>
+    <small v-if="unit" class="text-[11px] font-semibold opacity-85">{{ unit }}</small>
   </span>
 </template>
 
@@ -31,47 +34,17 @@ const displayValue = computed(() => {
 });
 
 const level = computed(() => mapQualityToStatus(props.qualityFlag));
+
+const statusColors = {
+  normal: ['var(--rf-success-soft)', 'var(--rf-success)'],
+  watch: ['var(--rf-warning-soft)', 'var(--rf-warning)'],
+  warning: ['var(--rf-warning-soft)', 'var(--rf-warning)'],
+  critical: ['var(--rf-error-soft)', 'var(--rf-error)'],
+  empty: ['var(--rf-bg-subtle)', 'var(--rf-text-muted)'],
+};
+
+const tagStyle = computed(() => {
+  const [background, color] = statusColors[level.value];
+  return { background, color };
+});
 </script>
-
-<style scoped>
-.metric-value-tag {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 4px;
-  border-radius: 6px;
-  font-weight: 700;
-  padding: 3px 8px;
-  font-size: 13px;
-}
-
-.metric-value-tag small {
-  font-size: 11px;
-  font-weight: 600;
-  opacity: 0.85;
-}
-
-.metric-value-tag--normal {
-  background: var(--rf-status-normal-bg);
-  color: var(--rf-status-normal);
-}
-
-.metric-value-tag--watch {
-  background: var(--rf-status-watch-bg);
-  color: var(--rf-status-watch);
-}
-
-.metric-value-tag--warning {
-  background: var(--rf-status-warning-bg);
-  color: var(--rf-status-warning);
-}
-
-.metric-value-tag--critical {
-  background: var(--rf-status-critical-bg);
-  color: var(--rf-status-critical);
-}
-
-.metric-value-tag--empty {
-  background: var(--rf-status-empty-bg);
-  color: var(--rf-status-empty);
-}
-</style>

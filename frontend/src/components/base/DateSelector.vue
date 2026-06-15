@@ -1,17 +1,17 @@
 <template>
-  <a-select
-    v-model:value="model"
-    allow-clear
+  <SelectControl
+    v-model="model"
     :loading="loading"
     :options="dateOptions"
     :placeholder="placeholder"
-    show-search
-    option-filter-prop="label"
+    empty-label="不限日期"
   />
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
+
+import SelectControl from './SelectControl.vue';
 
 const model = defineModel<string | undefined>({ default: undefined });
 
