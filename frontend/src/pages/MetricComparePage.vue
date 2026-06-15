@@ -14,14 +14,14 @@
         <RegionSelector v-model="filters.region" />
       </div>
       <div class="filter-actions">
-        <a-button type="primary" :loading="loading" @click="loadComparison">
-          <template #icon><SearchOutlined /></template>
+        <Button :disabled="loading" @click="loadComparison">
+          <SearchOutlined />
           查询
-        </a-button>
-        <a-button :disabled="loading" @click="resetFilters">
-          <template #icon><ReloadOutlined /></template>
+        </Button>
+        <Button variant="outline" :disabled="loading" @click="resetFilters">
+          <ReloadOutlined />
           重置
-        </a-button>
+        </Button>
       </div>
       <div class="compare-summary">
         <InfoCircleOutlined />
@@ -29,7 +29,10 @@
       </div>
     </FilterBar>
 
-    <a-alert v-if="stateMessage" :message="stateMessage" type="warning" show-icon />
+    <Alert v-if="stateMessage" class="border-[var(--rf-status-watch-line)] bg-[var(--rf-status-watch-bg)] text-[var(--rf-status-watch)]">
+      <InfoCircleOutlined />
+      <AlertDescription>{{ stateMessage }}</AlertDescription>
+    </Alert>
     <ErrorState v-if="error" :message="error" compact />
 
     <div class="metric-stat-grid">
@@ -139,8 +142,8 @@
         </template>
         <template v-else-if="column.key === 'actions'">
           <div class="table-actions">
-            <a-button size="small" @click="goPlotDetail(record.plot_id as string)">查看画像</a-button>
-            <a-button size="small" @click="goMapTwin(record.plot_id as string)">定位地图</a-button>
+            <Button variant="outline" size="sm" @click="goPlotDetail(record.plot_id as string)">查看画像</Button>
+            <Button variant="outline" size="sm" @click="goMapTwin(record.plot_id as string)">定位地图</Button>
           </div>
         </template>
       </template>
@@ -209,6 +212,8 @@ import {
   StatCard,
   StatusTag,
 } from '@/components/base';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { buildMapTwinLocation, buildPlotDetailRequestPlan } from '@/services/pageLinkage';
 import { sortMetricCompareRows } from '@/services/twinAnalysis';
 import type { Metric, MetricCompareItem, MetricCompareResponse, PlotSeriesResponse, RegionCode } from '@/types/api';
@@ -733,7 +738,7 @@ function regionOrder(region: string) {
   gap: 10px;
 }
 
-.filter-actions .ant-btn {
+.filter-actions :deep(button) {
   min-width: 88px;
 }
 
@@ -871,7 +876,7 @@ function regionOrder(region: string) {
   gap: 8px;
 }
 
-.table-actions .ant-btn {
+.table-actions :deep(button) {
   color: var(--rf-primary);
   border-color: var(--rf-primary-line);
   padding: 0 7px;

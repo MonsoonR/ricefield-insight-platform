@@ -16,7 +16,7 @@
 - 页面优先使用 `base` 组件表达业务语义，不在页面内直接散落大量 `ui` 原子组件；确需组合 `ui` 原子组件时，应优先沉淀到 `base` 层。
 - `src/components/ui/` 当前基础组件包括 `button`、`badge`、`card`、`dialog`、`popover`、`scroll-area`、`select`、`separator`、`sheet`、`skeleton`、`table`、`tabs`、`tooltip`、`alert` 和 `toggle-group`；新增组件必须按 shadcn-vue 源码组件方式进入该目录。
 - 基础组件迁移优先级：先迁移 App Shell 与 `base` 组件，保持页面 props、事件和数据结构兼容；再逐页清理业务页面内的 Ant Design Vue 标签、弹层、按钮和局部样式。
-- 后续迁移按页面或组件逐步替换 Ant Design Vue，只有运行时代码完全不再引用 Ant Design Vue 后，才删除 `ant-design-vue` 依赖、全局注册、主题配置和 `vendor-antd` 分包。
+- 第三轮迁移已完成页面级 Ant Design Vue 控件清理：系统说明、地块画像、指标对比、预警分析和地图趋势组件不再直接使用 `<a-*>` 标签，旧控件兼容样式也已移除。`ant-design-vue` 依赖、`main.ts` 全局注册、`App.vue` ConfigProvider、`styles/theme.ts` 主题配置和 `vendor-antd` 分包仍按迁移期要求保留；只有后续确认全局入口无需保留后，才删除这些遗留项。
 
 ## 1. 平台视觉定位
 

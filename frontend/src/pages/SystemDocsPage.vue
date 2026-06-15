@@ -26,7 +26,7 @@
             <h2 class="section-title">当前数据说明</h2>
             <p class="section-subtitle">当前页面按后端标准化 API 汇总演示场景数据。</p>
           </div>
-          <a-tag class="data-mode-tag">{{ currentData.dataMode }}</a-tag>
+          <Badge variant="outline" class="data-mode-tag">{{ currentData.dataMode }}</Badge>
         </header>
         <dl class="data-facts">
           <div v-for="item in dataFacts" :key="item.label">
@@ -135,10 +135,10 @@
             <h3>{{ doc.key }}</h3>
             <strong>{{ doc.title }}</strong>
             <p>{{ doc.description }}</p>
-            <a-button type="link" class="doc-card__action" @click="showDoc(doc)">
+            <Button variant="link" class="doc-card__action" @click="showDoc(doc)">
               查看文档入口
               <ArrowRightOutlined />
-            </a-button>
+            </Button>
           </div>
         </article>
       </div>
@@ -150,32 +150,33 @@
       <span>用于科研展示与教学演示</span>
     </footer>
 
-    <a-drawer
-      v-model:open="docDrawerOpen"
-      title="文档入口"
-      width="520"
-      :destroy-on-close="true"
-    >
-      <template v-if="selectedDoc">
-        <dl class="doc-detail">
-          <div>
-            <dt>文档名称</dt>
-            <dd>{{ selectedDoc.key }}：{{ selectedDoc.title }}</dd>
+    <Sheet v-model:open="docDrawerOpen">
+      <SheetContent side="right" class="w-full overflow-y-auto sm:max-w-[520px]">
+        <SheetHeader>
+          <SheetTitle>文档入口</SheetTitle>
+          <SheetDescription>查看仓库内文档路径和用途说明。</SheetDescription>
+        </SheetHeader>
+        <template v-if="selectedDoc">
+          <dl class="doc-detail">
+            <div>
+              <dt>文档名称</dt>
+              <dd>{{ selectedDoc.key }}：{{ selectedDoc.title }}</dd>
+            </div>
+            <div>
+              <dt>仓库路径</dt>
+              <dd><code>{{ selectedDoc.path }}</code></dd>
+            </div>
+            <div>
+              <dt>用途</dt>
+              <dd>{{ selectedDoc.description }}</dd>
+            </div>
+          </dl>
+          <div class="placeholder-banner">
+            当前系统仅提供文档索引和仓库路径提示；如需在线阅读，需要后续配置静态文档发布或后端文档读取接口。
           </div>
-          <div>
-            <dt>仓库路径</dt>
-            <dd><code>{{ selectedDoc.path }}</code></dd>
-          </div>
-          <div>
-            <dt>用途</dt>
-            <dd>{{ selectedDoc.description }}</dd>
-          </div>
-        </dl>
-        <div class="placeholder-banner">
-          当前系统仅提供文档索引和仓库路径提示；如需在线阅读，需要后续配置静态文档发布或后端文档读取接口。
-        </div>
-      </template>
-    </a-drawer>
+        </template>
+      </SheetContent>
+    </Sheet>
   </PageContainer>
 </template>
 
@@ -222,6 +223,15 @@ import {
   fetchWarnings,
 } from '@/api';
 import { ErrorState, PageContainer } from '@/components/base';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import { getOverviewApiErrorMessage } from '@/services/overview';
 
 interface DataSummary {

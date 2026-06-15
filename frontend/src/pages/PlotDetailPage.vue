@@ -4,18 +4,18 @@
     description="全面了解单个地块的基础信息、指标状态与变化趋势。"
   >
     <template #actions>
-      <a-button @click="returnToMap">
+      <Button variant="outline" @click="returnToMap">
         <RollbackOutlined />
         返回地图
-      </a-button>
+      </Button>
     </template>
 
     <section v-if="plotNotFound" class="plot-empty panel">
       <EmptyState compact description="未找到对应地块，请返回地图选择一个可用地块。" />
-      <a-button type="primary" @click="returnToMap">
+      <Button @click="returnToMap">
         <EnvironmentOutlined />
         返回地图
-      </a-button>
+      </Button>
     </section>
 
     <ErrorState v-else-if="error" :message="error" compact />
@@ -39,12 +39,12 @@
         </div>
       </div>
       <div class="plot-summary__actions">
-        <RouterLink :to="mapTwinLocation">
-          <a-button type="primary">
+        <Button as-child>
+          <RouterLink :to="mapTwinLocation">
             <AimOutlined />
             定位到地图
-          </a-button>
-        </RouterLink>
+          </RouterLink>
+        </Button>
       </div>
     </section>
 
@@ -100,16 +100,31 @@
       <section class="plot-trend panel">
         <header class="plot-trend__header">
           <h3 class="section-title">指标趋势</h3>
-          <a-select
-            v-model:value="selectedTrendMetric"
+          <SelectControl
+            v-model="selectedTrendMetric"
             :options="trendMetricOptions"
+            :allow-empty="false"
             placeholder="选择指标"
-            size="small"
-            style="width: 140px"
           />
         </header>
         <div class="plot-trend__range">
-          <a-segmented v-model:value="trendRange" :options="trendRangeOptions" size="small" />
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            size="sm"
+            :model-value="trendRange"
+            class="plot-trend__range-toggle"
+            @update:model-value="handleTrendRangeUpdate"
+          >
+            <ToggleGroupItem
+              v-for="option in trendRangeOptions"
+              :key="option.value"
+              :value="option.value"
+              class="data-[state=on]:bg-[var(--rf-primary)] data-[state=on]:text-white"
+            >
+              {{ option.label }}
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
         <EmptyState v-if="!loading && trendPoints.length === 0" compact description="暂无趋势数据" />
         <EChartView v-else :option="trendOption" :height="280" />
@@ -199,8 +214,11 @@ import {
   EmptyState,
   ErrorState,
   PageContainer,
+  SelectControl,
   StatusTag,
 } from '@/components/base';
+import { Button } from '@/components/ui/button';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import {
   buildMapTwinLocation,
   buildPlotDetailRequestPlan,
@@ -240,7 +258,7 @@ const metrics = ref<Metric[]>([]);
 const summary = ref<PlotSummaryResponse>();
 const series = ref<PlotSeriesResponse>();
 const allWarnings = ref<WarningItem[]>([]);
-const selectedTrendMetric = ref<string>('');
+const selectedTrendMetric = ref<string | undefined>('');
 const trendRange = ref<string>('30');
 const trendRangeOptions = [
   { label: '近7天', value: '7' },
@@ -580,6 +598,13 @@ function qualityRemark(flag: string) {
 
 function returnToMap() {
   void router.push('/map-twin');
+}
+
+function handleTrendRangeUpdate(value: unknown) {
+  const nextValue = Array.isArray(value) ? value[0] : value;
+  if (typeof nextValue === 'string' && nextValue) {
+    trendRange.value = nextValue;
+  }
 }
 
 function calculatePolygonAreaMu(plot: Plot) {

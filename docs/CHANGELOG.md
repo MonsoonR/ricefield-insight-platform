@@ -4,6 +4,12 @@
 
 ### 修改
 
+- 第三轮页面级 Ant Design Vue 迁移：将 `SystemDocsPage.vue` 中的数据模式标签、文档入口按钮和文档抽屉替换为 shadcn-vue `Badge`、`Button`、`Sheet`，保留系统说明页内容结构、项目边界说明和标准化 API 数据读取逻辑。
+- 将地图趋势组件 `src/components/map/PlotTrendChart.vue` 的 AntD skeleton 替换为项目 `LoadingState`，保持图表 props、ECharts option、tooltip 和趋势数据转换逻辑不变；用户指定的 `src/components/base/PlotTrendChart.vue` 在当前仓库中不存在。
+- 将 `PlotDetailPage.vue` 中的页面按钮、趋势指标选择和时间范围分段控件替换为 shadcn-vue `Button`、项目 `SelectControl` 与 `ToggleGroup`，保持地块画像数据结构、11 项指标快照、趋势、观测批次、预警建议和地图定位逻辑不变。
+- 将 `MetricComparePage.vue` 中的查询/重置按钮、状态提示和表格操作按钮替换为 shadcn-vue `Button` 与 `Alert`，保持指标对比 API、前端聚合、排行图、状态分布和页面跳转逻辑不变。
+- 将 `WarningAnalysisPage.vue` 中的查询/重置按钮、查看更多按钮、长文本 Tooltip 和表格操作按钮替换为 shadcn-vue `Button` 与 `Tooltip`，保持预警语义、地图联动、筛选、表格高亮和路由跳转逻辑不变。
+- 移除 `global.css` 中旧 AntD 控件兼容样式；继续保留 `ant-design-vue` 依赖、`main.ts` 全局注册、`App.vue` ConfigProvider、`styles/theme.ts` 主题配置和 `vendor-antd` 分包。
 - 第二轮迁移聚焦 `src/components/base` 基础组件：增强 `DataTable` 的 `scroll.x` / `scroll.y` 支持，保持分页下 `rowClassName`、`bodyCell`、`customRender`、`customCell` 的全量数据下标兼容。
 - 将 `FilterBar` 的 slotted 筛选字段和操作区样式收敛到组件内部，使用 Tailwind 与 `--rf-*` token 组织紧凑布局，不依赖 Ant Design Vue Form、Select、DatePicker DOM。
 - 将 `ChartCard`、`StatCard` 改为组合 shadcn-vue `Card` 源码组件，保留原有 props、业务数据和页面调用方式，KPI 数字继续使用清晰加粗字重。
@@ -19,6 +25,7 @@
 
 ### 文档更新
 
+- 更新 `docs/DESIGN_SYSTEM.md` 与 `docs/FRONTEND_GUIDE.md`，记录第三轮页面级迁移结果、仍保留的全局 AntD 入口和依赖边界，以及页面后续不得新增 `<a-*>` 控件的约束。
 - 统一前端 UI 迁移方向：目标前端栈调整为 Vue 3 + TypeScript + Vite + Tailwind CSS + shadcn-vue + Reka UI + ECharts + CesiumJS + Axios，并明确 Vue Router 与 Pinia 继续保留。
 - 明确 Ant Design Vue 为待移除旧依赖，在运行时代码仍有引用前不删除依赖、全局注册、主题配置和 `vendor-antd` 分包。
 - 更新组件迁移策略：`src/components/ui` 存放 shadcn-vue 源码组件，`src/components/base` 存放项目语义组件，页面优先使用 `base` 组件，不直接散落大量 `ui` 原子组件。
@@ -29,6 +36,14 @@
 
 ### 验证
 
+- 已执行：`npx shadcn-vue@latest info --json` 与 `npx shadcn-vue@latest docs button badge select sheet skeleton toggle-group`，确认当前项目 shadcn-vue 配置和组件用法。
+- 已执行：`rg "ant-design-vue|<a-|</a-|\\.ant-|ConfigProvider|themeConfig|vendor-antd" frontend`，确认页面级 `<a-*>` 与 `.ant-*` 样式残留已清理，剩余项仅为本轮要求保留的依赖、全局入口、主题配置和 `vendor-antd` 分包。
+- 已执行文档与前端冲突标记扫描，未发现 merge conflict 标记。
+- 已通过：`npm --prefix frontend run test:overview`。
+- 已通过：`npm --prefix frontend run test:page-linkage`。
+- 已通过：`npm --prefix frontend run test:twin-analysis`。
+- 已通过：`npm --prefix frontend run test:map`。
+- 已通过：`npm --prefix frontend run build`（仍存在既有 Cesium/Ant Design Vue 大 chunk 警告）。
 - 已执行：`git status --short --branch`。
 - 已执行：`rg "ant-design-vue|<a-|</a-|\\.ant-|ConfigProvider|themeConfig|vendor-antd" frontend`，确认 AntD 仍有运行时代码引用，本轮未删除依赖。
 - 已执行文档与前端冲突标记扫描，未发现 merge conflict 标记。

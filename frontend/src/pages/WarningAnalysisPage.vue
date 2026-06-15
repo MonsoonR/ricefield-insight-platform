@@ -38,14 +38,14 @@
         <DateRangeSelector v-model="filters.dateRange" />
       </div>
       <div class="filter-actions">
-        <a-button type="primary" :loading="loading" @click="loadWarnings">
-          <template #icon><SearchOutlined /></template>
+        <Button :disabled="loading" @click="loadWarnings">
+          <SearchOutlined />
           查询
-        </a-button>
-        <a-button :disabled="loading" @click="resetFilters">
-          <template #icon><ReloadOutlined /></template>
+        </Button>
+        <Button variant="outline" :disabled="loading" @click="resetFilters">
+          <ReloadOutlined />
           重置
-        </a-button>
+        </Button>
       </div>
     </FilterBar>
 
@@ -120,7 +120,7 @@
             <h2 class="section-title">最新预警</h2>
             <p class="section-subtitle">最近 {{ latestWarnings.length }} 条风险事件</p>
           </div>
-          <a-button type="link" size="small" @click="scrollToTable">查看更多</a-button>
+          <Button variant="link" size="sm" @click="scrollToTable">查看更多</Button>
         </header>
         <EmptyState v-if="latestWarnings.length === 0" compact description="当前筛选条件下暂无预警" />
         <div v-else class="latest-warning-list">
@@ -162,19 +162,29 @@
           <StatusTag :status="record.severity_level as string" />
         </template>
         <template v-else-if="column.key === 'description'">
-          <a-tooltip :title="record.description as string">
-            <span class="ellipsis-text">{{ record.description }}</span>
-          </a-tooltip>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <span class="ellipsis-text">{{ record.description }}</span>
+              </TooltipTrigger>
+              <TooltipContent>{{ record.description }}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </template>
         <template v-else-if="column.key === 'suggestion'">
-          <a-tooltip :title="record.suggestion as string">
-            <span class="ellipsis-text">{{ record.suggestion }}</span>
-          </a-tooltip>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <span class="ellipsis-text">{{ record.suggestion }}</span>
+              </TooltipTrigger>
+              <TooltipContent>{{ record.suggestion }}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </template>
         <template v-else-if="column.key === 'actions'">
           <div class="table-actions">
-            <a-button size="small" @click="goPlotDetail(record.plot_id as string)">查看画像</a-button>
-            <a-button size="small" @click="goMapTwin(record.plot_id as string)">定位地图</a-button>
+            <Button variant="outline" size="sm" @click="goPlotDetail(record.plot_id as string)">查看画像</Button>
+            <Button variant="outline" size="sm" @click="goMapTwin(record.plot_id as string)">定位地图</Button>
           </div>
         </template>
       </template>
@@ -218,6 +228,13 @@ import {
   StatCard,
   StatusTag,
 } from '@/components/base';
+import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { buildMapTwinLocation, buildPlotDetailRequestPlan } from '@/services/pageLinkage';
 import type {
   MapFeatureCollection,
@@ -681,7 +698,7 @@ function percent(value: number, total: number) {
   gap: 10px;
 }
 
-.filter-actions .ant-btn {
+.filter-actions :deep(button) {
   min-width: 86px;
 }
 
@@ -864,7 +881,7 @@ function percent(value: number, total: number) {
   gap: 8px;
 }
 
-.table-actions .ant-btn {
+.table-actions :deep(button) {
   color: var(--rf-primary);
   border-color: var(--rf-primary-line);
   padding: 0 7px;

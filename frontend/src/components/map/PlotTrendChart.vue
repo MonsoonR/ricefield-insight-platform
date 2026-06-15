@@ -1,6 +1,6 @@
 <template>
   <div class="plot-trend-chart">
-    <a-skeleton v-if="loading" active :paragraph="{ rows: 6 }" />
+    <LoadingState v-if="loading" :height="height" :rows="6" />
 
     <ErrorState
       v-else-if="error"
@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 
-import { EmptyState, ErrorState } from '@/components/base';
+import { EmptyState, ErrorState, LoadingState } from '@/components/base';
 import { initChart, type EChartsOption } from '@/utils/echarts';
 import type { PlotMetricSeries, PlotSeriesPoint } from '@/types/mapAnalysis';
 
