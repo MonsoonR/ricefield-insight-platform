@@ -176,16 +176,16 @@
 
 <script setup lang="ts">
 import {
-  BarChartOutlined,
-  CalculatorOutlined,
-  FallOutlined,
-  InfoCircleOutlined,
-  ReloadOutlined,
-  RiseOutlined,
-  SearchOutlined,
-  TrophyOutlined,
-  WarningOutlined,
-} from '@ant-design/icons-vue';
+  Calculator as CalculatorOutlined,
+  ChartColumn as BarChartOutlined,
+  Info as InfoCircleOutlined,
+  RotateCcw as ReloadOutlined,
+  Search as SearchOutlined,
+  TrendingDown as FallOutlined,
+  TrendingUp as RiseOutlined,
+  Trophy as TrophyOutlined,
+  TriangleAlert as WarningOutlined,
+} from 'lucide-vue-next';
 import type { EChartsOption } from 'echarts';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';

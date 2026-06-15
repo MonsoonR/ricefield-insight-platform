@@ -19,7 +19,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           'vendor-vue': ['vue', 'vue-router', 'pinia'],
-          'vendor-antd': ['ant-design-vue'],
         },
       },
     },

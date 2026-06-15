@@ -46,12 +46,12 @@
 
 <script setup lang="ts">
 import {
-  AimOutlined,
-  AppstoreOutlined,
-  HomeOutlined,
-  MinusOutlined,
-  PlusOutlined,
-} from '@ant-design/icons-vue';
+  Crosshair as AimOutlined,
+  Home as HomeOutlined,
+  Layers as AppstoreOutlined,
+  Minus as MinusOutlined,
+  Plus as PlusOutlined,
+} from 'lucide-vue-next';
 import {
   Cartographic,
   Cartesian2,

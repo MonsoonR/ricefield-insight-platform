@@ -4,6 +4,12 @@
 
 ### 修改
 
+- 第四轮全局 Ant Design Vue 退场前置清理：移除 `frontend/src/main.ts` 中的 AntD 全局注册链和 `ant-design-vue/dist/reset.css`，保留 Pinia、Router 与项目 `global.css`，确保应用仍按原结构挂载。
+- 移除 `frontend/src/App.vue` 中的 `ConfigProvider`、中文 locale 和 `themeConfig` 引用，保持 `router-view` 路由出口结构不变。
+- 删除无人引用的 `frontend/src/styles/theme.ts`，并移除 `frontend/vite.config.ts` 中的 `vendor-antd` 手动分包，不改动 Cesium 资源插件和其它构建配置。
+- 将 `CesiumMapPanel.vue`、`PlotDetailPage.vue`、`MetricComparePage.vue`、`WarningAnalysisPage.vue` 和 `SystemDocsPage.vue` 的 `@ant-design/icons-vue` 图标导入迁移为 `lucide-vue-next`，保持按钮、提示入口、文档入口、地图入口、预警入口和页面结构不变。
+- `frontend/src/styles/global.css` 当前已无 `.ant-*` 兼容样式残留，本轮继续保留 `--rf-*` token、base 样式和 Tailwind 相关样式，不新增页面级硬编码状态色。
+- 本轮按约束不删除 `package.json` / lockfile 中的 `ant-design-vue` 依赖，依赖删除放到下一轮扫描确认并经用户确认后执行。
 - 第三轮页面级 Ant Design Vue 迁移：将 `SystemDocsPage.vue` 中的数据模式标签、文档入口按钮和文档抽屉替换为 shadcn-vue `Badge`、`Button`、`Sheet`，保留系统说明页内容结构、项目边界说明和标准化 API 数据读取逻辑。
 - 将地图趋势组件 `src/components/map/PlotTrendChart.vue` 的 AntD skeleton 替换为项目 `LoadingState`，保持图表 props、ECharts option、tooltip 和趋势数据转换逻辑不变；用户指定的 `src/components/base/PlotTrendChart.vue` 在当前仓库中不存在。
 - 将 `PlotDetailPage.vue` 中的页面按钮、趋势指标选择和时间范围分段控件替换为 shadcn-vue `Button`、项目 `SelectControl` 与 `ToggleGroup`，保持地块画像数据结构、11 项指标快照、趋势、观测批次、预警建议和地图定位逻辑不变。
@@ -25,6 +31,7 @@
 
 ### 文档更新
 
+- 更新 `docs/DESIGN_SYSTEM.md` 与 `docs/FRONTEND_GUIDE.md`，记录第四轮已完成运行时 AntD 入口清理、图标迁移和依赖暂留边界。
 - 更新 `docs/DESIGN_SYSTEM.md` 与 `docs/FRONTEND_GUIDE.md`，记录第三轮页面级迁移结果、仍保留的全局 AntD 入口和依赖边界，以及页面后续不得新增 `<a-*>` 控件的约束。
 - 统一前端 UI 迁移方向：目标前端栈调整为 Vue 3 + TypeScript + Vite + Tailwind CSS + shadcn-vue + Reka UI + ECharts + CesiumJS + Axios，并明确 Vue Router 与 Pinia 继续保留。
 - 明确 Ant Design Vue 为待移除旧依赖，在运行时代码仍有引用前不删除依赖、全局注册、主题配置和 `vendor-antd` 分包。
@@ -36,6 +43,14 @@
 
 ### 验证
 
+- 已执行：`rg "ant-design-vue|@ant-design/icons-vue|<a-|</a-|\\.ant-|ConfigProvider|themeConfig|vendor-antd|styles/theme" frontend`，确认运行时代码、图标包、`<a-*>`、`.ant-*`、Provider、主题配置和 `vendor-antd` 分包均无残留；仅 `package.json` 与 `package-lock.json` 保留 `ant-design-vue` 依赖记录。
+- 已执行文档与前端冲突标记扫描，未发现 merge conflict 标记。
+- 已通过：`npm --prefix frontend run test:overview`。
+- 已通过：`npm --prefix frontend run test:page-linkage`。
+- 已通过：`npm --prefix frontend run test:twin-analysis`。
+- 已通过：`npm --prefix frontend run test:map`。
+- 已通过：`npm --prefix frontend run build`（仍存在既有 VueUse PURE 注释提示与 Cesium 大 chunk 警告）。
+- 已通过 Playwright 浏览器冒烟检查：覆盖 `/overview`、`/map-twin`、`/plot-detail/demo-ricefield-2025-A04`、`/metric-compare`、`/warnings`、`/system-docs` 的桌面 1440x980 与移动 390x844 视口；确认无白屏、无关键控制台错误、地图 canvas 正常、图表正常、表格横向滚动存在、Select / Toggle / Sheet / Button 可用，地块画像定位地图和指标对比查看画像跳转正常。
 - 已执行：`npx shadcn-vue@latest info --json` 与 `npx shadcn-vue@latest docs button badge select sheet skeleton toggle-group`，确认当前项目 shadcn-vue 配置和组件用法。
 - 已执行：`rg "ant-design-vue|<a-|</a-|\\.ant-|ConfigProvider|themeConfig|vendor-antd" frontend`，确认页面级 `<a-*>` 与 `.ant-*` 样式残留已清理，剩余项仅为本轮要求保留的依赖、全局入口、主题配置和 `vendor-antd` 分包。
 - 已执行文档与前端冲突标记扫描，未发现 merge conflict 标记。

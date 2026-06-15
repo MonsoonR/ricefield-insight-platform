@@ -194,14 +194,14 @@
 
 <script setup lang="ts">
 import {
-  CalendarOutlined,
-  EnvironmentOutlined,
-  ExperimentOutlined,
-  ReloadOutlined,
-  SafetyCertificateOutlined,
-  SearchOutlined,
-  WarningOutlined,
-} from '@ant-design/icons-vue';
+  CalendarDays as CalendarOutlined,
+  FlaskConical as ExperimentOutlined,
+  MapPin as EnvironmentOutlined,
+  RotateCcw as ReloadOutlined,
+  Search as SearchOutlined,
+  ShieldCheck as SafetyCertificateOutlined,
+  TriangleAlert as WarningOutlined,
+} from 'lucide-vue-next';
 import type { EChartsOption } from 'echarts';
 import { computed, nextTick, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';

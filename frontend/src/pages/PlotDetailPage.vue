@@ -189,13 +189,13 @@
 
 <script setup lang="ts">
 import {
-  AimOutlined,
-  EnvironmentOutlined,
-  FallOutlined,
-  MinusOutlined,
-  RiseOutlined,
-  RollbackOutlined,
-} from '@ant-design/icons-vue';
+  Crosshair as AimOutlined,
+  MapPin as EnvironmentOutlined,
+  Minus as MinusOutlined,
+  TrendingDown as FallOutlined,
+  TrendingUp as RiseOutlined,
+  Undo2 as RollbackOutlined,
+} from 'lucide-vue-next';
 import type { EChartsOption } from 'echarts';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
