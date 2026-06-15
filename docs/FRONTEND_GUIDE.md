@@ -2,7 +2,7 @@
 
 ## 技术栈
 
-Vue 3、TypeScript、Vite、Vue Router、Pinia、Ant Design Vue、ECharts、CesiumJS、Axios。
+目标前端栈为 Vue 3 + TypeScript + Vite + Tailwind CSS + shadcn-vue + Reka UI + ECharts + CesiumJS + Axios；Vue Router 与 Pinia 继续保留。Ant Design Vue 标记为待移除旧依赖，运行时代码尚未完全迁移前暂不删除依赖和全局注册。
 
 ## 目录约定
 
@@ -10,9 +10,17 @@ Vue 3、TypeScript、Vite、Vue Router、Pinia、Ant Design Vue、ECharts、Cesi
 |---|---|
 | `src/api` | 后端 API 请求 |
 | `src/pages` | 六页数字孪生演示页面 |
+| `src/components/ui` | shadcn-vue 源码组件层，保留接近上游的原子组件 |
 | `src/components/base` | 通用布局、地图、图表、表格、筛选器和状态组件 |
 | `src/services` | 页面无关的转换、排序、状态计算 |
 | `src/types` | API 和通用类型 |
+
+## UI 组件迁移策略
+
+- 新增或迁移页面优先使用 `src/components/base` 中的项目语义组件，不在页面内直接堆叠大量 `src/components/ui` 原子组件。
+- `src/components/ui` 只存放 shadcn-vue 源码组件；需要调整业务语义、数据状态、地图图例、图表容器、表格操作等行为时，应封装到 `base` 层。
+- Ant Design Vue 相关组件、全局注册、主题配置和 `vendor-antd` 分包属于迁移期遗留项；只有确认运行时代码完全不再引用后，才删除依赖。
+- 本次 UI 栈迁移不改变后端 API、数据模型、模拟数据生成逻辑，不恢复文件导入能力，也不扩大六页 MVP 闭环。
 
 ## 页面路由
 
@@ -79,7 +87,7 @@ npm --prefix frontend run build
 - 地块交互：点击 polygon 或地块编号后选中地块，右侧详情、当前指标、关键指标快照、趋势图、关键指标表和最新观测记录联动刷新。选中地块仅跳转画像，不提供编辑。
 - 路由联动：从地块画像页进入 `/map-twin?plotId=xxx` 时，地图页初始化后读取 `plotId` 查询参数，加载图层后匹配地块并刷新详情；若当前图层中没有该地块，则保留地图页面并显示空详情状态。
 - 趋势交互：趋势图基于 `/api/plots/{plot_id}/series` 返回的标准化时序数据，支持近 7 天、近 15 天、近 30 天切换；较昨日变化在前端由当前点和前一日点计算。
-- 图层交互：图层控制使用 Ant Design Vue `a-switch`，控制地块边界、当前指标渲染、预警地块高亮和区域边界。不得新增测距、绘制、编辑、上传、GeoJSON 导入等复杂 GIS 功能。
+- 图层交互：图层控制使用项目语义开关组件，后续底层迁移为 shadcn-vue / Reka UI 实现；控制地块边界、当前指标渲染、预警地块高亮和区域边界。不得新增测距、绘制、编辑、上传、GeoJSON 导入等复杂 GIS 功能。
 - 数据约束：地图页只消费标准化 API 和程序生成示例边界，不直接解析 Excel、GeoJSON、PDF、图片或真实客户数据文件。
 
 ## 预警分析组件与交互规则

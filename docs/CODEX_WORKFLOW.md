@@ -6,6 +6,12 @@ Codex 当前可以参与本项目开发，不再处于暂停状态。本文件�
 
 当前主线是把系统功能、工程结构、接口契约、模拟数据和文档体系做扎实，不以大创答辩 PPT 作为核心开发任务。第一阶段仍聚焦场景驾驶舱、Cesium 地图孪生、地块画像、指标对比、预警分析和系统说明六页闭环。
 
+## 前端 UI 迁移约束
+
+当前目标前端栈为 Vue 3 + TypeScript + Vite + Tailwind CSS + shadcn-vue + Reka UI + ECharts + CesiumJS + Axios；Vue Router 与 Pinia 继续保留。Ant Design Vue 是待移除旧依赖，只有确认运行时代码完全不再引用后，才删除 `ant-design-vue` 依赖、全局注册、主题配置和 `vendor-antd` 分包。
+
+迁移采用分阶段方式：先统一文档和组件边界，再逐页把页面实现迁移到 `src/components/base` 语义组件与 `src/components/ui` shadcn-vue 源码组件体系。本迁移不修改后端 API、数据模型、模拟数据生成逻辑，不恢复 Excel、GeoJSON、PDF、图片导入，也不扩大第一阶段六页 MVP 范围。
+
 ## 分支使用
 
 截至本次流程梳理，当前活跃分支为 `claude/digital-twin-dev`。虽然分支名包含 Claude，但它已经是当前数字孪生主线的实际承接分支；Codex 后续可在该分支继续工作，不需要因为工具名称另起一条分支。

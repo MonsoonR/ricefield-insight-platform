@@ -33,7 +33,7 @@
 
 | 层级 | 方案 |
 |---|---|
-| 前端 | Vue 3、TypeScript、Vite、Vue Router、Pinia、Ant Design Vue、ECharts、CesiumJS、Axios |
+| 前端 | Vue 3 + TypeScript + Vite + Tailwind CSS + shadcn-vue + Reka UI + ECharts + CesiumJS + Axios；Vue Router 与 Pinia 继续保留，Ant Design Vue 为待移除旧依赖 |
 | 后端 | FastAPI、Pydantic、SQLAlchemy、Alembic、Pytest |
 | 默认数据 | 程序生成模拟场景 |
 | 可选正式层 | PostgreSQL + PostGIS |

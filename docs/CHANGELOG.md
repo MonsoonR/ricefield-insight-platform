@@ -1,5 +1,21 @@
 # 变更记录
 
+## 2026-06-15
+
+### 文档更新
+
+- 统一前端 UI 迁移方向：目标前端栈调整为 Vue 3 + TypeScript + Vite + Tailwind CSS + shadcn-vue + Reka UI + ECharts + CesiumJS + Axios，并明确 Vue Router 与 Pinia 继续保留。
+- 明确 Ant Design Vue 为待移除旧依赖，在运行时代码仍有引用前不删除依赖、全局注册、主题配置和 `vendor-antd` 分包。
+- 更新组件迁移策略：`src/components/ui` 存放 shadcn-vue 源码组件，`src/components/base` 存放项目语义组件，页面优先使用 `base` 组件，不直接散落大量 `ui` 原子组件。
+- 明确本轮迁移不修改后端 API、数据模型、模拟数据生成逻辑，不恢复 Excel、GeoJSON、PDF、图片导入，不扩大 `/overview`、`/map-twin`、`/plot-detail/:plotId?`、`/metric-compare`、`/warnings`、`/system-docs` 六页闭环。
+
+### 验证
+
+- 已执行：`git status --short --branch`。
+- 已执行：`rg "ant-design-vue|<a-|</a-|\\.ant-|ConfigProvider|themeConfig|vendor-antd" frontend`，确认 AntD 仍有运行时代码引用，本轮未删除依赖。
+- 已执行文档与前端冲突标记扫描，未发现 merge conflict 标记。
+- 本次仅更新文档，未修改 frontend 运行时代码，未运行完整前端测试和构建。
+
 ## 2026-06-08
 
 ### 新增

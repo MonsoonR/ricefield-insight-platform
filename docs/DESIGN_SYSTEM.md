@@ -2,6 +2,19 @@
 
 本设计系统是稻田智研平台所有页面的视觉与交互基线。新增或修改页面前必须先阅读本文件；调整视觉风格、新增组件或修改通用样式时，必须先更新本文件，再改代码。页面不得各自定义私有视觉规范。
 
+## 0. 前端技术栈与组件迁移策略
+
+当前目标前端栈为 Vue 3 + TypeScript + Vite + Tailwind CSS + shadcn-vue + Reka UI + ECharts + CesiumJS + Axios；Vue Router 与 Pinia 继续承担路由和状态管理。Ant Design Vue 是待移除的旧依赖，仅在运行时代码仍有引用时分阶段保留，不再作为新增页面或新组件的首选实现。
+
+本轮迁移只清理方向、统一文档和建立组件基础，不扩大第一阶段 MVP 范围，不修改后端 API、数据模型、模拟数据生成逻辑，不恢复 Excel、GeoJSON、PDF、图片导入，也不引入真实客户数据。六页闭环保持为 `/overview`、`/map-twin`、`/plot-detail/:plotId?`、`/metric-compare`、`/warnings`、`/system-docs`。
+
+组件分层策略：
+
+- `src/components/ui/` 存放 shadcn-vue 通过源码方式加入的 UI 原子组件，保持接近上游实现，使用 Tailwind 语义 token 和 Reka UI 可访问性能力。
+- `src/components/base/` 存放稻田智研平台的项目语义组件，如 `PageContainer`、`StatCard`、`FilterBar`、`DataTable`、`ChartCard`、`CesiumMapPanel`、`StatusTag`、`MetricValueTag` 等。
+- 页面优先使用 `base` 组件表达业务语义，不在页面内直接散落大量 `ui` 原子组件；确需组合 `ui` 原子组件时，应优先沉淀到 `base` 层。
+- 后续迁移按页面或组件逐步替换 Ant Design Vue，只有运行时代码完全不再引用 Ant Design Vue 后，才删除 `ant-design-vue` 依赖、全局注册、主题配置和 `vendor-antd` 分包。
+
 ## 1. 平台视觉定位
 
 - 稻田数字孪生平台 / 智慧农业监测系统 / 科研展示型业务系统。
@@ -114,7 +127,7 @@
 
 ## 5. 组件规范
 
-所有页面必须复用 `src/components/base/` 的公共组件，不允许私有重复实现。
+所有页面必须复用 `src/components/base/` 的公共组件，不允许私有重复实现。`src/components/ui/` 只作为 shadcn-vue 源码组件层，为 `base` 组件提供按钮、卡片、弹层、表格、选择器、骨架屏等基础能力；页面层不要绕过 `base` 大量直接拼装 `ui` 原子组件。
 
 ### 5.1 PageContainer
 
@@ -246,7 +259,7 @@
 - 图例：地图左下角固定显示当前指标名称和单位、低值到高值色阶、无数据、地块边界、预警/严重说明，不遮挡主要地块。
 - 地图工具：保留缩放按钮，并提供定位选中地块、图层透明度、回到默认视角。工具按钮统一白底、8px 圆角、轻阴影、图标化表达。
 - 详情面板：点击地块后展示状态标签、地块编号、区域、名称、面积、品种、最近观测、数据来源、观测批次；当前指标数值和较昨日变化必须突出显示。
-- 图层控制：右侧下方使用 Ant Design Vue switch，包含地块边界、当前指标渲染、预警地块、区域边界；不提供测距、绘制、编辑、上传或真实 GeoJSON 导入入口。
+- 图层控制：右侧下方使用项目语义开关组件，底层逐步迁移为 shadcn-vue / Reka UI 实现；包含地块边界、当前指标渲染、预警地块、区域边界；不提供测距、绘制、编辑、上传或真实 GeoJSON 导入入口。
 
 ## 11. 地块画像页面规范
 
