@@ -4,6 +4,8 @@
 
 ### 修改
 
+- 第五轮 Ant Design Vue 迁移收尾：从 `frontend/package.json` 删除 `ant-design-vue` 依赖，并通过 npm 同步清理 `frontend/package-lock.json` 中的 `ant-design-vue` 与传递依赖 `@ant-design/icons-vue` 记录。
+- 确认 `frontend/vite.config.ts`、`frontend/src/main.ts`、`frontend/src/App.vue` 与 `frontend/src/styles/global.css` 不再包含 AntD 导入、样式、主题配置、Provider 或 `vendor-antd` 手动分包，当前 UI 基线收敛为 Tailwind CSS + shadcn-vue + lucide-vue-next。
 - 第四轮全局 Ant Design Vue 退场前置清理：移除 `frontend/src/main.ts` 中的 AntD 全局注册链和 `ant-design-vue/dist/reset.css`，保留 Pinia、Router 与项目 `global.css`，确保应用仍按原结构挂载。
 - 移除 `frontend/src/App.vue` 中的 `ConfigProvider`、中文 locale 和 `themeConfig` 引用，保持 `router-view` 路由出口结构不变。
 - 删除无人引用的 `frontend/src/styles/theme.ts`，并移除 `frontend/vite.config.ts` 中的 `vendor-antd` 手动分包，不改动 Cesium 资源插件和其它构建配置。
@@ -31,6 +33,7 @@
 
 ### 文档更新
 
+- 更新 `docs/DESIGN_SYSTEM.md` 与 `docs/FRONTEND_GUIDE.md`，明确 Ant Design Vue 与 `@ant-design/icons-vue` 已从前端依赖树移除，后续不得重新引入 AntD 或新的 UI 库。
 - 更新 `docs/DESIGN_SYSTEM.md` 与 `docs/FRONTEND_GUIDE.md`，记录第四轮已完成运行时 AntD 入口清理、图标迁移和依赖暂留边界。
 - 更新 `docs/DESIGN_SYSTEM.md` 与 `docs/FRONTEND_GUIDE.md`，记录第三轮页面级迁移结果、仍保留的全局 AntD 入口和依赖边界，以及页面后续不得新增 `<a-*>` 控件的约束。
 - 统一前端 UI 迁移方向：目标前端栈调整为 Vue 3 + TypeScript + Vite + Tailwind CSS + shadcn-vue + Reka UI + ECharts + CesiumJS + Axios，并明确 Vue Router 与 Pinia 继续保留。
@@ -43,7 +46,16 @@
 
 ### 验证
 
-- 已执行：`rg "ant-design-vue|@ant-design/icons-vue|<a-|</a-|\\.ant-|ConfigProvider|themeConfig|vendor-antd|styles/theme" frontend`，确认运行时代码、图标包、`<a-*>`、`.ant-*`、Provider、主题配置和 `vendor-antd` 分包均无残留；仅 `package.json` 与 `package-lock.json` 保留 `ant-design-vue` 依赖记录。
+- 已执行：`rg "ant-design-vue|@ant-design/icons-vue|<a-|</a-|\\.ant-|ConfigProvider|themeConfig|vendor-antd|styles/theme" frontend`，无命中，确认前端依赖记录、运行时代码、图标包、`<a-*>`、`.ant-*`、Provider、主题配置和 `vendor-antd` 分包均无残留。
+- 已执行文档与前端冲突标记扫描，无命中，未发现 merge conflict 标记。
+- 已通过：`npm --prefix frontend run test:overview`。
+- 已通过：`npm --prefix frontend run test:page-linkage`。
+- 已通过：`npm --prefix frontend run test:twin-analysis`。
+- 已通过：`npm --prefix frontend run test:map`。
+- 已通过：`npm --prefix frontend run build`（仍存在既有 VueUse PURE 注释提示与 Cesium 大 chunk 警告）。
+- 已执行：`npm --prefix frontend ls ant-design-vue @ant-design/icons-vue --depth=0`，输出为空依赖树，确认二者未安装；npm 因目标包不存在返回非零码。
+- 浏览器冒烟检查未完成：in-app Browser 企业网络策略拦截 `http://127.0.0.1:5173` 访问；按工具安全规则未改用其它浏览器自动化通道绕过。命令级检查已确认本地后端 `http://127.0.0.1:8000/api/health` 与前端 `http://127.0.0.1:5173/overview` 可通过 `Invoke-WebRequest` 返回 200。
+- 第四轮时已执行：`rg "ant-design-vue|@ant-design/icons-vue|<a-|</a-|\\.ant-|ConfigProvider|themeConfig|vendor-antd|styles/theme" frontend`，当时已确认运行时代码、图标包、`<a-*>`、`.ant-*`、Provider、主题配置和 `vendor-antd` 分包均无残留；依赖记录已在第五轮删除。
 - 已执行文档与前端冲突标记扫描，未发现 merge conflict 标记。
 - 已通过：`npm --prefix frontend run test:overview`。
 - 已通过：`npm --prefix frontend run test:page-linkage`。

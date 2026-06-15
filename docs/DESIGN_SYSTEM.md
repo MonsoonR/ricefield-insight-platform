@@ -4,7 +4,7 @@
 
 ## 0. 前端技术栈与组件迁移策略
 
-当前目标前端栈为 Vue 3 + TypeScript + Vite + Tailwind CSS + shadcn-vue + Reka UI + ECharts + CesiumJS + Axios；Vue Router 与 Pinia 继续承担路由和状态管理。Ant Design Vue 是待移除的旧依赖，第四轮迁移已清理运行时代码中的全局入口、主题 Provider、主题配置和手动分包；依赖删除需等下一轮扫描确认并经用户确认后执行。
+当前前端 UI 基线为 Vue 3 + TypeScript + Vite + Tailwind CSS + shadcn-vue + Reka UI + lucide-vue-next + ECharts + CesiumJS + Axios；Vue Router 与 Pinia 继续承担路由和状态管理。Ant Design Vue 与 `@ant-design/icons-vue` 已从前端依赖树移除，运行时代码中不得再出现 Ant Design Vue 导入、`<a-*>` 标签、`.ant-*` 兼容样式、`ConfigProvider`、`themeConfig`、`vendor-antd` 或 `styles/theme`。
 
 本轮迁移只清理方向、统一文档和建立组件基础，不扩大第一阶段 MVP 范围，不修改后端 API、数据模型、模拟数据生成逻辑，不恢复 Excel、GeoJSON、PDF、图片导入，也不引入真实客户数据。六页闭环保持为 `/overview`、`/map-twin`、`/plot-detail/:plotId?`、`/metric-compare`、`/warnings`、`/system-docs`。
 
@@ -17,7 +17,8 @@
 - `src/components/ui/` 当前基础组件包括 `button`、`badge`、`card`、`dialog`、`popover`、`scroll-area`、`select`、`separator`、`sheet`、`skeleton`、`table`、`tabs`、`tooltip`、`alert` 和 `toggle-group`；新增组件必须按 shadcn-vue 源码组件方式进入该目录。
 - 基础组件迁移优先级：先迁移 App Shell 与 `base` 组件，保持页面 props、事件和数据结构兼容；再逐页清理业务页面内的 Ant Design Vue 标签、弹层、按钮和局部样式。
 - 第三轮迁移已完成页面级 Ant Design Vue 控件清理：系统说明、地块画像、指标对比、预警分析和地图趋势组件不再直接使用 `<a-*>` 标签，旧控件兼容样式也已移除。
-- 第四轮迁移已完成全局 AntD 入口前置清理：`main.ts` 不再全局注册 AntD 或引入 AntD reset；`App.vue` 不再使用 `ConfigProvider`；`styles/theme.ts` 和 `vendor-antd` 手动分包已删除；页面和布局可见图标统一改为 `lucide-vue-next`。`ant-design-vue` 依赖仍保留到下一轮依赖删除确认。
+- 第四轮迁移已完成全局 AntD 入口前置清理：`main.ts` 不再全局注册 AntD 或引入 AntD reset；`App.vue` 不再使用 `ConfigProvider`；`styles/theme.ts` 和 `vendor-antd` 手动分包已删除；页面和布局可见图标统一改为 `lucide-vue-next`。
+- 第五轮迁移已完成依赖删除收尾：`package.json` 与 `package-lock.json` 不再包含 `ant-design-vue` 或 `@ant-design/icons-vue`，前端依赖、入口、样式和构建分包均以 Tailwind CSS + shadcn-vue + lucide-vue-next 为当前 UI 基线。
 
 ## 1. 平台视觉定位
 

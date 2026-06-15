@@ -2,7 +2,7 @@
 
 ## 技术栈
 
-目标前端栈为 Vue 3 + TypeScript + Vite + Tailwind CSS + shadcn-vue + Reka UI + ECharts + CesiumJS + Axios；Vue Router 与 Pinia 继续保留。Ant Design Vue 标记为待移除旧依赖；第四轮迁移已清理运行时代码中的全局入口、主题 Provider、主题配置和手动分包，但依赖删除需等下一轮扫描确认并经用户确认后执行。
+当前前端 UI 基线为 Vue 3 + TypeScript + Vite + Tailwind CSS + shadcn-vue + Reka UI + lucide-vue-next + ECharts + CesiumJS + Axios；Vue Router 与 Pinia 继续保留。Ant Design Vue 与 `@ant-design/icons-vue` 已从 `package.json` 和 `package-lock.json` 中移除，运行时代码、入口文件、全局样式和 Vite 手动分包不再保留 AntD 残留。
 
 ## 目录约定
 
@@ -23,7 +23,8 @@
 - `src/components/ui` 只存放 shadcn-vue 源码组件；需要调整业务语义、数据状态、地图图例、图表容器、表格操作等行为时，应封装到 `base` 层。
 - 当前 `src/components/ui` 已补齐 `alert` 与 `toggle-group`，其中 `toggle-group` 依赖同目录 `toggle` 源码组件；不要为了后续页面假设批量新增组件。
 - `src/components/base/AppShell.vue` 是主布局入口，`src/layouts/MainLayout.vue` 只负责包裹路由出口；后续页面迁移应优先接入 `base` 组件，而不是扩展 `workbench` 目录。
-- Ant Design Vue 相关运行时入口已清理：`main.ts` 不再全局注册 AntD，不再引入 `ant-design-vue/dist/reset.css`；`App.vue` 不再包裹 `ConfigProvider`；`styles/theme.ts` 与 `vendor-antd` 手动分包已移除。`ant-design-vue` 依赖仍暂留在 `package.json` / lockfile，待下一轮扫描确认和用户确认后删除。
+- Ant Design Vue 相关运行时入口已清理：`main.ts` 不再全局注册 AntD，不再引入 `ant-design-vue/dist/reset.css`；`App.vue` 不再包裹 `ConfigProvider`；`styles/theme.ts` 与 `vendor-antd` 手动分包已移除。
+- 第五轮迁移已完成依赖收尾：`package.json` / lockfile 中不再包含 `ant-design-vue`，其传递依赖 `@ant-design/icons-vue` 也已从依赖树删除；后续新增或修改页面必须继续使用 Tailwind CSS + shadcn-vue + lucide-vue-next，不得重新引入 Ant Design Vue 或新的 UI 库。
 - 本次 UI 栈迁移不改变后端 API、数据模型、模拟数据生成逻辑，不恢复文件导入能力，也不扩大六页 MVP 闭环。
 - App Shell 与基础组件优先迁移：`AppHeader`、`AppSidebar`、`PageContainer`、`StatCard`、`ChartCard`、`StatusTag`、`MetricValueTag`、`FilterBar`、`DataTable`、基础选择器和加载/空状态组件使用 Tailwind CSS + shadcn-vue 风格实现。
 - 状态展示统一走 `src/utils/status.ts`，前端只展示 `正常 / 关注 / 预警 / 严重 / 无数据`，不把后端 `missing / outlier / error` 等技术枚举作为用户文案。

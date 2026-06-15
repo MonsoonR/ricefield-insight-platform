@@ -15,7 +15,6 @@
   "dependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
     "@vueuse/core": "^14.3.0",
-    "ant-design-vue": "^4.2.6",
     "axios": "^1.7.9",
     "cesium": "^1.123.1",
     "class-variance-authority": "^0.7.1",
