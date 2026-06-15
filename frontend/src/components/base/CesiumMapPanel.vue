@@ -7,7 +7,7 @@
       </div>
       <slot name="toolbar" />
     </header>
-    <div class="map-panel__canvas" :style="{ minHeight: `${height}px` }">
+    <div class="map-panel__canvas" :style="{ height: `${height}px`, minHeight: `${height}px` }">
       <div ref="containerRef" class="map-panel__cesium" />
       <div v-if="$slots.filters" class="map-panel__filters">
         <slot name="filters" />
@@ -125,6 +125,8 @@ const labelEntities: Entity[] = [];
 const regionBoundaryEntities: Entity[] = [];
 let clickHandler: ScreenSpaceEventHandler | undefined;
 let renderRequestId = 0;
+let resizeObserver: ResizeObserver | undefined;
+let resizeFrameId = 0;
 
 const featureCount = computed(() => props.featureCollection.features.length);
 const empty = computed(() => !props.loading && featureCount.value === 0);
@@ -158,8 +160,13 @@ onMounted(async () => {
   viewer.value.scene.globe.baseColor = Color.fromCssColorString('#1e3a2b');
   viewer.value.scene.screenSpaceCameraController.enableTilt = false;
   viewer.value.scene.screenSpaceCameraController.enableRotate = true;
+  resizeObserver = new ResizeObserver(() => {
+    scheduleViewerResize();
+  });
+  resizeObserver.observe(containerRef.value);
 
   await setupImageryLayer();
+  scheduleViewerResize();
 
   clickHandler = new ScreenSpaceEventHandler(viewer.value.scene.canvas);
   clickHandler.setInputAction((movement: ScreenSpaceEventHandler.PositionedEvent) => {
@@ -171,6 +178,12 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   renderRequestId += 1;
+  resizeObserver?.disconnect();
+  resizeObserver = undefined;
+  if (resizeFrameId) {
+    window.cancelAnimationFrame(resizeFrameId);
+    resizeFrameId = 0;
+  }
   clearDataSource();
   clickHandler?.destroy();
   if (viewer.value && !viewer.value.isDestroyed()) {
@@ -183,6 +196,13 @@ watch(
   () => props.featureCollection,
   () => {
     void renderGeoJson();
+  },
+);
+
+watch(
+  () => props.height,
+  () => {
+    scheduleViewerResize();
   },
 );
 
@@ -248,6 +268,7 @@ async function renderGeoJson() {
 
     dataSource.value = nextDataSource;
     viewer.value.dataSources.add(nextDataSource);
+    scheduleViewerResize();
     applyEntityStyles();
     renderMapOverlays();
     await zoomToDataSource(nextDataSource);
@@ -606,6 +627,20 @@ function zoomHome() {
   }
 }
 
+function scheduleViewerResize() {
+  if (resizeFrameId) {
+    window.cancelAnimationFrame(resizeFrameId);
+  }
+  resizeFrameId = window.requestAnimationFrame(() => {
+    resizeFrameId = 0;
+    const currentViewer = viewer.value;
+    if (!currentViewer || currentViewer.isDestroyed()) {
+      return;
+    }
+    currentViewer.forceResize();
+  });
+}
+
 async function zoomToDataSource(nextDataSource: GeoJsonDataSource) {
   const currentViewer = viewer.value;
   if (!currentViewer || currentViewer.isDestroyed()) {
@@ -703,6 +738,14 @@ function toggleAlpha() {
 .map-panel__cesium {
   position: absolute;
   inset: 0;
+}
+
+.map-panel__cesium :deep(.cesium-viewer),
+.map-panel__cesium :deep(.cesium-viewer-cesiumWidgetContainer),
+.map-panel__cesium :deep(.cesium-widget),
+.map-panel__cesium :deep(canvas) {
+  width: 100%;
+  height: 100%;
 }
 
 .map-panel__notice,

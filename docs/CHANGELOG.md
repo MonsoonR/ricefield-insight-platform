@@ -4,6 +4,7 @@
 
 ### 修改
 
+- 修复 `/warnings` 预警地块分布地图在桌面截图中下半部分露出深绿色兜底层的问题：`CesiumMapPanel` 现在显式同步地图画布高度，并在容器尺寸变化、图层重绘和高度参数变化时触发 Cesium viewer resize，保持图例、缩放按钮和地块点击逻辑不变。
 - 第六轮 Tailwind/shadcn 视觉验收精修：移动端保留全局顶部栏，避免侧栏隐藏后页面缺少标题、预警入口和文档入口；主内容区桌面端 padding 小幅增加，保持 App Shell 层级统一。
 - 优化 `/overview` 窄屏布局顺序，地图工作区优先展示，地块 rail 与右侧 inspector 后置，确保场景驾驶舱继续以地图为核心视觉对象。
 - 优化 `/map-twin` 顶部筛选控件在窄屏下的换行和宽度，降低 Select、日期、区域、搜索和刷新按钮挤压风险。
@@ -51,6 +52,7 @@
 
 ### 验证
 
+- 已通过 `/warnings` 预警地图尺寸修复验证：`npm --prefix frontend run test:twin-analysis`、`npm --prefix frontend run test:map`、`npm --prefix frontend run build`、AntD 残留扫描和冲突标记扫描。
 - 已执行第六轮 AntD 残留扫描，无命中，确认前端未重新引入 Ant Design Vue、图标包、`<a-*>`、`.ant-*`、Provider、主题配置或 `vendor-antd` 分包。
 - 已执行文档与前端冲突标记扫描，无命中，未发现 merge conflict 标记。
 - 已通过：`npm --prefix frontend run test:overview`。
