@@ -4,6 +4,9 @@
 
 ### 修改
 
+- 第二轮迁移聚焦 `src/components/base` 基础组件：增强 `DataTable` 的 `scroll.x` / `scroll.y` 支持，保持分页下 `rowClassName`、`bodyCell`、`customRender`、`customCell` 的全量数据下标兼容。
+- 将 `FilterBar` 的 slotted 筛选字段和操作区样式收敛到组件内部，使用 Tailwind 与 `--rf-*` token 组织紧凑布局，不依赖 Ant Design Vue Form、Select、DatePicker DOM。
+- 将 `ChartCard`、`StatCard` 改为组合 shadcn-vue `Card` 源码组件，保留原有 props、业务数据和页面调用方式，KPI 数字继续使用清晰加粗字重。
 - 补齐前端设计 token：在 `global.css` 中落地 `--rf-status-normal`、`--rf-status-watch`、`--rf-status-warning`、`--rf-status-critical`、`--rf-status-empty` 及对应背景、描边变量，并在 Tailwind 配置中暴露 `status.*` 和补充 `rice.dark`、`rice.deep` 语义色。
 - 新增 shadcn-vue 源码组件 `alert` 与 `toggle-group`，保留为 `src/components/ui` 原子组件；`toggle-group` 依赖同目录 `toggle` 源码组件，未批量新增后续页面暂不需要的组件。
 - 将 `StatusTag` 与 `MetricValueTag` 调整为统一读取 `src/utils/status.ts` 的状态 token 映射，前端展示固定收敛为正常、关注、预警、严重、无数据。
@@ -22,6 +25,7 @@
 - 明确本轮迁移不修改后端 API、数据模型、模拟数据生成逻辑，不恢复 Excel、GeoJSON、PDF、图片导入，不扩大 `/overview`、`/map-twin`、`/plot-detail/:plotId?`、`/metric-compare`、`/warnings`、`/system-docs` 六页闭环。
 - 更新设计系统和前端指南，补充基础组件迁移完成状态、`DataTable` 兼容策略、`FilterBar` 不依赖 AntD DOM 样式的规则，以及下一轮业务页面 AntD 标签迁移方向。
 - 更新设计系统和前端指南，明确 `base/AppShell` 是当前主布局边界，`workbench` 为迁移期遗留目录；明确 `src/components/ui` 当前补齐 `alert`、`toggle-group`，状态展示统一通过 `--rf-status-*` token 与 `src/utils/status.ts` 映射。
+- 更新设计系统和前端指南，补充第二轮 base 组件迁移口径：`DataTable`、`FilterBar`、`ChartCard`、`StatCard` 已按 Tailwind CSS + shadcn-vue / token 方式收敛；页面内 AntD 标签仍属于迁移期遗留，后续按页面逐步替换。
 
 ### 验证
 

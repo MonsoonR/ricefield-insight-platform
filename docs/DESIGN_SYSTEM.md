@@ -188,6 +188,7 @@
 - 行高 48px，行分割线 `--rf-border-soft`。
 - 操作列固定在最右，使用描边款小按钮（如 `查看画像`、`定位地图`）。
 - `DataTable` 基于 shadcn-vue table 源码组件和项目自定义分页/横向滚动实现，不再使用 `a-table`。为降低页面迁移成本，继续兼容现有 `columns`、`dataSource`、`rowKey`、`rowClassName`、`pagination`、`scroll` 和 `bodyCell` slot 传参。
+- `DataTable` 的横向与纵向滚动由 `scroll.x` / `scroll.y` 控制，分页状态下传给 `bodyCell`、`customRender`、`customCell`、`rowClassName` 的 `index` 必须保持全量数据下标，避免页面联动和高亮在翻页后错位。
 
 ### 5.10 CesiumMapPanel
 

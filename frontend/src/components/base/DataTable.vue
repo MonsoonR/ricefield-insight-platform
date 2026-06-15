@@ -13,7 +13,10 @@
       <LoadingState v-else-if="loading" :rows="4" :height="180" />
       <EmptyState v-else-if="dataSource.length === 0" compact :description="emptyText" />
       <template v-else>
-        <Table :class="'text-[13px] text-[var(--rf-text)]'" :style="tableStyle">
+        <Table
+          class="min-w-[var(--rf-table-min-width)] text-[13px] text-[var(--rf-text)]"
+          :style="tableRootStyle"
+        >
           <TableHeader class="bg-[var(--rf-surface-muted)]">
             <TableRow class="hover:bg-transparent">
               <TableHead
@@ -30,21 +33,21 @@
           <TableBody>
             <TableRow
               v-for="(record, rowIndex) in pagedRows"
-              :key="getRowKey(record, rowIndex)"
+              :key="getRowKey(record, absoluteRowIndex(rowIndex))"
               class="min-h-12 border-[var(--rf-border-soft)] hover:bg-[color-mix(in_srgb,var(--rf-primary-soft)_46%,white)]"
-              :class="rowClassName?.(record, rowIndex)"
+              :class="rowClassName?.(record, absoluteRowIndex(rowIndex))"
             >
               <TableCell
                 v-for="column in columns"
                 :key="columnKey(column)"
                 class="h-12 whitespace-nowrap px-3"
-                :class="cellClass(column, record, rowIndex)"
-                :style="cellStyle(column, record, rowIndex)"
+                :class="cellClass(column, record, absoluteRowIndex(rowIndex))"
+                :style="cellStyle(column, record, absoluteRowIndex(rowIndex))"
               >
                 <BodyCellContent
                   :column="column"
                   :record="record"
-                  :row-index="rowIndex"
+                  :row-index="absoluteRowIndex(rowIndex)"
                   :text="cellValue(record, column)"
                 />
               </TableCell>
@@ -145,15 +148,27 @@ const totalText = computed(() => {
   }
   return `共 ${props.dataSource.length} 条`;
 });
-const tableStyle = computed<CSSProperties>(() => {
+const tableMinWidth = computed(() => {
   const x = props.scroll?.x;
   if (typeof x === 'number') {
-    return { minWidth: `${x}px` };
+    return `${x}px`;
   }
   if (typeof x === 'string') {
-    return { minWidth: x };
+    return x;
   }
-  return {};
+  return '100%';
+});
+const tableRootStyle = computed<CSSProperties>(() => {
+  const style: CSSProperties = {
+    '--rf-table-min-width': tableMinWidth.value,
+  } as CSSProperties;
+  const y = props.scroll?.y;
+  if (typeof y === 'number') {
+    style.maxHeight = `${y}px`;
+  } else if (typeof y === 'string') {
+    style.maxHeight = y;
+  }
+  return style;
 });
 
 watch(
@@ -267,6 +282,13 @@ function cellValue(record: TableRecord, column: TableColumn<TableRecord>) {
     return (record as Record<string | number, unknown>)[dataIndex];
   }
   return undefined;
+}
+
+function absoluteRowIndex(rowIndex: number) {
+  if (props.pagination === false) {
+    return rowIndex;
+  }
+  return (currentPage.value - 1) * pageSize.value + rowIndex;
 }
 
 function formatCellValue(value: unknown) {

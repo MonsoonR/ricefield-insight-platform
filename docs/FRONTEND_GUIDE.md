@@ -28,6 +28,7 @@
 - App Shell 与基础组件优先迁移：`AppHeader`、`AppSidebar`、`PageContainer`、`StatCard`、`ChartCard`、`StatusTag`、`MetricValueTag`、`FilterBar`、`DataTable`、基础选择器和加载/空状态组件使用 Tailwind CSS + shadcn-vue 风格实现。
 - 状态展示统一走 `src/utils/status.ts`，前端只展示 `正常 / 关注 / 预警 / 严重 / 无数据`，不把后端 `missing / outlier / error` 等技术枚举作为用户文案。
 - `DataTable` 不再使用 `a-table`，但继续兼容旧页面的 `columns`、`dataSource`、`bodyCell` slot、分页和横向滚动参数，避免一次性重写业务页面。
+- 第二轮 base 组件迁移聚焦 `DataTable`、`FilterBar`、`ChartCard`、`StatCard`：这些组件内部使用 Tailwind CSS + shadcn-vue 源码组件或 `--rf-*` token，不再依赖 AntD DOM 结构。页面中仍直接存在的 `a-button`、`a-alert`、`a-tooltip`、`a-drawer`、`a-select`、`a-segmented` 属于后续逐页迁移范围。
 - 业务页面内残留的 `a-button`、`a-alert`、`a-tooltip`、`a-drawer`、`a-select`、`a-segmented` 等 Ant Design Vue 标签应在下一轮按页面逐步迁移。
 
 ## 页面路由
