@@ -2,9 +2,9 @@
   <div class="flex min-h-[calc(100vh-2rem)] flex-col gap-4">
     <CommandBar title="Cesium 地图孪生" description="程序生成地块边界、指标着色、地块点击和趋势联动。">
       <template #actions>
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="grid w-full grid-cols-1 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center">
           <Select v-model="filters.metricCode" :disabled="loading">
-            <SelectTrigger class="w-44">
+            <SelectTrigger class="w-full sm:w-44">
               <SelectValue placeholder="选择指标" />
             </SelectTrigger>
             <SelectContent>
@@ -17,7 +17,7 @@
           </Select>
 
           <Select v-model="filters.observedAt" :disabled="loading">
-            <SelectTrigger class="w-40">
+            <SelectTrigger class="w-full sm:w-40">
               <SelectValue placeholder="选择日期" />
             </SelectTrigger>
             <SelectContent>
@@ -30,7 +30,7 @@
           </Select>
 
           <Select v-model="filters.region" :disabled="loading">
-            <SelectTrigger class="w-32">
+            <SelectTrigger class="w-full sm:w-32">
               <SelectValue placeholder="区域" />
             </SelectTrigger>
             <SelectContent>
@@ -44,7 +44,7 @@
 
           <input
             v-model="plotKeyword"
-            class="h-9 w-40 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-1 focus:ring-ring"
+            class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-1 focus:ring-ring sm:w-40"
             placeholder="搜索地块编号"
           >
           <Button :disabled="loading" @click="loadMap">

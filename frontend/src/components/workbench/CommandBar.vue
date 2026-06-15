@@ -13,7 +13,7 @@ defineProps<{
       <h1 class="truncate text-lg font-semibold text-foreground">{{ title }}</h1>
       <p v-if="description" class="mt-1 truncate text-sm text-muted-foreground">{{ description }}</p>
     </div>
-    <div v-if="$slots.actions" class="flex shrink-0 items-center gap-2">
+    <div v-if="$slots.actions" class="flex w-full flex-wrap items-center gap-2 md:w-auto md:shrink-0 md:justify-end">
       <slot name="actions" />
     </div>
   </header>

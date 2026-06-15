@@ -4,6 +4,10 @@
 
 ### 修改
 
+- 第六轮 Tailwind/shadcn 视觉验收精修：移动端保留全局顶部栏，避免侧栏隐藏后页面缺少标题、预警入口和文档入口；主内容区桌面端 padding 小幅增加，保持 App Shell 层级统一。
+- 优化 `/overview` 窄屏布局顺序，地图工作区优先展示，地块 rail 与右侧 inspector 后置，确保场景驾驶舱继续以地图为核心视觉对象。
+- 优化 `/map-twin` 顶部筛选控件在窄屏下的换行和宽度，降低 Select、日期、区域、搜索和刷新按钮挤压风险。
+- 收敛地块画像与预警分析的建议文案，使用“历史趋势、观测批次、田间管理记录、持续关注、复核”等谨慎表达，避免被理解为具体农艺处方。
 - 第五轮 Ant Design Vue 迁移收尾：从 `frontend/package.json` 删除 `ant-design-vue` 依赖，并通过 npm 同步清理 `frontend/package-lock.json` 中的 `ant-design-vue` 与传递依赖 `@ant-design/icons-vue` 记录。
 - 确认 `frontend/vite.config.ts`、`frontend/src/main.ts`、`frontend/src/App.vue` 与 `frontend/src/styles/global.css` 不再包含 AntD 导入、样式、主题配置、Provider 或 `vendor-antd` 手动分包，当前 UI 基线收敛为 Tailwind CSS + shadcn-vue + lucide-vue-next。
 - 第四轮全局 Ant Design Vue 退场前置清理：移除 `frontend/src/main.ts` 中的 AntD 全局注册链和 `ant-design-vue/dist/reset.css`，保留 Pinia、Router 与项目 `global.css`，确保应用仍按原结构挂载。
@@ -33,6 +37,7 @@
 
 ### 文档更新
 
+- 更新 `docs/DESIGN_SYSTEM.md` 与 `docs/FRONTEND_GUIDE.md`，将第六轮视觉基线明确为地图核心的场景驾驶舱、移动端保留顶部栏、谨慎建议文案和 Tailwind/shadcn 精修范围。
 - 更新 `docs/DESIGN_SYSTEM.md` 与 `docs/FRONTEND_GUIDE.md`，明确 Ant Design Vue 与 `@ant-design/icons-vue` 已从前端依赖树移除，后续不得重新引入 AntD 或新的 UI 库。
 - 更新 `docs/DESIGN_SYSTEM.md` 与 `docs/FRONTEND_GUIDE.md`，记录第四轮已完成运行时 AntD 入口清理、图标迁移和依赖暂留边界。
 - 更新 `docs/DESIGN_SYSTEM.md` 与 `docs/FRONTEND_GUIDE.md`，记录第三轮页面级迁移结果、仍保留的全局 AntD 入口和依赖边界，以及页面后续不得新增 `<a-*>` 控件的约束。
@@ -46,6 +51,14 @@
 
 ### 验证
 
+- 已执行第六轮 AntD 残留扫描，无命中，确认前端未重新引入 Ant Design Vue、图标包、`<a-*>`、`.ant-*`、Provider、主题配置或 `vendor-antd` 分包。
+- 已执行文档与前端冲突标记扫描，无命中，未发现 merge conflict 标记。
+- 已通过：`npm --prefix frontend run test:overview`。
+- 已通过：`npm --prefix frontend run test:page-linkage`。
+- 已通过：`npm --prefix frontend run test:twin-analysis`。
+- 已通过：`npm --prefix frontend run test:map`。
+- 已通过：`npm --prefix frontend run build`（仍存在既有 VueUse PURE 注释提示与 Cesium 大 chunk 警告）。
+- 浏览器截图验收未完成：in-app Browser 企业网络策略拦截 `http://127.0.0.1:5173` 访问；按工具安全规则未改用其它浏览器自动化通道绕过。命令级检查确认本地后端 `http://127.0.0.1:8000/api/health` 与前端 `http://127.0.0.1:5173/overview` 可通过 `Invoke-WebRequest` 返回 200。
 - 已执行：`rg "ant-design-vue|@ant-design/icons-vue|<a-|</a-|\\.ant-|ConfigProvider|themeConfig|vendor-antd|styles/theme" frontend`，无命中，确认前端依赖记录、运行时代码、图标包、`<a-*>`、`.ant-*`、Provider、主题配置和 `vendor-antd` 分包均无残留。
 - 已执行文档与前端冲突标记扫描，无命中，未发现 merge conflict 标记。
 - 已通过：`npm --prefix frontend run test:overview`。

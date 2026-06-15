@@ -249,7 +249,7 @@
 
           <div v-else-if="activeInspectorTab === 'plan'" class="inspector-placeholder">
             <strong>作业计划</strong>
-            <span>当前阶段仅展示模拟计划，不输出灌溉、施肥、用药处方。</span>
+            <span>当前阶段仅展示模拟计划，不输出具体农艺处方。</span>
             <ul>
               <li v-for="event in farmingEvents.slice(0, 3)" :key="event.name">{{ event.date }} · {{ event.name }}</li>
             </ul>
@@ -1519,13 +1519,19 @@ function buildLineOption(dates: string[], values: number[], name: string, color:
   }
 
   .workbench-rail {
+    order: 3;
     position: static;
     width: auto;
     max-height: none;
     overflow: visible;
   }
 
+  .map-workspace {
+    order: 1;
+  }
+
   .plot-inspector {
+    order: 2;
     max-height: none;
     overflow: visible;
   }

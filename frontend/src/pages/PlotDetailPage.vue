@@ -443,7 +443,7 @@ const plotWarnings = computed(() =>
 );
 
 const suggestions = computed(() => {
-  const base = ['建议复核田间观测情况', '建议结合灌溉、施肥和管理措施判断', '建议持续关注后续变化'];
+  const base = ['建议复核田间观测情况', '建议结合历史趋势和田间管理记录综合判断', '建议持续关注后续变化'];
   if (plotWarnings.value.length === 0) return ['当前地块状态正常，建议保持常规观测频率。'];
   return base;
 });

@@ -565,7 +565,7 @@ function warningSuggestion(item: WarningItem) {
     return '建议检查数据采集链路是否存在缺失，并补充或复核对应观测记录。';
   }
   if (item.metric_code === 'nitrogen' || item.metric_code === 'chlorophyll') {
-    return '建议结合灌溉、施肥和田间管理记录综合判断，避免仅凭单次观测下结论。';
+    return '建议结合历史趋势、观测批次和田间管理记录综合判断，避免仅凭单次观测下结论。';
   }
   if (item.metric_code === 'leaf_area_index') {
     return '建议持续关注后续观测变化，并复核近期图像或传感器采集稳定性。';

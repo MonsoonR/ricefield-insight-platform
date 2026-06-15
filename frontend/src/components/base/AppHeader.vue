@@ -1,11 +1,11 @@
 <template>
-  <header class="hidden h-[var(--rf-header-height)] items-center justify-between gap-6 border-b border-[var(--rf-border-soft)] bg-[var(--rf-surface)] px-7 lg:flex">
+  <header class="sticky top-0 z-30 flex min-h-16 flex-wrap items-center justify-between gap-3 border-b border-[var(--rf-border-soft)] bg-[var(--rf-surface)] px-4 py-3 lg:h-[var(--rf-header-height)] lg:flex-nowrap lg:gap-6 lg:px-7 lg:py-0">
     <div class="min-w-0">
-      <h1 class="m-0 text-xl font-bold leading-tight text-[var(--rf-text)]">{{ title }}</h1>
-      <p v-if="subtitle" class="mt-1 text-[13px] leading-snug text-[var(--rf-text-muted)]">{{ subtitle }}</p>
+      <h1 class="m-0 truncate text-lg font-bold leading-tight text-[var(--rf-text)] lg:text-xl">{{ title }}</h1>
+      <p v-if="subtitle" class="mt-1 max-w-[62vw] truncate text-xs leading-snug text-[var(--rf-text-muted)] lg:max-w-none lg:text-[13px]">{{ subtitle }}</p>
     </div>
-    <div class="flex items-center gap-4">
-      <div class="inline-flex items-center gap-2 rounded-full border border-[var(--rf-border-soft)] bg-[var(--rf-surface-soft)] px-3.5 py-1.5" title="演示天气">
+    <div class="flex items-center gap-2 lg:gap-4">
+      <div class="hidden items-center gap-2 rounded-full border border-[var(--rf-border-soft)] bg-[var(--rf-surface-soft)] px-3.5 py-1.5 sm:inline-flex" title="演示天气">
         <CloudSun class="size-4 text-[var(--rf-teal)]" />
         <span class="text-[13px] font-bold text-[var(--rf-text)]">26°C</span>
         <span class="hidden text-xs text-[var(--rf-text-muted)] xl:inline">晴 · 试验区</span>
@@ -22,7 +22,7 @@
       <RouterLink class="inline-grid size-9 place-items-center rounded-md text-[var(--rf-text-muted)] transition hover:bg-[var(--rf-surface-soft)] hover:text-[var(--rf-text)]" to="/system-docs" title="查看系统文档">
         <CircleHelp class="size-[18px]" />
       </RouterLink>
-      <Separator orientation="vertical" class="h-6 bg-[var(--rf-border-soft)]" />
+      <Separator orientation="vertical" class="hidden h-6 bg-[var(--rf-border-soft)] xl:block" />
       <div class="flex items-center gap-2.5" title="当前角色">
         <span class="grid size-9 place-items-center rounded-full bg-[var(--rf-primary-soft)] text-[13px] font-bold text-[var(--rf-primary)]">研</span>
         <div class="hidden flex-col leading-tight xl:flex">
